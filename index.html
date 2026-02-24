@@ -21,7 +21,7 @@
       --panel-stack-gap:14px;
       --langs-gap:22px;
 
-      /* contrast (overall slightly darker) */
+      /* contrast */
       --muted-1: rgba(0,0,0,0.66);
       --muted-2: rgba(0,0,0,0.70);
       --muted-3: rgba(0,0,0,0.58);
@@ -41,15 +41,20 @@
       --logo-track:0.28em;
       --logo-pad:0.28em;
 
-      /* clock (deboss) */
+      /* clock */
       --clock-size:18px;
       --clock-tone: rgba(0,0,0,0.14);
 
       /* cycle underline */
-      --cycle-ms: 9000ms;
+      --cycle-ms: 12000ms; /* slightly slower */
       --cycle-line: rgba(0,0,0,0.28);
       --cycle-line-h: 1px;
-      --cycle-underline-gap: 2px; /* closer to the text */
+      --cycle-underline-gap: 2px;
+
+      /* ---- transition feel ---- */
+      --fade-ms: 1600ms; /* main dissolve duration */
+      --fade-ease: cubic-bezier(.35,0,.25,1);
+      --blur-on: 3px;    /* micro blur during dissolve */
     }
 
     *{ box-sizing:border-box; }
@@ -100,12 +105,18 @@
       width:min(980px, calc(100% - 40px));
     }
 
-    /* Gentle crossfade layer */
+    /* Gentle dissolve layer */
     .fade{
-      transition: opacity 520ms cubic-bezier(.2,0,.2,1);
+      opacity:1;
+      filter: blur(0px);
+      transition:
+        opacity var(--fade-ms) var(--fade-ease),
+        filter  var(--fade-ms) var(--fade-ease);
+      will-change: opacity, filter;
     }
     .fade.is-fading{
-      opacity:0.0;
+      opacity:0;
+      filter: blur(var(--blur-on));
     }
 
     .logo{
@@ -126,7 +137,6 @@
       font-weight:500;
       letter-spacing:0.14em;
 
-      /* slightly clearer deboss */
       color:var(--clock-tone);
       text-shadow:
         0 -1px 0 rgba(0,0,0,0.06),
@@ -226,14 +236,14 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:18px; /* spacing replaces vertical separators */
+      gap:18px;
       flex-wrap:wrap;
     }
 
     .lang{
       background:transparent;
       border:0;
-      padding:4px 2px; /* tighter */
+      padding:4px 2px;
       cursor:pointer;
 
       color:var(--muted-3);
@@ -248,7 +258,7 @@
     .lang:hover{ color:var(--fg); }
     .lang[aria-current="true"]{ color:rgba(0,0,0,0.78); }
 
-    /* Progress underline: closer + calmer */
+    /* Progress underline: closer */
     .langs.is-cycling .lang[aria-current="true"]::after{
       content:"";
       position:absolute;
@@ -269,9 +279,11 @@
       from { transform: scaleX(0); }
       to   { transform: scaleX(1); }
     }
+
     @media (prefers-reduced-motion: reduce){
       .langs.is-cycling .lang[aria-current="true"]::after{ animation:none; }
-      .fade{ transition:none; }
+      .fade{ transition:none; filter:none; }
+      .fade.is-fading{ opacity:1; filter:none; }
     }
 
     /* Footer corners clearer */
@@ -291,7 +303,7 @@
     .bottom .right{
       font-size:11px;
       letter-spacing:0.14em;
-      color:rgba(0,0,0,0.34); /* darker than before */
+      color:rgba(0,0,0,0.34);
       line-height:1.6;
       white-space:nowrap;
       text-transform:uppercase;
@@ -400,16 +412,16 @@
     // Cycling controls
     let cycleTimer = null;
     let resumeTimer = null;
-    const CYCLE_MS = 9000;
+
+    const CYCLE_MS = 12000;         // must match CSS --cycle-ms
     const MANUAL_PAUSE_MS = 30000;
     let cycleId = 0;
 
-    // sync CSS underline duration with JS
     document.documentElement.style.setProperty("--cycle-ms", `${CYCLE_MS}ms`);
 
-    // Gentle fade timing (longer than before)
-    const FADE_OUT_MS = 380;
-    const FADE_IN_DELAY_MS = 220;
+    // Smooth dissolve timings (single continuous feel)
+    const FADE_TOTAL_MS = 1600;
+    const SWAP_AT_MS = 800; // halfway while nearly invisible
 
     function partsForTZ(date, timeZone){
       const fmt = new Intl.DateTimeFormat("en-GB", {
@@ -449,8 +461,9 @@
     }
 
     function fadeEls(on){
-      const els = [logoEl, clockEl, descriptorEl, contactBtn];
-      els.forEach(el => el.classList.toggle("is-fading", on));
+      [logoEl, clockEl, descriptorEl, contactBtn].forEach(el => {
+        el.classList.toggle("is-fading", on);
+      });
     }
 
     function applyContent(langKey){
@@ -460,8 +473,8 @@
       const isOpen = contactBtn.getAttribute("aria-expanded") === "true";
       contactLabel.textContent = isOpen ? CONTENT[langKey].back : CONTENT[langKey].contact;
 
-      tick();
       setActiveButton(langKey);
+      tick();
 
       if (isOpen && !prefersReducedMotion){
         langsEl.classList.add("is-cycling");
@@ -482,16 +495,11 @@
         return;
       }
 
-      // Gentle crossfade: fade out -> swap -> fade in
+      // Continuous dissolve: fade -> swap at midpoint -> return
       fadeEls(true);
 
-      setTimeout(() => {
-        applyContent(langKey);
-      }, FADE_IN_DELAY_MS);
-
-      setTimeout(() => {
-        fadeEls(false);
-      }, FADE_OUT_MS);
+      setTimeout(() => applyContent(langKey), SWAP_AT_MS);
+      setTimeout(() => fadeEls(false), FADE_TOTAL_MS);
 
       if (!fromCycle && (contactBtn.getAttribute("aria-expanded") === "true")) {
         pauseCyclingTemporarily();
@@ -541,7 +549,6 @@
 
       langsEl.classList.add("is-cycling");
       restartUnderline();
-
       cycleTimer = setInterval(nextLang, CYCLE_MS);
     }
 
@@ -566,12 +573,10 @@
 
     // Manual language selection
     langButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        setLanguage(btn.dataset.lang, { fromCycle:false });
-      });
+      btn.addEventListener("click", () => setLanguage(btn.dataset.lang, { fromCycle:false }));
     });
 
-    // Initial state
+    // Initial
     tick();
     setInterval(tick, 1000 * 10);
     contactLabel.textContent = CONTENT[currentLang].contact;
