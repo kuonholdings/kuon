@@ -12,9 +12,12 @@
   --muted:rgba(0,0,0,.58);
   --faint:rgba(0,0,0,.28);
 
-  /* Transition tuning (slower + deliberate) */
-  --fade: 720ms;
+  --fade: 740ms;
   --ease: cubic-bezier(.20, .85, .20, 1);
+
+  /* line-by-line reveal timing */
+  --lineDur: 720ms;
+  --lineStagger: 140ms;
 }
 
 *{box-sizing:border-box;}
@@ -65,30 +68,26 @@ body{
 
   display:inline-flex;
   align-items:center;
-  gap:12px; /* word ↔ arrow separation */
+  gap:12px;
 }
 
 .action:focus{ outline:none; }
 
-/* Word and arrow separated, with micro-motion on hover */
 .action .word{
-  transition: transform 360ms var(--ease), color 360ms var(--ease);
+  transition: color 360ms var(--ease);
 }
 .action .arrow{
   display:inline-block;
   transition: transform 520ms var(--ease), color 360ms var(--ease);
   color:var(--faint);
 }
-
-.action:hover .word{
-  color:rgba(0,0,0,.82);
-}
+.action:hover .word{ color:rgba(0,0,0,.82); }
 .action:hover .arrow{
   transform: translateX(4px);
   color:rgba(0,0,0,.55);
 }
 
-/* Live time/date – subtle completion cue */
+/* Live time/date */
 .live{
   margin-top:22px;
   font-size:12px;
@@ -97,16 +96,10 @@ body{
   color:var(--faint);
 }
 
-/* INFO STATE */
+/* INFO STATE container */
 .info{
   position:absolute;
   inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  padding:40px 18px;
-
   opacity:0;
   pointer-events:none;
 }
@@ -121,8 +114,19 @@ body.show-info .landing{
   pointer-events:none;
 }
 
+/* Contact layout: centre-left, left-aligned */
+.info-shell{
+  min-height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;   /* left bias */
+  padding:40px 18px;
+}
+
 .info-inner{
-  max-width:640px;
+  width:min(720px, 100%);
+  margin-left:8vw;              /* horizontal offset */
+  text-align:left;              /* left aligned */
 }
 
 .info h2{
@@ -133,14 +137,31 @@ body.show-info .landing{
   font-weight:500;
 }
 
-.info p{
+/* Line reveal */
+.line{
   margin:0;
   color:var(--muted);
   font-size:16px;
   line-height:1.75;
+
+  opacity:0;
+  transform: translateX(-10px);
 }
 
-.info p + p{ margin-top:12px; }
+body.show-info .line{
+  animation: lineIn var(--lineDur) var(--ease) forwards;
+}
+
+body.show-info .line.l1{ animation-delay: 80ms; }
+body.show-info .line.l2{ animation-delay: calc(80ms + var(--lineStagger)); }
+body.show-info .line.l3{ animation-delay: calc(80ms + var(--lineStagger) * 2); }
+
+@keyframes lineIn{
+  to{
+    opacity:1;
+    transform: translateX(0);
+  }
+}
 
 a{
   color:var(--fg);
@@ -151,18 +172,24 @@ a{
 }
 a:hover{ border-bottom-color:rgba(0,0,0,.55); }
 
-/* Mobile */
+/* Back button placement: under text, left aligned */
+.backRow{
+  margin-top:26px;
+}
+
+/* Mobile: reduce offset */
+@media(max-width:720px){
+  .info-inner{ margin-left:0; }
+}
 @media(max-width:520px){
-  .mark{
-    font-size:54px;
-    letter-spacing:.20em;
-  }
+  .mark{ font-size:54px; letter-spacing:.20em; }
 }
 
 /* Reduced motion */
 @media(prefers-reduced-motion: reduce){
-  :root{ --fade: 0ms; }
+  :root{ --fade:0ms; --lineDur:0ms; }
   .action .word, .action .arrow, a{ transition:none; }
+  .line{ opacity:1 !important; transform:none !important; animation:none !important; }
 }
 </style>
 </head>
@@ -183,17 +210,23 @@ a:hover{ border-bottom-color:rgba(0,0,0,.55); }
 </div>
 
 <div class="info" id="info" aria-hidden="true">
-  <div class="info-inner">
-    <h2>Kuon Holdings</h2>
-    <p>Kuon Holdings Ltd. (BVI) is a private holding structure.</p>
-    <p>For matters relating to Kuon ventures, please contact
-      <a href="mailto:contact@kuonholdings.com">contact@kuonholdings.com</a>.
-    </p>
+  <div class="info-shell">
+    <div class="info-inner">
+      <h2>Kuon Holdings</h2>
 
-    <button class="action" id="closeBtn" type="button" aria-label="Back to landing" style="margin-top:26px;">
-      <span class="word">Back</span>
-      <span class="arrow" aria-hidden="true">→</span>
-    </button>
+      <p class="line l1">Kuon Holdings Ltd. (BVI) is a private holding structure.</p>
+      <p class="line l2">For matters relating to Kuon ventures, please contact
+        <a href="mailto:contact@kuonholdings.com">contact@kuonholdings.com</a>.
+      </p>
+      <p class="line l3">UTC reference time is shown on the landing view.</p>
+
+      <div class="backRow">
+        <button class="action" id="closeBtn" type="button" aria-label="Back to landing" style="margin-top:0;">
+          <span class="word">Back</span>
+          <span class="arrow" aria-hidden="true">→</span>
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -206,14 +239,14 @@ a:hover{ border-bottom-color:rgba(0,0,0,.55); }
   function showInfo(){
     document.body.classList.add("show-info");
     info.setAttribute("aria-hidden", "false");
-    // Let the fade begin, then move focus for a deliberate feel
-    setTimeout(() => closeBtn.focus({ preventScroll:true }), 240);
+    // move focus after the fade begins
+    setTimeout(() => closeBtn.focus({ preventScroll:true }), 320);
   }
 
   function hideInfo(){
     document.body.classList.remove("show-info");
     info.setAttribute("aria-hidden", "true");
-    setTimeout(() => openBtn.focus({ preventScroll:true }), 240);
+    setTimeout(() => openBtn.focus({ preventScroll:true }), 320);
   }
 
   openBtn.addEventListener("click", showInfo);
