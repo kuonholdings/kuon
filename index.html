@@ -21,18 +21,20 @@
       --panel-stack-gap:14px;
       --langs-gap:22px;
 
-      /* contrast */
-      --muted-1: rgba(0,0,0,0.62);
-      --muted-2: rgba(0,0,0,0.66);
-      --muted-3: rgba(0,0,0,0.56);
+      /* contrast (overall slightly darker) */
+      --muted-1: rgba(0,0,0,0.66);
+      --muted-2: rgba(0,0,0,0.70);
+      --muted-3: rgba(0,0,0,0.58);
 
       /* frame */
       --pad-x:64px;
       --pad-top:20px;
       --pad-bot:20px;
 
-      --rule: rgba(0,0,0,0.22);
-      --rule-tick: rgba(0,0,0,0.18);
+      /* corner elements clearer */
+      --rule: rgba(0,0,0,0.30);
+      --rule-tick: rgba(0,0,0,0.24);
+      --rule-h: 1.25px;
 
       /* KUON presence */
       --logo-size:56px;
@@ -41,12 +43,13 @@
 
       /* clock (deboss) */
       --clock-size:18px;
+      --clock-tone: rgba(0,0,0,0.14);
 
       /* cycle underline */
       --cycle-ms: 9000ms;
-      --cycle-line: rgba(0,0,0,0.26);
+      --cycle-line: rgba(0,0,0,0.28);
       --cycle-line-h: 1px;
-      --cycle-line-gap: 6px;
+      --cycle-underline-gap: 2px; /* closer to the text */
     }
 
     *{ box-sizing:border-box; }
@@ -68,13 +71,13 @@
       position:relative;
     }
 
-    /* Top-left editorial mark */
+    /* Top-left editorial mark (clearer) */
     .top-rule{
       position:fixed;
       top:var(--pad-top);
       left:var(--pad-x);
-      width:72px;
-      height:1px;
+      width:76px;
+      height:var(--rule-h);
       background:var(--rule);
       z-index:5;
       pointer-events:none;
@@ -82,9 +85,9 @@
     .top-rule span{
       position:absolute;
       left:0;
-      top:-3px;
-      width:1px;
-      height:7px;
+      top:-4px;
+      width:var(--rule-h);
+      height:9px;
       background:var(--rule-tick);
     }
 
@@ -97,6 +100,14 @@
       width:min(980px, calc(100% - 40px));
     }
 
+    /* Gentle crossfade layer */
+    .fade{
+      transition: opacity 520ms cubic-bezier(.2,0,.2,1);
+    }
+    .fade.is-fading{
+      opacity:0.0;
+    }
+
     .logo{
       margin:0;
       font-weight:700;
@@ -107,9 +118,7 @@
       color:var(--fg);
       white-space:nowrap;
       min-height:1.05em;
-      transition: opacity 160ms ease;
     }
-    .logo.is-switching{ opacity:0.72; }
 
     .clock{
       margin-top:var(--clock-gap);
@@ -117,19 +126,18 @@
       font-weight:500;
       letter-spacing:0.14em;
 
-      color:rgba(0,0,0,0.10);
+      /* slightly clearer deboss */
+      color:var(--clock-tone);
       text-shadow:
-        0 -1px 0 rgba(0,0,0,0.05),
-        0  1px 1px rgba(255,255,255,0.62);
+        0 -1px 0 rgba(0,0,0,0.06),
+        0  1px 1px rgba(255,255,255,0.60);
 
       font-variant-numeric: tabular-nums;
       font-feature-settings: "tnum" 1, "lnum" 1;
 
       white-space:nowrap;
-      transition: opacity 200ms ease;
       user-select:none;
     }
-    .clock.is-switching{ opacity:0.65; }
 
     .contactRow{ margin-top:var(--contact-gap); }
 
@@ -142,14 +150,12 @@
       padding:6px 10px;
       cursor:pointer;
 
-      color:rgba(0,0,0,0.58);
+      color:rgba(0,0,0,0.62);
       font-weight:400;
       letter-spacing:0.24em;
       font-size:11px;
       text-transform:uppercase;
-      transition: opacity 160ms ease;
     }
-    .contact.is-switching{ opacity:0.72; }
 
     .contact .arrow{
       font-size:14px;
@@ -163,7 +169,7 @@
     .contact:hover .arrow{ transform: translateX(3px) translateY(-1px); }
 
     .contact:focus-visible{
-      outline:2px solid rgba(0,0,0,0.22);
+      outline:2px solid rgba(0,0,0,0.24);
       outline-offset:6px;
       border-radius:10px;
     }
@@ -182,7 +188,7 @@
       opacity:0;
       transform:translateY(6px);
       pointer-events:none;
-      transition: opacity 220ms ease, transform 220ms ease;
+      transition: opacity 260ms ease, transform 260ms ease;
     }
     .panel.is-open{
       opacity:1;
@@ -202,10 +208,7 @@
       align-items:center;
       justify-content:center;
       text-align:center;
-
-      transition: opacity 180ms ease;
     }
-    .descriptor.is-switching{ opacity:0.72; }
 
     .email{
       font-size:12px;
@@ -223,14 +226,14 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:7px;
+      gap:18px; /* spacing replaces vertical separators */
       flex-wrap:wrap;
     }
 
     .lang{
       background:transparent;
       border:0;
-      padding:4px 4px;
+      padding:4px 2px; /* tighter */
       cursor:pointer;
 
       color:var(--muted-3);
@@ -243,17 +246,9 @@
       transition: color 160ms ease;
     }
     .lang:hover{ color:var(--fg); }
-    .lang[aria-current="true"]{ color:rgba(0,0,0,0.76); }
+    .lang[aria-current="true"]{ color:rgba(0,0,0,0.78); }
 
-    .vsep{
-      width:1px;
-      height:11px;
-      background:rgba(0,0,0,0.18);
-      transform: translateY(1px);
-      user-select:none;
-    }
-
-    /* ---- Progress underline (only when cycling) ---- */
+    /* Progress underline: closer + calmer */
     .langs.is-cycling .lang[aria-current="true"]::after{
       content:"";
       position:absolute;
@@ -261,28 +256,25 @@
       right:0;
       height:var(--cycle-line-h);
       background:var(--cycle-line);
-      bottom:calc(-1 * var(--cycle-line-gap));
+      bottom:calc(-1 * var(--cycle-underline-gap));
       transform-origin:left center;
       transform:scaleX(0);
-      opacity:0.9;
+      opacity:0.85;
       animation: langProgress var(--cycle-ms) linear forwards;
     }
-
-    /* Restart animation on each language change by varying data-cycle-id */
     .langs.is-cycling[data-cycle-id] .lang[aria-current="true"]::after{
       animation-name: langProgress;
     }
-
     @keyframes langProgress{
       from { transform: scaleX(0); }
       to   { transform: scaleX(1); }
     }
-
-    /* Reduce motion: remove cycling underline + animation */
     @media (prefers-reduced-motion: reduce){
       .langs.is-cycling .lang[aria-current="true"]::after{ animation:none; }
+      .fade{ transition:none; }
     }
 
+    /* Footer corners clearer */
     .bottom{
       position:fixed;
       left:0; right:0;
@@ -299,7 +291,7 @@
     .bottom .right{
       font-size:11px;
       letter-spacing:0.14em;
-      color:rgba(0,0,0,0.26);
+      color:rgba(0,0,0,0.34); /* darker than before */
       line-height:1.6;
       white-space:nowrap;
       text-transform:uppercase;
@@ -311,14 +303,13 @@
         --pad-x:22px;
         --pad-top:18px;
         --pad-bot:18px;
-        --clock-size: 16px;
+        --clock-size:16px;
         --logo-size:48px;
         --logo-track:0.27em;
         --logo-pad:0.27em;
       }
       .wrap{ padding:40px var(--pad-x); }
       .bottom .left, .bottom .right{ white-space:normal; }
-      .vsep{ height:10px; }
     }
   </style>
 </head>
@@ -328,17 +319,17 @@
 
   <div class="wrap">
     <main class="center" aria-label="KUON">
-      <h1 class="logo" id="logo">KUON</h1>
-      <div class="clock" id="clock" aria-hidden="true">—</div>
+      <h1 class="logo fade" id="logo">KUON</h1>
+      <div class="clock fade" id="clock" aria-hidden="true">—</div>
 
       <div class="contactRow">
-        <button class="contact" id="contactBtn" type="button" aria-expanded="false" aria-controls="panel">
+        <button class="contact fade" id="contactBtn" type="button" aria-expanded="false" aria-controls="panel">
           <span id="contactLabel">contact</span>
           <span class="arrow" id="contactArrow" aria-hidden="true">→</span>
         </button>
 
         <div class="panel" id="panel" aria-label="Contact panel">
-          <div class="descriptor" id="descriptor">
+          <div class="descriptor fade" id="descriptor">
             KUON holds work intended to last — across design, sound, and structure.
           </div>
 
@@ -346,9 +337,7 @@
 
           <div class="langs" id="langs" aria-label="Languages">
             <button class="lang" type="button" data-lang="en" aria-current="true">ENGLISH</button>
-            <span class="vsep" aria-hidden="true"></span>
             <button class="lang" type="button" data-lang="ja">JAPANESE</button>
-            <span class="vsep" aria-hidden="true"></span>
             <button class="lang" type="button" data-lang="zh">CHINESE</button>
           </div>
         </div>
@@ -415,8 +404,12 @@
     const MANUAL_PAUSE_MS = 30000;
     let cycleId = 0;
 
-    // Keep CSS var in sync with JS interval
+    // sync CSS underline duration with JS
     document.documentElement.style.setProperty("--cycle-ms", `${CYCLE_MS}ms`);
+
+    // Gentle fade timing (longer than before)
+    const FADE_OUT_MS = 380;
+    const FADE_IN_DELAY_MS = 220;
 
     function partsForTZ(date, timeZone){
       const fmt = new Intl.DateTimeFormat("en-GB", {
@@ -451,56 +444,55 @@
     }
 
     function restartUnderline(){
-      // bump a data attribute so the ::after animation restarts reliably
       cycleId += 1;
       langsEl.dataset.cycleId = String(cycleId);
     }
 
-    function setLanguage(langKey, { animate=true, fromCycle=false } = {}){
+    function fadeEls(on){
+      const els = [logoEl, clockEl, descriptorEl, contactBtn];
+      els.forEach(el => el.classList.toggle("is-fading", on));
+    }
+
+    function applyContent(langKey){
+      logoEl.textContent = CONTENT[langKey].logo;
+      descriptorEl.textContent = CONTENT[langKey].descriptor;
+
+      const isOpen = contactBtn.getAttribute("aria-expanded") === "true";
+      contactLabel.textContent = isOpen ? CONTENT[langKey].back : CONTENT[langKey].contact;
+
+      tick();
+      setActiveButton(langKey);
+
+      if (isOpen && !prefersReducedMotion){
+        langsEl.classList.add("is-cycling");
+        restartUnderline();
+      }
+    }
+
+    function setLanguage(langKey, { fromCycle=false } = {}){
       if (!CONTENT[langKey]) return;
       if (langKey === currentLang) { tick(); return; }
 
-      const doAnim = animate && !prefersReducedMotion;
-
-      if (doAnim){
-        logoEl.classList.add("is-switching");
-        clockEl.classList.add("is-switching");
-        descriptorEl.classList.add("is-switching");
-        contactBtn.classList.add("is-switching");
-      }
-
       currentLang = langKey;
       document.documentElement.setAttribute("lang", CONTENT[langKey].htmlLang);
-      setActiveButton(langKey);
 
-      const apply = () => {
-        logoEl.textContent = CONTENT[langKey].logo;
-        descriptorEl.textContent = CONTENT[langKey].descriptor;
-
-        const isOpen = contactBtn.getAttribute("aria-expanded") === "true";
-        contactLabel.textContent = isOpen ? CONTENT[langKey].back : CONTENT[langKey].contact;
-        tick();
-
-        // Only show underline progress when contact is open and cycling is active
-        if (isOpen && !prefersReducedMotion){
-          langsEl.classList.add("is-cycling");
-          restartUnderline();
-        }
-      };
-
-      if (doAnim){
-        setTimeout(apply, 70);
-        setTimeout(() => {
-          logoEl.classList.remove("is-switching");
-          clockEl.classList.remove("is-switching");
-          descriptorEl.classList.remove("is-switching");
-          contactBtn.classList.remove("is-switching");
-        }, 180);
-      } else {
-        apply();
+      if (prefersReducedMotion){
+        applyContent(langKey);
+        if (!fromCycle && (contactBtn.getAttribute("aria-expanded") === "true")) pauseCyclingTemporarily();
+        return;
       }
 
-      // If the change was manual, pause cycling progress underline will still show for current cycle
+      // Gentle crossfade: fade out -> swap -> fade in
+      fadeEls(true);
+
+      setTimeout(() => {
+        applyContent(langKey);
+      }, FADE_IN_DELAY_MS);
+
+      setTimeout(() => {
+        fadeEls(false);
+      }, FADE_OUT_MS);
+
       if (!fromCycle && (contactBtn.getAttribute("aria-expanded") === "true")) {
         pauseCyclingTemporarily();
       }
@@ -528,7 +520,6 @@
     }
 
     contactBtn.addEventListener("click", () => setOpen(!open));
-
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && open){
         setOpen(false);
@@ -540,7 +531,7 @@
     function nextLang(){
       const idx = ORDER.indexOf(currentLang);
       const next = ORDER[(idx + 1) % ORDER.length];
-      setLanguage(next, { animate:true, fromCycle:true });
+      setLanguage(next, { fromCycle:true });
     }
 
     function startCycling(){
@@ -548,7 +539,6 @@
       if (cycleTimer) clearInterval(cycleTimer);
       if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null; }
 
-      // restart underline at beginning of a cycle
       langsEl.classList.add("is-cycling");
       restartUnderline();
 
@@ -559,13 +549,11 @@
       if (cycleTimer) { clearInterval(cycleTimer); cycleTimer = null; }
       if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null; }
       langsEl.classList.remove("is-cycling");
-      if (resetToEnglish) {
+
+      if (resetToEnglish){
         currentLang = "en";
-        setActiveButton("en");
         document.documentElement.setAttribute("lang", CONTENT.en.htmlLang);
-        logoEl.textContent = CONTENT.en.logo;
-        descriptorEl.textContent = CONTENT.en.descriptor;
-        tick();
+        applyContent("en");
         contactLabel.textContent = CONTENT.en.contact;
       }
     }
@@ -573,17 +561,13 @@
     function pauseCyclingTemporarily(){
       if (resumeTimer) clearTimeout(resumeTimer);
       if (cycleTimer) { clearInterval(cycleTimer); cycleTimer = null; }
-
-      resumeTimer = setTimeout(() => {
-        if (open) startCycling();
-      }, MANUAL_PAUSE_MS);
+      resumeTimer = setTimeout(() => { if (open) startCycling(); }, MANUAL_PAUSE_MS);
     }
 
-    // Language buttons
+    // Manual language selection
     langButtons.forEach(btn => {
       btn.addEventListener("click", () => {
-        const lang = btn.dataset.lang;
-        setLanguage(lang, { animate:true, fromCycle:false });
+        setLanguage(btn.dataset.lang, { fromCycle:false });
       });
     });
 
