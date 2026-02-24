@@ -12,7 +12,6 @@
       --bg:#ffffff;
       --fg:#111;
 
-      /* layout */
       --baseline:54vh;
       --contact-gap:62px;
       --clock-gap:22px;
@@ -21,17 +20,15 @@
       --panel-stack-gap:14px;
       --langs-gap:22px;
 
-      /* contrast */
       --muted-1: rgba(0,0,0,0.66);
       --muted-2: rgba(0,0,0,0.70);
       --muted-3: rgba(0,0,0,0.58);
 
-      /* frame */
       --pad-x:64px;
       --pad-top:20px;
       --pad-bot:20px;
 
-      /* corner elements clearer */
+      /* corners clearer */
       --rule: rgba(0,0,0,0.30);
       --rule-tick: rgba(0,0,0,0.24);
       --rule-h: 1.25px;
@@ -45,16 +42,15 @@
       --clock-size:18px;
       --clock-tone: rgba(0,0,0,0.14);
 
-      /* cycle underline */
-      --cycle-ms: 12000ms; /* slightly slower */
+      /* cycling underline */
+      --cycle-ms: 12000ms;
       --cycle-line: rgba(0,0,0,0.28);
       --cycle-line-h: 1px;
       --cycle-underline-gap: 2px;
 
-      /* ---- transition feel ---- */
-      --fade-ms: 1600ms; /* main dissolve duration */
-      --fade-ease: cubic-bezier(.35,0,.25,1);
-      --blur-on: 3px;    /* micro blur during dissolve */
+      /* crossfade */
+      --xfade-ms: 1500ms;
+      --xfade-ease: cubic-bezier(.35,0,.25,1);
     }
 
     *{ box-sizing:border-box; }
@@ -76,7 +72,7 @@
       position:relative;
     }
 
-    /* Top-left editorial mark (clearer) */
+    /* Top-left editorial mark */
     .top-rule{
       position:fixed;
       top:var(--pad-top);
@@ -105,20 +101,37 @@
       width:min(980px, calc(100% - 40px));
     }
 
-    /* Gentle dissolve layer */
-    .fade{
-      opacity:1;
-      filter: blur(0px);
-      transition:
-        opacity var(--fade-ms) var(--fade-ease),
-        filter  var(--fade-ms) var(--fade-ease);
-      will-change: opacity, filter;
+    /* ---- Crossfade wrapper (two layers) ---- */
+    .xfade{
+      position:relative;
+      display:inline-block;
     }
-    .fade.is-fading{
+    .xfade .layer{
+      display:block;
+      transition: opacity var(--xfade-ms) var(--xfade-ease);
+      will-change: opacity;
+    }
+    .xfade .layer.b{
+      position:absolute;
+      inset:0;
       opacity:0;
-      filter: blur(var(--blur-on));
+      pointer-events:none;
+    }
+    .xfade.is-b .layer.a{
+      opacity:0;
+      pointer-events:none;
+    }
+    .xfade.is-b .layer.b{
+      opacity:1;
+      pointer-events:auto;
     }
 
+    /* keep heights stable so nothing shifts */
+    .logoBox{ min-height: 1.05em; }
+    .clockBox{ min-height: 1.2em; }
+    .descBox{ min-height: 3.4em; }
+
+    /* KUON */
     .logo{
       margin:0;
       font-weight:700;
@@ -126,25 +139,21 @@
       font-size:var(--logo-size);
       line-height:1;
       padding-left:var(--logo-pad);
-      color:var(--fg);
       white-space:nowrap;
-      min-height:1.05em;
     }
 
+    /* clock */
     .clock{
       margin-top:var(--clock-gap);
       font-size:var(--clock-size);
       font-weight:500;
       letter-spacing:0.14em;
-
       color:var(--clock-tone);
       text-shadow:
         0 -1px 0 rgba(0,0,0,0.06),
         0  1px 1px rgba(255,255,255,0.60);
-
       font-variant-numeric: tabular-nums;
       font-feature-settings: "tnum" 1, "lnum" 1;
-
       white-space:nowrap;
       user-select:none;
     }
@@ -166,7 +175,6 @@
       font-size:11px;
       text-transform:uppercase;
     }
-
     .contact .arrow{
       font-size:14px;
       line-height:1;
@@ -177,7 +185,6 @@
     }
     .contact:hover{ color:var(--fg); }
     .contact:hover .arrow{ transform: translateX(3px) translateY(-1px); }
-
     .contact:focus-visible{
       outline:2px solid rgba(0,0,0,0.24);
       outline-offset:6px;
@@ -213,7 +220,6 @@
       max-width:58ch;
       line-height:1.7;
 
-      min-height:3.4em;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -258,7 +264,6 @@
     .lang:hover{ color:var(--fg); }
     .lang[aria-current="true"]{ color:rgba(0,0,0,0.78); }
 
-    /* Progress underline: closer */
     .langs.is-cycling .lang[aria-current="true"]::after{
       content:"";
       position:absolute;
@@ -281,12 +286,10 @@
     }
 
     @media (prefers-reduced-motion: reduce){
+      .xfade .layer{ transition:none; }
       .langs.is-cycling .lang[aria-current="true"]::after{ animation:none; }
-      .fade{ transition:none; filter:none; }
-      .fade.is-fading{ opacity:1; filter:none; }
     }
 
-    /* Footer corners clearer */
     .bottom{
       position:fixed;
       left:0; right:0;
@@ -298,7 +301,6 @@
       gap:24px;
       pointer-events:none;
     }
-
     .bottom .left,
     .bottom .right{
       font-size:11px;
@@ -331,18 +333,35 @@
 
   <div class="wrap">
     <main class="center" aria-label="KUON">
-      <h1 class="logo fade" id="logo">KUON</h1>
-      <div class="clock fade" id="clock" aria-hidden="true">—</div>
+
+      <!-- LOGO crossfade -->
+      <div class="xfade logoBox" id="logoX">
+        <div class="layer a"><h1 class="logo" id="logoA">KUON</h1></div>
+        <div class="layer b"><h1 class="logo" id="logoB">KUON</h1></div>
+      </div>
+
+      <!-- CLOCK crossfade -->
+      <div class="xfade clockBox" id="clockX" aria-hidden="true">
+        <div class="layer a"><div class="clock" id="clockA">—</div></div>
+        <div class="layer b"><div class="clock" id="clockB">—</div></div>
+      </div>
 
       <div class="contactRow">
-        <button class="contact fade" id="contactBtn" type="button" aria-expanded="false" aria-controls="panel">
-          <span id="contactLabel">contact</span>
+        <!-- CONTACT label crossfade (button itself stays stable) -->
+        <button class="contact" id="contactBtn" type="button" aria-expanded="false" aria-controls="panel">
+          <span class="xfade" id="contactX" style="display:inline-block;">
+            <span class="layer a" id="contactA">contact</span>
+            <span class="layer b" id="contactB" style="position:absolute;inset:0;opacity:0;pointer-events:none;">contact</span>
+          </span>
           <span class="arrow" id="contactArrow" aria-hidden="true">→</span>
         </button>
 
         <div class="panel" id="panel" aria-label="Contact panel">
-          <div class="descriptor fade" id="descriptor">
-            KUON holds work intended to last — across design, sound, and structure.
+
+          <!-- DESCRIPTOR crossfade -->
+          <div class="xfade descBox" id="descX">
+            <div class="layer a"><div class="descriptor" id="descA">KUON holds work intended to last — across design, sound, and structure.</div></div>
+            <div class="layer b"><div class="descriptor" id="descB">KUON holds work intended to last — across design, sound, and structure.</div></div>
           </div>
 
           <a class="email" href="mailto:info@kuonholdings.com">info@kuonholdings.com</a>
@@ -363,8 +382,8 @@
   </footer>
 
   <script>
-    const prefersReducedMotion = window.matchMedia &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const prefersReducedMotion =
+      window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const CONTENT = {
       en: {
@@ -374,7 +393,7 @@
         logo: "KUON",
         contact: "contact",
         back: "back",
-        descriptor: "KUON holds work intended to last — across design, sound, and structure."
+        desc: "KUON holds work intended to last — across design, sound, and structure."
       },
       ja: {
         htmlLang: "ja",
@@ -383,7 +402,7 @@
         logo: "クオン",
         contact: "連絡",
         back: "戻る",
-        descriptor: "KUONは、長く残ることを意図した仕事を保有します――デザイン、音、構造にわたって。"
+        desc: "KUONは、長く残ることを意図した仕事を保有します――デザイン、音、構造にわたって。"
       },
       zh: {
         htmlLang: "zh",
@@ -392,50 +411,56 @@
         logo: "久音",
         contact: "联系",
         back: "返回",
-        descriptor: "KUON 持有旨在长久延续的工作——涵盖设计、声音与结构。"
+        desc: "KUON 持有旨在长久延续的工作——涵盖设计、声音与结构。"
       }
     };
 
     const ORDER = ["en", "ja", "zh"];
     let currentLang = "en";
 
-    const logoEl = document.getElementById("logo");
-    const clockEl = document.getElementById("clock");
-    const descriptorEl = document.getElementById("descriptor");
-    const contactBtn = document.getElementById("contactBtn");
-    const contactLabel = document.getElementById("contactLabel");
-    const contactArrow = document.getElementById("contactArrow");
-    const panel = document.getElementById("panel");
-    const langsEl = document.getElementById("langs");
-    const langButtons = Array.from(document.querySelectorAll(".lang"));
-
-    // Cycling controls
-    let cycleTimer = null;
-    let resumeTimer = null;
-
-    const CYCLE_MS = 12000;         // must match CSS --cycle-ms
+    const CYCLE_MS = 12000;
     const MANUAL_PAUSE_MS = 30000;
-    let cycleId = 0;
 
     document.documentElement.style.setProperty("--cycle-ms", `${CYCLE_MS}ms`);
 
-    // Smooth dissolve timings (single continuous feel)
-    const FADE_TOTAL_MS = 1600;
-    const SWAP_AT_MS = 800; // halfway while nearly invisible
+    // Crossfade duration should match CSS --xfade-ms
+    const XFADE_MS = 1500;
+
+    const panel = document.getElementById("panel");
+    const contactBtn = document.getElementById("contactBtn");
+    const contactArrow = document.getElementById("contactArrow");
+    const langsEl = document.getElementById("langs");
+    const langButtons = Array.from(document.querySelectorAll(".lang"));
+
+    // Crossfade containers
+    const logoX  = document.getElementById("logoX");
+    const clockX = document.getElementById("clockX");
+    const descX  = document.getElementById("descX");
+    const contactX = document.getElementById("contactX");
+
+    // Layer nodes
+    const logoA  = document.getElementById("logoA");
+    const logoB  = document.getElementById("logoB");
+    const clockA = document.getElementById("clockA");
+    const clockB = document.getElementById("clockB");
+    const descA  = document.getElementById("descA");
+    const descB  = document.getElementById("descB");
+    const contactA = document.getElementById("contactA");
+    const contactB = document.getElementById("contactB");
+
+    let cycleTimer = null;
+    let resumeTimer = null;
+    let cycleId = 0;
 
     function partsForTZ(date, timeZone){
       const fmt = new Intl.DateTimeFormat("en-GB", {
         timeZone,
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false
+        year:"numeric", month:"2-digit", day:"2-digit",
+        hour:"2-digit", minute:"2-digit",
+        hour12:false
       });
-
       const parts = fmt.formatToParts(date);
-      const get = (type) => parts.find(p => p.type === type)?.value || "";
+      const get = (t) => parts.find(p => p.type === t)?.value || "";
       return { Y:get("year"), M:get("month"), D:get("day"), h:get("hour"), m:get("minute") };
     }
 
@@ -443,10 +468,6 @@
       const { tz, tzLabel } = CONTENT[langKey];
       const p = partsForTZ(date, tz);
       return `${p.Y}.${p.M}.${p.D} ${p.h}:${p.m} ${tzLabel}`;
-    }
-
-    function tick(){
-      clockEl.textContent = formatInTZ(new Date(), currentLang);
     }
 
     function setActiveButton(langKey){
@@ -460,51 +481,87 @@
       langsEl.dataset.cycleId = String(cycleId);
     }
 
-    function fadeEls(on){
-      [logoEl, clockEl, descriptorEl, contactBtn].forEach(el => {
-        el.classList.toggle("is-fading", on);
-      });
+    function isOpen(){
+      return contactBtn.getAttribute("aria-expanded") === "true";
     }
 
-    function applyContent(langKey){
-      logoEl.textContent = CONTENT[langKey].logo;
-      descriptorEl.textContent = CONTENT[langKey].descriptor;
+    // Toggle which layer is visible in a given xfade container
+    function flip(container){
+      container.classList.toggle("is-b");
+    }
+    function isB(container){
+      return container.classList.contains("is-b");
+    }
 
-      const isOpen = contactBtn.getAttribute("aria-expanded") === "true";
-      contactLabel.textContent = isOpen ? CONTENT[langKey].back : CONTENT[langKey].contact;
+    function writeToHiddenLayers(langKey){
+      const c = CONTENT[langKey];
+      document.documentElement.setAttribute("lang", c.htmlLang);
+
+      // choose hidden layer depending on current state
+      const toB = !isB(logoX); // if A is showing, write to B
+      if (toB){
+        logoB.textContent = c.logo;
+        descB.textContent = c.desc;
+        contactB.textContent = isOpen() ? c.back : c.contact;
+        clockB.textContent = formatInTZ(new Date(), langKey);
+      } else {
+        logoA.textContent = c.logo;
+        descA.textContent = c.desc;
+        contactA.textContent = isOpen() ? c.back : c.contact;
+        clockA.textContent = formatInTZ(new Date(), langKey);
+      }
 
       setActiveButton(langKey);
-      tick();
 
-      if (isOpen && !prefersReducedMotion){
+      if (isOpen() && !prefersReducedMotion){
         langsEl.classList.add("is-cycling");
         restartUnderline();
       }
     }
 
-    function setLanguage(langKey, { fromCycle=false } = {}){
-      if (!CONTENT[langKey]) return;
-      if (langKey === currentLang) { tick(); return; }
+    function applyLanguage(langKey, { fromCycle=false } = {}){
+      if (!CONTENT[langKey] || langKey === currentLang) return;
 
       currentLang = langKey;
-      document.documentElement.setAttribute("lang", CONTENT[langKey].htmlLang);
 
       if (prefersReducedMotion){
-        applyContent(langKey);
-        if (!fromCycle && (contactBtn.getAttribute("aria-expanded") === "true")) pauseCyclingTemporarily();
+        // Just set both layers (no animation)
+        logoA.textContent = CONTENT[langKey].logo;
+        logoB.textContent = CONTENT[langKey].logo;
+        descA.textContent = CONTENT[langKey].desc;
+        descB.textContent = CONTENT[langKey].desc;
+        const lbl = isOpen() ? CONTENT[langKey].back : CONTENT[langKey].contact;
+        contactA.textContent = lbl;
+        contactB.textContent = lbl;
+        clockA.textContent = formatInTZ(new Date(), langKey);
+        clockB.textContent = clockA.textContent;
+        document.documentElement.setAttribute("lang", CONTENT[langKey].htmlLang);
+        setActiveButton(langKey);
         return;
       }
 
-      // Continuous dissolve: fade -> swap at midpoint -> return
-      fadeEls(true);
+      // write new content into hidden layers, then flip all xfade containers
+      writeToHiddenLayers(langKey);
 
-      setTimeout(() => applyContent(langKey), SWAP_AT_MS);
-      setTimeout(() => fadeEls(false), FADE_TOTAL_MS);
+      // flip simultaneously for a true crossfade
+      flip(logoX);
+      flip(clockX);
+      flip(descX);
+      flip(contactX);
 
-      if (!fromCycle && (contactBtn.getAttribute("aria-expanded") === "true")) {
+      if (!fromCycle && isOpen()){
         pauseCyclingTemporarily();
       }
     }
+
+    // Keep clock “current” on whichever layer is visible
+    function tick(){
+      const text = formatInTZ(new Date(), currentLang);
+      if (isB(clockX)) clockB.textContent = text;
+      else clockA.textContent = text;
+    }
+    tick();
+    setInterval(tick, 1000 * 10);
 
     // Contact open/close
     let open = false;
@@ -513,7 +570,11 @@
       panel.classList.toggle("is-open", open);
       contactBtn.setAttribute("aria-expanded", String(open));
       contactArrow.textContent = open ? "←" : "→";
-      contactLabel.textContent = open ? CONTENT[currentLang].back : CONTENT[currentLang].contact;
+
+      // update label in both layers to avoid mismatch
+      const lbl = open ? CONTENT[currentLang].back : CONTENT[currentLang].contact;
+      contactA.textContent = lbl;
+      contactB.textContent = lbl;
 
       if (open){
         if (!prefersReducedMotion){
@@ -526,7 +587,6 @@
         stopCycling(true);
       }
     }
-
     contactBtn.addEventListener("click", () => setOpen(!open));
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && open){
@@ -539,7 +599,7 @@
     function nextLang(){
       const idx = ORDER.indexOf(currentLang);
       const next = ORDER[(idx + 1) % ORDER.length];
-      setLanguage(next, { fromCycle:true });
+      applyLanguage(next, { fromCycle:true });
     }
 
     function startCycling(){
@@ -559,9 +619,16 @@
 
       if (resetToEnglish){
         currentLang = "en";
+        // set both layers to English so closing never “flashes”
+        logoA.textContent = CONTENT.en.logo;
+        logoB.textContent = CONTENT.en.logo;
+        descA.textContent = CONTENT.en.desc;
+        descB.textContent = CONTENT.en.desc;
+        contactA.textContent = CONTENT.en.contact;
+        contactB.textContent = CONTENT.en.contact;
         document.documentElement.setAttribute("lang", CONTENT.en.htmlLang);
-        applyContent("en");
-        contactLabel.textContent = CONTENT.en.contact;
+        setActiveButton("en");
+        tick();
       }
     }
 
@@ -573,13 +640,18 @@
 
     // Manual language selection
     langButtons.forEach(btn => {
-      btn.addEventListener("click", () => setLanguage(btn.dataset.lang, { fromCycle:false }));
+      btn.addEventListener("click", () => applyLanguage(btn.dataset.lang, { fromCycle:false }));
     });
 
-    // Initial
+    // Init content to English on both layers
+    logoA.textContent = CONTENT.en.logo;
+    logoB.textContent = CONTENT.en.logo;
+    descA.textContent = CONTENT.en.desc;
+    descB.textContent = CONTENT.en.desc;
+    contactA.textContent = CONTENT.en.contact;
+    contactB.textContent = CONTENT.en.contact;
+    setActiveButton("en");
     tick();
-    setInterval(tick, 1000 * 10);
-    contactLabel.textContent = CONTENT[currentLang].contact;
   </script>
 </body>
 </html>
