@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Kuon is a holding company." />
+  <title>Kuon</title>
+  <style>
+    :root{
+      --bg:#0b0b0c;
+      --fg:#f2f2f2;
+      --muted:rgba(242,242,242,.62);
+      --hair:rgba(242,242,242,.16);
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:
+        radial-gradient(1100px 700px at 70% 30%, rgba(255,255,255,.06), transparent 60%),
+        radial-gradient(900px 700px at 20% 80%, rgba(255,255,255,.04), transparent 55%),
+        var(--bg);
+      color:var(--fg);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      letter-spacing:.2px;
+    }
+    .wrap{
+      min-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:48px 22px;
+    }
+    .card{
+      width:min(920px, 100%);
+      border:1px solid var(--hair);
+      border-radius:18px;
+      padding:34px 34px 26px;
+      background: rgba(10,10,11,.55);
+      backdrop-filter: blur(6px);
+    }
+    .top{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:20px;
+      border-bottom:1px solid var(--hair);
+      padding-bottom:18px;
+      margin-bottom:18px;
+    }
+    .logo{
+      margin:0;
+      font-size:20px;
+      letter-spacing:.55em;
+      text-transform:uppercase;
+    }
+    .tag{
+      font-size:12px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.22em;
+      white-space:nowrap;
+    }
+    .body{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:22px;
+      align-items:start;
+    }
+    .statement{
+      margin:0;
+      font-size:16px;
+      line-height:1.6;
+      color:var(--muted);
+      max-width:62ch;
+    }
+    .contact{
+      border-left:1px solid var(--hair);
+      padding-left:18px;
+    }
+    .label{
+      margin:0 0 10px;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.22em;
+      color:var(--muted);
+    }
+    a{
+      color:var(--fg);
+      text-decoration:none;
+      border-bottom:1px solid rgba(242,242,242,.28);
+      padding-bottom:2px;
+    }
+    a:hover{ border-bottom-color: rgba(242,242,242,.65); }
+    footer{
+      margin-top:22px;
+      padding-top:16px;
+      border-top:1px solid var(--hair);
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      color:rgba(242,242,242,.45);
+      font-size:12px;
+      letter-spacing:.08em;
+    }
+    @media (max-width: 720px){
+      .card{ padding:26px 20px 18px; }
+      .body{ grid-template-columns: 1fr; }
+      .contact{
+        border-left:none;
+        padding-left:0;
+        border-top:1px solid var(--hair);
+        padding-top:16px;
+      }
+      .logo{ letter-spacing:.38em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <main class="card" aria-label="Kuon holding page">
+      <div class="top">
+        <h1 class="logo">Kuon</h1>
+        <div class="tag">Holding company</div>
+      </div>
+
+      <section class="body">
+        <p class="statement">
+          Kuon is a holding company for long-term, design-led ventures and investments,
+          developed through selected collaborations internationally.
+        </p>
+
+        <div class="contact">
+          <p class="label">Contact</p>
+          <p style="margin:0; font-size:15px; line-height:1.6;">
+            <a href="mailto:guy@kuonholdings.com">guy@kuonholdings.com</a>
+          </p>
+        </div>
+      </section>
+
+      <footer>
+        <div>Kuon Holdings Ltd. (BVI)</div>
+        <div>© <span id="y"></span> Kuon</div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    document.getElementById("y").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
