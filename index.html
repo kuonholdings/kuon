@@ -20,9 +20,9 @@
       --langs-gap:22px;
 
       /* tone */
-      --contact-body: rgba(0,0,0,0.52);   /* DARKER body text */
-      --contact-body-2: rgba(0,0,0,0.56); /* email */
-      --contact-body-3: rgba(0,0,0,0.48); /* languages */
+      --contact-body: rgba(0,0,0,0.52);
+      --contact-body-2: rgba(0,0,0,0.56);
+      --contact-body-3: rgba(0,0,0,0.48);
     }
 
     *{ box-sizing:border-box; }
@@ -80,7 +80,9 @@
       text-shadow: 0 1px 1px rgba(255,255,255,0.55);
       transform: translateY(0px);
       user-select:none;
+      transition: opacity 220ms ease;
     }
+    .clock.is-switching{ opacity:0.55; } /* subtle cue when timezone changes */
 
     .contactRow{ margin-top:var(--contact-gap); }
 
@@ -136,16 +138,16 @@
       pointer-events:auto;
     }
 
-    /* DARKER descriptor + tighter max-width for readability */
     .descriptor{
       font-size:11px;
       letter-spacing:0.12em;
       color:var(--contact-body);
       max-width:58ch;
       line-height:1.7;
+      transition: opacity 180ms ease;
     }
+    .descriptor.is-switching{ opacity:0.65; }
 
-    /* Email in lowercase, slightly darker */
     .email{
       font-size:12px;
       letter-spacing:0.14em;
@@ -157,25 +159,24 @@
     }
     .email:hover{ color:var(--fg); }
 
-    /* Languages: vertical separators, tighter */
     .langs{
       margin-top:var(--langs-gap);
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:8px;               /* tighter */
+      gap:8px;
       flex-wrap:wrap;
     }
 
     .lang{
       background:transparent;
       border:0;
-      padding:4px 4px;       /* tighter */
+      padding:4px 4px;
       cursor:pointer;
 
       color:var(--contact-body-3);
       font-weight:400;
-      letter-spacing:0.14em; /* slightly tighter tracking */
+      letter-spacing:0.14em;
       font-size:11px;
       text-transform:uppercase;
       white-space:nowrap;
@@ -243,9 +244,8 @@
         </button>
 
         <div class="panel" id="panel" aria-label="Contact panel">
-          <!-- Updated description to reflect: audio companies + Isle of Wight rental/showroom -->
           <div class="descriptor" id="descriptor">
-            KUON holds long-lived audio work — design, manufacturing, and quiet systems — with a small Isle of Wight property serving as an occasional showroom.
+            KUON holds work intended to last — across design, sound, and structure.
           </div>
 
           <a class="email" href="mailto:info@kuonholdings.com">info@kuonholdings.com</a>
@@ -268,24 +268,96 @@
   </footer>
 
   <script>
-    // --- Clock (UTC, no seconds) ---
+    // --- Language content + timezones ---
+    const CONTENT = {
+      en: {
+        htmlLang: "en",
+        tz: "UTC",
+        tzLabel: "UTC",
+        descriptor: "KUON holds work intended to last — across design, sound, and structure."
+      },
+      ja: {
+        htmlLang: "ja",
+        tz: "Asia/Tokyo",
+        tzLabel: "JST",
+        descriptor: "KUONは、長く残ることを意図した仕事を保有します――デザイン、音、構造にわたって。"
+      },
+      zh: {
+        htmlLang: "zh",
+        tz: "Asia/Shanghai",
+        tzLabel: "CST",
+        descriptor: "KUON 持有旨在长久延续的工作——涵盖设计、声音与结构。"
+      }
+    };
+
+    let currentLang = "en";
+
+    // --- Clock formatting in chosen timezone (no seconds) ---
     const clockEl = document.getElementById('clock');
+    const descriptorEl = document.getElementById('descriptor');
+
     const pad = (n) => String(n).padStart(2, '0');
 
-    function formatUTC(d){
-      const Y = d.getUTCFullYear();
-      const M = pad(d.getUTCMonth() + 1);
-      const D = pad(d.getUTCDate());
-      const h = pad(d.getUTCHours());
-      const m = pad(d.getUTCMinutes());
-      return `${Y}.${M}.${D} ${h}:${m} UTC`;
+    function partsForTZ(date, timeZone){
+      // Use formatToParts so we can force YYYY.MM.DD HH:MM
+      const fmt = new Intl.DateTimeFormat("en-GB", {
+        timeZone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      });
+
+      const parts = fmt.formatToParts(date);
+      const get = (type) => parts.find(p => p.type === type)?.value || "";
+      return {
+        Y: get("year"),
+        M: get("month"),
+        D: get("day"),
+        h: get("hour"),
+        m: get("minute")
+      };
+    }
+
+    function formatInTZ(date, langKey){
+      const { tz, tzLabel } = CONTENT[langKey];
+      const p = partsForTZ(date, tz);
+      return `${p.Y}.${p.M}.${p.D} ${p.h}:${p.m} ${tzLabel}`;
     }
 
     function tick(){
-      clockEl.textContent = formatUTC(new Date());
+      clockEl.textContent = formatInTZ(new Date(), currentLang);
     }
+
     tick();
+    // minute precision; still update regularly so it rolls over cleanly
     setInterval(tick, 1000 * 10);
+
+    function setLanguage(langKey){
+      if (!CONTENT[langKey]) return;
+      if (langKey === currentLang) return;
+
+      // subtle transition cue
+      clockEl.classList.add("is-switching");
+      descriptorEl.classList.add("is-switching");
+
+      currentLang = langKey;
+
+      // update html lang
+      document.documentElement.setAttribute("lang", CONTENT[langKey].htmlLang);
+
+      // update descriptor + clock
+      descriptorEl.textContent = CONTENT[langKey].descriptor;
+      tick();
+
+      // remove cue
+      setTimeout(() => {
+        clockEl.classList.remove("is-switching");
+        descriptorEl.classList.remove("is-switching");
+      }, 180);
+    }
 
     // --- Contact panel toggle (label + arrow flips) ---
     const contactBtn = document.getElementById('contactBtn');
@@ -312,12 +384,14 @@
       }
     });
 
-    // Language selection placeholder
+    // --- Language selection: switches text + timezone ---
     const langButtons = Array.from(document.querySelectorAll('.lang'));
     langButtons.forEach(btn => {
       btn.addEventListener('click', () => {
+        const lang = btn.dataset.lang;
         langButtons.forEach(b => b.removeAttribute('aria-current'));
         btn.setAttribute('aria-current', 'true');
+        setLanguage(lang);
       });
     });
   </script>
