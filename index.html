@@ -19,9 +19,9 @@
       --panel-stack-gap:14px;
       --langs-gap:22px;
 
-      /* hard lock widths to prevent drift */
-      --clock-col: 560px;   /* clock column */
-      --logo-col: 240px;    /* KUON column (enough for tracking) */
+      /* hard lock clock width to prevent drift */
+      --clock-col: 560px; /* desktop */
+      --optical-nudge: 0px; /* set to -1px if you want a tiny optical correction later */
 
       /* tone */
       --contact-body: rgba(0,0,0,0.52);
@@ -77,39 +77,36 @@
       width:min(980px, calc(100% - 40px));
     }
 
-    /* ✅ Statement wrapper is fixed total width and centered */
+    /* ✅ Statement: flex wrapper centers the whole block */
     .statementWrap{
-      width: calc(var(--logo-col) + var(--gap) + var(--clock-col));
-      margin: 0 auto;
+      display:flex;
+      justify-content:center;
+      width:100%;
     }
 
+    /* ✅ Statement: inline-grid sized to content, with fixed clock column */
     .statement{
-      display:grid;
-      grid-template-columns: var(--logo-col) var(--clock-col);
+      display:inline-grid;
+      grid-auto-flow:column;
+      grid-template-columns: auto var(--clock-col);
       column-gap: var(--gap);
       align-items:baseline;
-      justify-items:center;     /* centers content within each column */
       white-space:nowrap;
-
-      /* optical correction */
-      transform: translateX(-2px);
+      transform: translateX(var(--optical-nudge));
     }
 
     .logo{
       margin:0;
-      width:100%;
-      text-align:center;
-
       font-weight:700;
       letter-spacing:0.30em;
       font-size:50px;
       line-height:1;
-      padding-left:0.30em;
+      padding-left:0.30em; /* keeps letterspacing optically centered */
       color:var(--fg);
     }
 
     .clock{
-      width:100%;
+      width:var(--clock-col);
       text-align:center;
 
       font-weight:500;
@@ -117,6 +114,7 @@
       font-size:50px;
       line-height:1;
 
+      /* deboss micro-contrast */
       color:rgba(0,0,0,0.055);
       text-shadow:
         0 -1px 0 rgba(0,0,0,0.03),
@@ -196,7 +194,7 @@
       max-width:58ch;
       line-height:1.7;
 
-      min-height:3.4em;
+      min-height:3.4em; /* lock to two lines */
       display:flex;
       align-items:center;
       justify-content:center;
@@ -282,30 +280,21 @@
         --gap:14px;
         --contact-gap:62px;
         --langs-gap:18px;
-        --clock-col: 420px;
-        --logo-col: 200px;
+        --clock-col: 420px; /* mobile */
+        --optical-nudge: 0px;
       }
 
       .top-rule{ right:22px; top:18px; width:54px; }
       .logo{ font-size:42px; }
-      .clock{ font-size:42px; }
-      .statement{ transform: translateX(-1px); }
-
-      .statementWrap{
-        width: calc(var(--logo-col) + var(--gap) + var(--clock-col));
-        max-width: 100%;
-      }
-
+      .clock{ font-size:42px; width:var(--clock-col); }
       .bottom .left, .bottom .right{ white-space:normal; }
       .vsep{ height:10px; }
     }
 
-    /* If the screen is narrower than the statement width, allow it to scale down slightly */
+    /* very narrow screens: let statement compress */
     @media (max-width: 680px){
-      .statementWrap{ width:100%; }
-      .statement{
-        grid-template-columns: 1fr 1.35fr;
-      }
+      :root{ --clock-col: 320px; }
+      .statement{ grid-template-columns: auto var(--clock-col); }
     }
   </style>
 </head>
