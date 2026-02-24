@@ -12,7 +12,6 @@
       --bg:#ffffff;
       --fg:#111;
 
-      /* layout */
       --baseline:54vh;
       --clock-gap:22px;
       --contact-gap:62px;
@@ -21,38 +20,31 @@
       --panel-stack-gap:14px;
       --langs-gap:22px;
 
-      /* contrast */
       --muted-1: rgba(0,0,0,0.66);
       --muted-2: rgba(0,0,0,0.70);
       --muted-3: rgba(0,0,0,0.58);
 
-      /* frame */
       --pad-x:64px;
       --pad-top:20px;
       --pad-bot:20px;
 
-      /* corners clearer */
       --rule: rgba(0,0,0,0.30);
       --rule-tick: rgba(0,0,0,0.24);
       --rule-h: 1.25px;
 
-      /* KUON presence */
       --logo-size:56px;
       --logo-track:0.28em;
       --logo-pad:0.28em;
 
-      /* clock */
       --clock-size:18px;
       --clock-tone: rgba(0,0,0,0.14);
 
-      /* underline cycle */
       --cycle-ms: 12000ms;
       --cycle-line: rgba(0,0,0,0.28);
       --cycle-line-h: 1px;
       --cycle-underline-gap: 2px;
 
-      /* crossfade */
-      --xfade-ms: 1600ms;
+      --xfade-ms: 1800ms; /* calmer */
       --xfade-ease: cubic-bezier(.35,0,.25,1);
     }
 
@@ -75,7 +67,6 @@
       position:relative;
     }
 
-    /* Top-left editorial mark */
     .top-rule{
       position:fixed;
       top:var(--pad-top);
@@ -104,7 +95,6 @@
       text-align:center;
     }
 
-    /* --- Stack removes margin-collapse issues entirely --- */
     .hero{
       display:flex;
       flex-direction:column;
@@ -112,41 +102,34 @@
       gap:var(--clock-gap);
     }
 
-    /* ---- Crossfade system (two layers) ---- */
+    /* ✅ GRID-based crossfade: container always sized to the max layer */
     .xfade{
-      position:relative;
-      display:block;
+      display:grid;
+      place-items:center;
     }
     .xfade.inline{
-      display:inline-block;
-      vertical-align:baseline;
+      display:inline-grid;
+      place-items:center;
     }
     .xfade .layer{
-      display:block;
+      grid-area:1 / 1;
+      opacity:1;
       transition: opacity var(--xfade-ms) var(--xfade-ease);
       will-change: opacity;
+      justify-self:center;
+      align-self:center;
+      pointer-events:none; /* layers never intercept clicks */
     }
-    .xfade .layer.b{
-      position:absolute;
-      inset:0;
-      opacity:0;
-      pointer-events:none;
-    }
-    .xfade.is-b .layer.a{
-      opacity:0;
-      pointer-events:none;
-    }
-    .xfade.is-b .layer.b{
-      opacity:1;
-      pointer-events:none; /* labels shouldn't capture clicks */
-    }
+    .xfade .layer.b{ opacity:0; }
 
-    /* keep heights stable so nothing shifts */
+    .xfade.is-b .layer.a{ opacity:0; }
+    .xfade.is-b .layer.b{ opacity:1; }
+
+    /* lock heights to prevent any vertical nudge */
     .logoBox{ min-height: 1.05em; }
     .clockBox{ min-height: 1.2em; }
     .descBox{ min-height: 3.4em; }
 
-    /* KUON */
     .logo{
       margin:0;
       font-weight:700;
@@ -157,7 +140,6 @@
       white-space:nowrap;
     }
 
-    /* clock (no margins here) */
     .clock{
       font-size:var(--clock-size);
       font-weight:500;
@@ -199,8 +181,6 @@
     }
     .contact:hover{ color:var(--fg); }
     .contact:hover .arrow{ transform: translateX(3px) translateY(-1px); }
-
-    /* calm focus */
     .contact:focus{ outline:none; }
     .contact:focus-visible{
       outline:2px solid rgba(0,0,0,0.18);
@@ -235,11 +215,10 @@
       color:var(--muted-1);
       max-width:58ch;
       line-height:1.7;
-
+      text-align:center;
       display:flex;
       align-items:center;
       justify-content:center;
-      text-align:center;
     }
 
     .email{
@@ -280,7 +259,6 @@
     .lang:hover{ color:var(--fg); }
     .lang[aria-current="true"]{ color:rgba(0,0,0,0.78); }
 
-    /* calm focus (remove blue default) */
     .lang:focus{ outline:none; }
     .lang:focus-visible{
       outline:1px solid rgba(0,0,0,0.18);
@@ -359,13 +337,11 @@
     <main class="center" aria-label="KUON">
 
       <div class="hero">
-        <!-- LOGO crossfade -->
         <div class="xfade logoBox" id="logoX">
           <div class="layer a"><h1 class="logo" id="logoA">KUON</h1></div>
           <div class="layer b"><h1 class="logo" id="logoB">KUON</h1></div>
         </div>
 
-        <!-- CLOCK crossfade -->
         <div class="xfade clockBox" id="clockX" aria-hidden="true">
           <div class="layer a"><div class="clock" id="clockA">—</div></div>
           <div class="layer b"><div class="clock" id="clockB">—</div></div>
@@ -374,7 +350,6 @@
 
       <div class="contactRow">
         <button class="contact" id="contactBtn" type="button" aria-expanded="false" aria-controls="panel">
-          <!-- CONTACT label crossfade (fixed properly) -->
           <span class="xfade inline" id="contactX">
             <span class="layer a" id="contactA">contact</span>
             <span class="layer b" id="contactB">contact</span>
@@ -383,7 +358,6 @@
         </button>
 
         <div class="panel" id="panel" aria-label="Contact panel">
-          <!-- DESCRIPTOR crossfade -->
           <div class="xfade descBox" id="descX">
             <div class="layer a"><div class="descriptor" id="descA">KUON holds work intended to last — across design, sound, and structure.</div></div>
             <div class="layer b"><div class="descriptor" id="descB">KUON holds work intended to last — across design, sound, and structure.</div></div>
@@ -411,11 +385,11 @@
       window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const CONTENT = {
-      en: { htmlLang:"en", tz:"UTC",          tzLabel:"UTC", logo:"KUON", contact:"contact", back:"back",
+      en: { htmlLang:"en", tz:"UTC",           tzLabel:"UTC", logo:"KUON", contact:"contact", back:"back",
             desc:"KUON holds work intended to last — across design, sound, and structure." },
-      ja: { htmlLang:"ja", tz:"Asia/Tokyo",   tzLabel:"JPN", logo:"クオン", contact:"連絡", back:"戻る",
+      ja: { htmlLang:"ja", tz:"Asia/Tokyo",    tzLabel:"JPN", logo:"クオン", contact:"連絡", back:"戻る",
             desc:"KUONは、長く残ることを意図した仕事を保有します――デザイン、音、構造にわたって。" },
-      zh: { htmlLang:"zh", tz:"Asia/Shanghai",tzLabel:"CHN", logo:"久音", contact:"联系", back:"返回",
+      zh: { htmlLang:"zh", tz:"Asia/Shanghai", tzLabel:"CHN", logo:"久音", contact:"联系", back:"返回",
             desc:"KUON 持有旨在长久延续的工作——涵盖设计、声音与结构。" }
     };
 
@@ -450,28 +424,25 @@
     let resumeTimer = null;
     let cycleId = 0;
 
+    function isB(container){ return container.classList.contains("is-b"); }
+    function flip(container){ container.classList.toggle("is-b"); }
+    function isOpen(){ return contactBtn.getAttribute("aria-expanded") === "true"; }
+
     function partsForTZ(date, timeZone){
       const fmt = new Intl.DateTimeFormat("en-GB", {
         timeZone,
         year:"numeric", month:"2-digit", day:"2-digit",
-        hour:"2-digit", minute:"2-digit",
-        hour12:false
+        hour:"2-digit", minute:"2-digit", hour12:false
       });
       const parts = fmt.formatToParts(date);
       const get = (t) => parts.find(p => p.type === t)?.value || "";
       return { Y:get("year"), M:get("month"), D:get("day"), h:get("hour"), m:get("minute") };
     }
-
     function formatInTZ(date, langKey){
       const { tz, tzLabel } = CONTENT[langKey];
       const p = partsForTZ(date, tz);
       return `${p.Y}.${p.M}.${p.D} ${p.h}:${p.m} ${tzLabel}`;
     }
-
-    function isB(container){ return container.classList.contains("is-b"); }
-    function flip(container){ container.classList.toggle("is-b"); }
-
-    function isOpen(){ return contactBtn.getAttribute("aria-expanded") === "true"; }
 
     function setActiveButton(langKey){
       langButtons.forEach(b => b.removeAttribute("aria-current"));
@@ -488,7 +459,7 @@
       const c = CONTENT[langKey];
       document.documentElement.setAttribute("lang", c.htmlLang);
 
-      const toB = !isB(logoX); // if A showing, write to B
+      const toB = !isB(logoX);
       const label = isOpen() ? c.back : c.contact;
       const clockText = formatInTZ(new Date(), langKey);
 
@@ -505,7 +476,6 @@
       }
 
       setActiveButton(langKey);
-
       if (isOpen() && !prefersReducedMotion){
         langsEl.classList.add("is-cycling");
         restartUnderline();
@@ -533,11 +503,7 @@
       }
 
       writeToHidden(langKey);
-
-      flip(logoX);
-      flip(clockX);
-      flip(descX);
-      flip(contactX);
+      flip(logoX); flip(clockX); flip(descX); flip(contactX);
 
       if (!fromCycle && isOpen()) pauseCyclingTemporarily();
     }
@@ -550,7 +516,6 @@
     tick();
     setInterval(tick, 1000 * 10);
 
-    // Contact open/close
     let open = false;
     function setOpen(v){
       open = v;
@@ -558,7 +523,6 @@
       contactBtn.setAttribute("aria-expanded", String(open));
       contactArrow.textContent = open ? "←" : "→";
 
-      // Update BOTH layers so no mismatch during crossfade
       const c = CONTENT[currentLang];
       const label = open ? c.back : c.contact;
       contactA.textContent = label;
@@ -583,7 +547,6 @@
       }
     });
 
-    // Cycling
     function nextLang(){
       const idx = ORDER.indexOf(currentLang);
       const next = ORDER[(idx + 1) % ORDER.length];
@@ -625,12 +588,10 @@
       resumeTimer = setTimeout(() => { if (open) startCycling(); }, MANUAL_PAUSE_MS);
     }
 
-    // Manual language selection
     langButtons.forEach(btn => {
       btn.addEventListener("click", () => applyLanguage(btn.dataset.lang, { fromCycle:false }));
     });
 
-    // Init English to both layers
     (function init(){
       const c = CONTENT.en;
       logoA.textContent = c.logo; logoB.textContent = c.logo;
