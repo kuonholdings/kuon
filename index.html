@@ -13,9 +13,8 @@
   --faint:rgba(0,0,0,.28);
 
   --fade: 740ms;
-  --ease: cubic-bezier(.20, .85, .20, 1);
+  --ease: cubic-bezier(.20,.85,.20,1);
 
-  /* line-by-line reveal timing */
   --lineDur: 720ms;
   --lineStagger: 140ms;
 }
@@ -31,7 +30,8 @@ body{
   letter-spacing:.2px;
 }
 
-/* Center stage */
+/* ---------- LANDING ---------- */
+
 .wrap{
   min-height:100%;
   display:flex;
@@ -41,8 +41,8 @@ body{
   padding:40px 18px;
 }
 
-.landing, .info{
-  transition: opacity var(--fade) var(--ease);
+.landing,.info{
+  transition:opacity var(--fade) var(--ease);
 }
 
 .mark{
@@ -54,7 +54,7 @@ body{
   line-height:1.05;
 }
 
-/* “Button” as typography */
+/* Typography buttons */
 .action{
   margin-top:20px;
   background:none;
@@ -71,23 +71,23 @@ body{
   gap:12px;
 }
 
-.action:focus{ outline:none; }
+.action:focus{outline:none;}
 
 .action .word{
-  transition: color 360ms var(--ease);
+  transition:color 360ms var(--ease);
 }
 .action .arrow{
   display:inline-block;
-  transition: transform 520ms var(--ease), color 360ms var(--ease);
+  transition:transform 520ms var(--ease),color 360ms var(--ease);
   color:var(--faint);
 }
-.action:hover .word{ color:rgba(0,0,0,.82); }
+.action:hover .word{color:rgba(0,0,0,.82);}
 .action:hover .arrow{
-  transform: translateX(4px);
+  transform:translateX(4px);
   color:rgba(0,0,0,.55);
 }
 
-/* Live time/date */
+/* UTC stamp */
 .live{
   margin-top:22px;
   font-size:12px;
@@ -96,7 +96,8 @@ body{
   color:var(--faint);
 }
 
-/* INFO STATE container */
+/* ---------- INFO VIEW ---------- */
+
 .info{
   position:absolute;
   inset:0;
@@ -108,25 +109,24 @@ body.show-info .info{
   opacity:1;
   pointer-events:auto;
 }
-
 body.show-info .landing{
   opacity:0;
   pointer-events:none;
 }
 
-/* Contact layout: centre-left, left-aligned */
+/* left-biased layout */
 .info-shell{
   min-height:100%;
   display:flex;
   align-items:center;
-  justify-content:flex-start;   /* left bias */
+  justify-content:flex-start;
   padding:40px 18px;
 }
 
 .info-inner{
-  width:min(720px, 100%);
-  margin-left:8vw;              /* horizontal offset */
-  text-align:left;              /* left aligned */
+  width:min(720px,100%);
+  margin-left:8vw;
+  text-align:left;
 }
 
 .info h2{
@@ -137,7 +137,7 @@ body.show-info .landing{
   font-weight:500;
 }
 
-/* Line reveal */
+/* line reveal */
 .line{
   margin:0;
   color:var(--muted);
@@ -145,22 +145,26 @@ body.show-info .landing{
   line-height:1.75;
 
   opacity:0;
-  transform: translateX(-10px);
+  transform:translateX(-10px);
 }
 
 body.show-info .line{
-  animation: lineIn var(--lineDur) var(--ease) forwards;
+  animation:lineIn var(--lineDur) var(--ease) forwards;
 }
 
-body.show-info .line.l1{ animation-delay: 80ms; }
-body.show-info .line.l2{ animation-delay: calc(80ms + var(--lineStagger)); }
-body.show-info .line.l3{ animation-delay: calc(80ms + var(--lineStagger) * 2); }
+body.show-info .l1{animation-delay:80ms;}
+body.show-info .l2{animation-delay:220ms;}
+body.show-info .l3{animation-delay:360ms;}
 
 @keyframes lineIn{
   to{
     opacity:1;
-    transform: translateX(0);
+    transform:translateX(0);
   }
+}
+
+.line.l3{
+  color:rgba(0,0,0,.42);
 }
 
 a{
@@ -168,111 +172,170 @@ a{
   text-decoration:none;
   border-bottom:1px solid rgba(0,0,0,.30);
   padding-bottom:2px;
-  transition: border-color 360ms var(--ease);
+  transition:border-color 360ms var(--ease);
 }
-a:hover{ border-bottom-color:rgba(0,0,0,.55); }
+a:hover{border-bottom-color:rgba(0,0,0,.55);}
 
-/* Back button placement: under text, left aligned */
 .backRow{
   margin-top:26px;
 }
 
-/* Mobile: reduce offset */
-@media(max-width:720px){
-  .info-inner{ margin-left:0; }
-}
-@media(max-width:520px){
-  .mark{ font-size:54px; letter-spacing:.20em; }
+/* ---------- LANGUAGE META ---------- */
+
+.lang-switch{
+  position:fixed;
+  bottom:14px;
+  left:14px;
+
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:3px;
+
+  font-size:11px;
+  letter-spacing:.08em;
+  color:rgba(0,0,0,.30);
+
+  user-select:none;
+  pointer-events:none;
 }
 
-/* Reduced motion */
-@media(prefers-reduced-motion: reduce){
-  :root{ --fade:0ms; --lineDur:0ms; }
-  .action .word, .action .arrow, a{ transition:none; }
-  .line{ opacity:1 !important; transform:none !important; animation:none !important; }
+/* ---------- CORNER MARK ---------- */
+
+.corner{
+  position:fixed;
+  width:14px;
+  height:14px;
+  pointer-events:none;
+  opacity:.18;
+}
+.corner::before,
+.corner::after{
+  content:"";
+  position:absolute;
+  background:rgba(0,0,0,.18);
+}
+.corner::before{
+  height:1px;
+  width:14px;
+  right:0;
+  top:0;
+}
+.corner::after{
+  width:1px;
+  height:14px;
+  right:0;
+  top:0;
+}
+.tr{
+  top:12px;
+  right:12px;
+}
+
+/* ---------- MOBILE ---------- */
+
+@media(max-width:720px){
+  .info-inner{margin-left:0;}
+}
+@media(max-width:520px){
+  .mark{
+    font-size:54px;
+    letter-spacing:.20em;
+  }
+}
+
+/* reduced motion */
+@media(prefers-reduced-motion:reduce){
+  :root{--fade:0ms;--lineDur:0ms;}
+  .line{opacity:1 !important;transform:none !important;animation:none !important;}
 }
 </style>
 </head>
 
 <body>
 
+<!-- LANDING -->
 <div class="wrap landing">
   <div>
     <h1 class="mark">Kuon</h1>
 
-    <button class="action" id="openBtn" type="button" aria-label="Open contact details">
+    <button class="action" id="openBtn" type="button">
       <span class="word">Contact</span>
-      <span class="arrow" aria-hidden="true">→</span>
+      <span class="arrow">→</span>
     </button>
 
-    <div class="live" id="liveStamp" aria-label="UTC time"></div>
+    <div class="live" id="liveStamp"></div>
   </div>
 </div>
 
-<div class="info" id="info" aria-hidden="true">
+<!-- INFO -->
+<div class="info" id="info">
   <div class="info-shell">
     <div class="info-inner">
       <h2>Kuon Holdings</h2>
 
       <p class="line l1">Kuon Holdings Ltd. (BVI) is a private holding structure.</p>
-      <p class="line l2">For matters relating to Kuon ventures, please contact
+
+      <p class="line l2">
+        For matters relating to Kuon ventures, please contact
+      </p>
+
+      <p class="line l3">
         <a href="mailto:contact@kuonholdings.com">contact@kuonholdings.com</a>.
       </p>
-      <p class="line l3">UTC reference time is shown on the landing view.</p>
 
       <div class="backRow">
-        <button class="action" id="closeBtn" type="button" aria-label="Back to landing" style="margin-top:0;">
+        <button class="action" id="closeBtn" type="button" style="margin-top:0;">
           <span class="word">Back</span>
-          <span class="arrow" aria-hidden="true">→</span>
+          <span class="arrow">→</span>
         </button>
       </div>
     </div>
   </div>
 </div>
 
+<!-- language meta -->
+<div class="lang-switch">
+  <span>English</span>
+  <span>Chinese</span>
+  <span>Japanese</span>
+</div>
+
+<!-- single corner marker -->
+<div class="corner tr"></div>
+
 <script>
-  const openBtn = document.getElementById("openBtn");
-  const closeBtn = document.getElementById("closeBtn");
-  const liveStamp = document.getElementById("liveStamp");
-  const info = document.getElementById("info");
+const openBtn=document.getElementById("openBtn");
+const closeBtn=document.getElementById("closeBtn");
+const liveStamp=document.getElementById("liveStamp");
 
-  function showInfo(){
-    document.body.classList.add("show-info");
-    info.setAttribute("aria-hidden", "false");
-    // move focus after the fade begins
-    setTimeout(() => closeBtn.focus({ preventScroll:true }), 320);
+function showInfo(){
+  document.body.classList.add("show-info");
+  setTimeout(()=>closeBtn.focus({preventScroll:true}),320);
+}
+function hideInfo(){
+  document.body.classList.remove("show-info");
+  setTimeout(()=>openBtn.focus({preventScroll:true}),320);
+}
+
+openBtn.addEventListener("click",showInfo);
+closeBtn.addEventListener("click",hideInfo);
+
+function pad(n){return String(n).padStart(2,"0");}
+function updateStamp(){
+  const d=new Date();
+  liveStamp.textContent =
+    `${d.getUTCFullYear()}.${pad(d.getUTCMonth()+1)}.${pad(d.getUTCDate())}  ` +
+    `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())} UTC`;
+}
+updateStamp();
+setInterval(updateStamp,1000);
+
+document.addEventListener("keydown",(e)=>{
+  if(e.key==="Escape" && document.body.classList.contains("show-info")){
+    hideInfo();
   }
-
-  function hideInfo(){
-    document.body.classList.remove("show-info");
-    info.setAttribute("aria-hidden", "true");
-    setTimeout(() => openBtn.focus({ preventScroll:true }), 320);
-  }
-
-  openBtn.addEventListener("click", showInfo);
-  closeBtn.addEventListener("click", hideInfo);
-
-  // UTC live stamp
-  function pad(n){ return String(n).padStart(2,"0"); }
-  function updateStamp(){
-    const d = new Date();
-    const yyyy = d.getUTCFullYear();
-    const mm = pad(d.getUTCMonth()+1);
-    const dd = pad(d.getUTCDate());
-    const hh = pad(d.getUTCHours());
-    const mi = pad(d.getUTCMinutes());
-    const ss = pad(d.getUTCSeconds());
-    liveStamp.textContent = `${yyyy}.${mm}.${dd}  ${hh}:${mi}:${ss} UTC`;
-  }
-  updateStamp();
-  setInterval(updateStamp, 1000);
-
-  // Escape closes
-  document.addEventListener("keydown", (e) => {
-    if(e.key === "Escape" && document.body.classList.contains("show-info")){
-      hideInfo();
-    }
-  });
+});
 </script>
 
 </body>
