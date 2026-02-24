@@ -4,223 +4,159 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Kuon</title>
+
 <style>
-  :root{
-    --bg:#f6f6f3;
-    --fg:#111;
-    --muted:rgba(0,0,0,.58);
-    --faint:rgba(0,0,0,.28);
-  }
+:root{
+  --bg:#f6f6f3;
+  --fg:#111;
+  --muted:rgba(0,0,0,.58);
+}
 
-  *{ box-sizing:border-box; }
-  html,body{ height:100%; }
+*{box-sizing:border-box;}
+html,body{height:100%;}
 
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--fg);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    letter-spacing:.2px;
-  }
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  letter-spacing:.2px;
+}
 
-  /* Landing */
-  .wrap{
-    min-height:100%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:48px 18px;
-  }
+.wrap{
+  min-height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:40px 18px;
+}
 
-  .landing{
-    text-align:center;
-    user-select:none;
-  }
+.mark{
+  margin:0;
+  font-size:64px;
+  letter-spacing:.28em;
+  text-transform:uppercase;
+  font-weight:500;
+}
 
+.trigger{
+  margin-top:18px;
+  background:none;
+  border:0;
+  font-size:13px;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  color:var(--muted);
+  cursor:pointer;
+}
+
+.trigger:hover{
+  color:#000;
+}
+
+/* INFO STATE */
+.info{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:40px 18px;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .35s ease;
+}
+
+body.show-info .info{
+  opacity:1;
+  pointer-events:auto;
+}
+
+body.show-info .landing{
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .35s ease;
+}
+
+.info-inner{
+  max-width:620px;
+}
+
+.info h2{
+  margin:0 0 18px;
+  font-size:18px;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  font-weight:500;
+}
+
+.info p{
+  margin:0;
+  color:var(--muted);
+  font-size:15px;
+  line-height:1.7;
+}
+
+.info p + p{
+  margin-top:10px;
+}
+
+a{
+  color:var(--fg);
+  text-decoration:none;
+  border-bottom:1px solid rgba(0,0,0,.3);
+  padding-bottom:2px;
+}
+
+.back{
+  margin-top:24px;
+  background:none;
+  border:0;
+  font-size:12px;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--muted);
+  cursor:pointer;
+}
+
+@media(max-width:520px){
   .mark{
-    margin:0;
-    font-size:64px;
-    font-weight:500;
-    letter-spacing:.28em;
-    text-transform:uppercase;
-    line-height:1.05;
-  }
-
-  .enter{
-    margin-top:18px;
-    display:inline-block;
-    font-size:13px;
-    letter-spacing:.26em;
-    text-transform:uppercase;
-    color:var(--muted);
-    background:none;
-    border:0;
-    padding:10px 12px;
-    cursor:pointer;
-  }
-
-  .enter:focus{
-    outline:none;
-  }
-
-  .enter span{
-    border-bottom:1px solid transparent;
-    padding-bottom:3px;
-  }
-
-  .enter:hover span{
-    border-bottom-color:var(--faint);
-  }
-
-  /* Panel */
-  .overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.0);
-    pointer-events:none;
-    transition: background .25s ease;
-  }
-
-  .panel{
-    position:fixed;
-    left:0;
-    right:0;
-    bottom:0;
-    transform: translateY(102%);
-    transition: transform .32s ease;
-    background:var(--bg);
-    padding:22px 18px 26px;
-  }
-
-  .panel-inner{
-    max-width:720px;
-    margin:0 auto;
-  }
-
-  .panel-top{
-    display:flex;
-    justify-content:space-between;
-    align-items:baseline;
-    gap:16px;
-    margin-bottom:16px;
-  }
-
-  .panel-title{
-    margin:0;
-    font-size:16px;
+    font-size:46px;
     letter-spacing:.22em;
-    text-transform:uppercase;
-    font-weight:500;
   }
-
-  .close{
-    font-size:12px;
-    letter-spacing:.22em;
-    text-transform:uppercase;
-    color:var(--muted);
-    background:none;
-    border:0;
-    padding:8px 10px;
-    cursor:pointer;
-  }
-
-  .close:hover{
-    color:rgba(0,0,0,.8);
-  }
-
-  .copy{
-    margin:0;
-    color:var(--muted);
-    font-size:15px;
-    line-height:1.7;
-    max-width:64ch;
-  }
-
-  .copy + .copy{ margin-top:10px; }
-
-  a{
-    color:var(--fg);
-    text-decoration:none;
-    border-bottom:1px solid var(--faint);
-    padding-bottom:2px;
-  }
-
-  a:hover{
-    border-bottom-color:rgba(0,0,0,.55);
-  }
-
-  /* Open state */
-  body.is-open .overlay{
-    background:rgba(0,0,0,.06);
-    pointer-events:auto;
-  }
-  body.is-open .panel{
-    transform: translateY(0);
-  }
-
-  /* Mobile tuning */
-  @media(max-width:520px){
-    .mark{
-      font-size:46px;
-      letter-spacing:.22em;
-    }
-  }
-
-  @media(prefers-reduced-motion: reduce){
-    .panel, .overlay{ transition:none; }
-  }
+}
 </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <div class="landing" aria-label="Kuon landing">
-      <h1 class="mark">Kuon</h1>
-      <button class="enter" id="openBtn" type="button" aria-haspopup="dialog" aria-controls="panel">
-        <span>Enter</span>
-      </button>
-    </div>
+
+<div class="wrap landing">
+  <div>
+    <h1 class="mark">Kuon</h1>
+    <button class="trigger" id="openBtn">Contact</button>
   </div>
+</div>
 
-  <div class="overlay" id="overlay" aria-hidden="true"></div>
-
-  <section class="panel" id="panel" role="dialog" aria-modal="true" aria-label="Kuon information">
-    <div class="panel-inner">
-      <div class="panel-top">
-        <h2 class="panel-title">Kuon</h2>
-        <button class="close" id="closeBtn" type="button"><span>Close</span></button>
-      </div>
-
-      <p class="copy">Kuon Holdings Ltd. (BVI) is a holding structure for long-term ventures and investments.</p>
-      <p class="copy">For matters relating to Kuon ventures, please contact <a href="mailto:contact@kuonholdings.com">contact@kuonholdings.com</a>.</p>
-    </div>
-  </section>
+<div class="info" id="info">
+  <div class="info-inner">
+    <h2>Kuon Holdings</h2>
+    <p>Kuon Holdings Ltd. (BVI) is a private holding structure.</p>
+    <p>For matters relating to Kuon ventures, please contact
+      <a href="mailto:contact@kuonholdings.com">contact@kuonholdings.com</a>.
+    </p>
+    <button class="back" id="closeBtn">Back</button>
+  </div>
+</div>
 
 <script>
-  const openBtn = document.getElementById("openBtn");
-  const closeBtn = document.getElementById("closeBtn");
-  const overlay = document.getElementById("overlay");
+const openBtn = document.getElementById("openBtn");
+const closeBtn = document.getElementById("closeBtn");
 
-  function openPanel(){
-    document.body.classList.add("is-open");
-    // Move focus for accessibility
-    closeBtn.focus({ preventScroll: true });
-  }
-
-  function closePanel(){
-    document.body.classList.remove("is-open");
-    openBtn.focus({ preventScroll: true });
-  }
-
-  openBtn.addEventListener("click", openPanel);
-  closeBtn.addEventListener("click", closePanel);
-  overlay.addEventListener("click", closePanel);
-
-  document.addEventListener("keydown", (e) => {
-    if(e.key === "Escape" && document.body.classList.contains("is-open")){
-      closePanel();
-    }
-  });
+openBtn.onclick = () => document.body.classList.add("show-info");
+closeBtn.onclick = () => document.body.classList.remove("show-info");
 </script>
+
 </body>
 </html>
