@@ -12,10 +12,11 @@
       --lite:#aaa;
       --bg:#fff;
 
-      --baseline:52vh;        /* KUON + CLOCK vertical position */
-      --gap:28px;             /* KUON ↔ CLOCK */
-      --contact-gap:78px;     /* baseline → contact */
-      --lang-gap:14px;        /* contact → language list */
+      --baseline:52vh;
+      --gap:28px;
+      --contact-gap:78px;
+      --panel-gap:18px;
+      --langs-gap:14px;
     }
 
     * { box-sizing: border-box; }
@@ -46,7 +47,7 @@
       width:min(980px, calc(100% - 40px));
     }
 
-    /* Row 1: statement line ONLY */
+    /* Row 1 */
     .statement{
       display:inline-flex;
       align-items:baseline;
@@ -61,27 +62,29 @@
       letter-spacing:0.32em;
       font-size:56px;
       line-height:1;
-      padding-left:0.32em; /* optical centering for tracking */
+      padding-left:0.32em;
       color:var(--fg);
     }
 
+    /* Deboss clock option (same size as logo, very faint) */
     .clock{
-      font-weight:300;
-      letter-spacing:0.18em;
-      font-size:18px;
+      font-weight:500;
+      letter-spacing:0.14em;
+      font-size:56px;
       line-height:1;
-      color:var(--lite);
-      transform: translateY(-4px);
+      color:rgba(0,0,0,0.08);
+      text-shadow: 0 1px 0 rgba(255,255,255,0.55);
+      transform: translateY(-1px);
       user-select:none;
     }
 
-    /* Row 2: CONTACT is forced onto its own line */
+    /* Row 2 */
     .contactRow{
       margin-top:var(--contact-gap);
     }
 
     .contact{
-      display:inline-block;         /* keep it as a centered button */
+      display:inline-block;
       border:0;
       background:transparent;
       padding:6px 10px;
@@ -110,11 +113,11 @@
       border-radius:10px;
     }
 
-    /* Languages hidden until CONTACT opened */
-    .langs{
-      margin-top:var(--lang-gap);
+    /* Contact panel (details + languages) */
+    .panel{
+      margin-top:var(--panel-gap);
       display:grid;
-      gap:8px;
+      gap:var(--langs-gap);
       justify-items:center;
 
       opacity:0;
@@ -123,10 +126,40 @@
       transition: opacity 220ms ease, transform 220ms ease;
     }
 
-    .langs.is-open{
+    .panel.is-open{
       opacity:1;
       transform:translateY(0);
       pointer-events:auto;
+    }
+
+    .details{
+      display:grid;
+      gap:8px;
+      justify-items:center;
+    }
+
+    .email{
+      font-size:12px;
+      letter-spacing:0.16em;
+      text-transform:uppercase;
+      color:var(--mid);
+      text-decoration:none;
+      padding:4px 10px;
+    }
+    .email:hover{ color:var(--fg); }
+
+    .note{
+      font-size:11px;
+      letter-spacing:0.10em;
+      color:rgba(0,0,0,0.38);
+      max-width:42ch;
+      line-height:1.6;
+    }
+
+    .langs{
+      display:grid;
+      gap:8px;
+      justify-items:center;
     }
 
     .lang{
@@ -146,8 +179,9 @@
     @media (max-width: 560px){
       .wrap{ padding:40px 22px; }
       .logo{ font-size:44px; }
-      .clock{ font-size:14px; letter-spacing:0.14em; transform: translateY(-3px); }
+      .clock{ font-size:44px; }
       :root{ --gap:16px; --contact-gap:70px; }
+      .note{ max-width:34ch; }
     }
   </style>
 </head>
@@ -163,14 +197,23 @@
 
       <!-- ROW 2 -->
       <div class="contactRow">
-        <button class="contact" id="contactBtn" type="button" aria-expanded="false" aria-controls="langs">
+        <button class="contact" id="contactBtn" type="button" aria-expanded="false" aria-controls="panel">
           CONTACT <span class="arrow" aria-hidden="true">→</span>
         </button>
 
-        <div class="langs" id="langs" aria-label="Languages">
-          <button class="lang" type="button" data-lang="en" aria-current="true">English</button>
-          <button class="lang" type="button" data-lang="ja">Japanese</button>
-          <button class="lang" type="button" data-lang="zh">Chinese</button>
+        <!-- CONTACT PANEL -->
+        <div class="panel" id="panel" aria-label="Contact panel">
+          <div class="details" aria-label="Contact details">
+            <!-- EDIT THIS -->
+            <a class="email" href="mailto:info@kuonholdings.com">info@kuonholdings.com</a>
+            <div class="note">Tokyo / London — By appointment.</div>
+          </div>
+
+          <div class="langs" id="langs" aria-label="Languages">
+            <button class="lang" type="button" data-lang="en" aria-current="true">English</button>
+            <button class="lang" type="button" data-lang="ja">Japanese</button>
+            <button class="lang" type="button" data-lang="zh">Chinese</button>
+          </div>
         </div>
       </div>
     </main>
@@ -179,7 +222,6 @@
   <script>
     // --- Clock (UTC) ---
     const clockEl = document.getElementById('clock');
-
     const pad = (n) => String(n).padStart(2, '0');
 
     function formatUTC(d){
@@ -198,14 +240,14 @@
     tick();
     setInterval(tick, 1000);
 
-    // --- Contact toggle for languages ---
+    // --- Contact panel toggle ---
     const contactBtn = document.getElementById('contactBtn');
-    const langs = document.getElementById('langs');
+    const panel = document.getElementById('panel');
     let open = false;
 
     function setOpen(v){
       open = v;
-      langs.classList.toggle('is-open', open);
+      panel.classList.toggle('is-open', open);
       contactBtn.setAttribute('aria-expanded', String(open));
     }
 
@@ -218,7 +260,7 @@
       }
     });
 
-    // Language selection (placeholder)
+    // Language selection placeholder
     const langButtons = Array.from(document.querySelectorAll('.lang'));
     langButtons.forEach(btn => {
       btn.addEventListener('click', () => {
