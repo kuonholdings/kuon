@@ -12,11 +12,10 @@
       --lite:#aaa;
       --bg:#fff;
 
-      /* layout tuning */
-      --baseline:52vh;        /* where the KUON + CLOCK line sits */
-      --gap:32px;             /* space between KUON and CLOCK */
-      --contact-gap:84px;     /* vertical gap from baseline to CONTACT */
-      --lang-gap:14px;        /* space from CONTACT to language list */
+      --baseline:52vh;        /* KUON + CLOCK vertical position */
+      --gap:28px;             /* KUON ↔ CLOCK */
+      --contact-gap:78px;     /* baseline → contact */
+      --lang-gap:14px;        /* contact → language list */
     }
 
     * { box-sizing: border-box; }
@@ -25,13 +24,12 @@
       margin:0;
       background:var(--bg);
       color:var(--fg);
-      overflow:hidden; /* no scroll */
-      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+      overflow:hidden;
+      font-family:-apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
     }
 
-    /* A quiet container with generous margins */
     .wrap{
       height:100%;
       width:100%;
@@ -39,18 +37,17 @@
       position:relative;
     }
 
-    /* Centered composition block */
     .center{
       position:absolute;
       left:50%;
       top:var(--baseline);
       transform:translate(-50%, -50%);
       text-align:center;
-      width:min(920px, calc(100% - 40px));
+      width:min(980px, calc(100% - 40px));
     }
 
-    /* KUON + CLOCK on one intentional line */
-    .line{
+    /* Row 1: statement line ONLY */
+    .statement{
       display:inline-flex;
       align-items:baseline;
       justify-content:center;
@@ -59,12 +56,12 @@
     }
 
     .logo{
+      margin:0;
       font-weight:700;
       letter-spacing:0.32em;
       font-size:56px;
       line-height:1;
-      margin:0;
-      padding-left:0.32em; /* visually centers letterspacing */
+      padding-left:0.32em; /* optical centering for tracking */
       color:var(--fg);
     }
 
@@ -74,16 +71,17 @@
       font-size:18px;
       line-height:1;
       color:var(--lite);
-      transform: translateY(-4px); /* optical baseline refinement */
+      transform: translateY(-4px);
       user-select:none;
     }
 
-    /* CONTACT centered underneath */
-    .contact{
+    /* Row 2: CONTACT is forced onto its own line */
+    .contactRow{
       margin-top:var(--contact-gap);
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
+    }
+
+    .contact{
+      display:inline-block;         /* keep it as a centered button */
       border:0;
       background:transparent;
       padding:6px 10px;
@@ -93,8 +91,18 @@
       letter-spacing:0.22em;
       font-size:12px;
       text-transform:uppercase;
-      position:relative;
     }
+
+    .contact .arrow{
+      margin-left:10px;
+      font-size:14px;
+      line-height:1;
+      transform: translateY(-1px);
+      display:inline-block;
+      color:inherit;
+    }
+
+    .contact:hover{ color:var(--fg); }
 
     .contact:focus-visible{
       outline:2px solid rgba(0,0,0,0.18);
@@ -102,19 +110,13 @@
       border-radius:10px;
     }
 
-    .arrow{
-      font-size:14px;
-      line-height:1;
-      transform: translateY(-1px);
-      color:var(--mid);
-    }
-
-    /* Language list appears only after clicking CONTACT */
+    /* Languages hidden until CONTACT opened */
     .langs{
       margin-top:var(--lang-gap);
       display:grid;
       gap:8px;
       justify-items:center;
+
       opacity:0;
       transform:translateY(6px);
       pointer-events:none;
@@ -138,22 +140,14 @@
       font-size:11px;
       text-transform:uppercase;
     }
-
     .lang:hover{ color:var(--fg); }
-    .lang[aria-current="true"]{
-      color:var(--fg);
-    }
+    .lang[aria-current="true"]{ color:var(--fg); }
 
-    /* Subtle hover for contact */
-    .contact:hover{ color:var(--fg); }
-    .contact:hover .arrow{ color:var(--fg); }
-
-    /* Small screens: keep the statement intact */
     @media (max-width: 560px){
       .wrap{ padding:40px 22px; }
       .logo{ font-size:44px; }
       .clock{ font-size:14px; letter-spacing:0.14em; transform: translateY(-3px); }
-      :root{ --gap:18px; --contact-gap:72px; }
+      :root{ --gap:16px; --contact-gap:70px; }
     }
   </style>
 </head>
@@ -161,19 +155,23 @@
 <body>
   <div class="wrap">
     <main class="center" aria-label="KUON">
-      <div class="line" aria-label="KUON and clock">
-        <h1 class="logo" aria-label="KUON">KUON</h1>
-        <div class="clock" id="clock" aria-label="UTC clock">—</div>
+      <!-- ROW 1 -->
+      <div class="statement" aria-label="KUON and clock">
+        <h1 class="logo">KUON</h1>
+        <div class="clock" id="clock">—</div>
       </div>
 
-      <button class="contact" id="contactBtn" type="button" aria-expanded="false" aria-controls="langs">
-        CONTACT <span class="arrow" aria-hidden="true">→</span>
-      </button>
+      <!-- ROW 2 -->
+      <div class="contactRow">
+        <button class="contact" id="contactBtn" type="button" aria-expanded="false" aria-controls="langs">
+          CONTACT <span class="arrow" aria-hidden="true">→</span>
+        </button>
 
-      <div class="langs" id="langs" aria-label="Languages">
-        <button class="lang" type="button" data-lang="en" aria-current="true">English</button>
-        <button class="lang" type="button" data-lang="ja">Japanese</button>
-        <button class="lang" type="button" data-lang="zh">Chinese</button>
+        <div class="langs" id="langs" aria-label="Languages">
+          <button class="lang" type="button" data-lang="en" aria-current="true">English</button>
+          <button class="lang" type="button" data-lang="ja">Japanese</button>
+          <button class="lang" type="button" data-lang="zh">Chinese</button>
+        </div>
       </div>
     </main>
   </div>
@@ -182,7 +180,7 @@
     // --- Clock (UTC) ---
     const clockEl = document.getElementById('clock');
 
-    function pad(n){ return String(n).padStart(2, '0'); }
+    const pad = (n) => String(n).padStart(2, '0');
 
     function formatUTC(d){
       const Y = d.getUTCFullYear();
@@ -195,47 +193,37 @@
     }
 
     function tick(){
-      const now = new Date();
-      clockEl.textContent = formatUTC(now);
+      clockEl.textContent = formatUTC(new Date());
     }
-
     tick();
     setInterval(tick, 1000);
 
     // --- Contact toggle for languages ---
     const contactBtn = document.getElementById('contactBtn');
     const langs = document.getElementById('langs');
+    let open = false;
 
-    function setOpen(open){
+    function setOpen(v){
+      open = v;
       langs.classList.toggle('is-open', open);
       contactBtn.setAttribute('aria-expanded', String(open));
     }
 
-    let open = false;
-    contactBtn.addEventListener('click', () => {
-      open = !open;
-      setOpen(open);
-    });
+    contactBtn.addEventListener('click', () => setOpen(!open));
 
-    // Close on Escape
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && open){
-        open = false;
         setOpen(false);
         contactBtn.focus();
       }
     });
 
-    // Language selection (placeholder – can later change page text/routes)
+    // Language selection (placeholder)
     const langButtons = Array.from(document.querySelectorAll('.lang'));
     langButtons.forEach(btn => {
       btn.addEventListener('click', () => {
         langButtons.forEach(b => b.removeAttribute('aria-current'));
         btn.setAttribute('aria-current', 'true');
-
-        // Hook for future: update content / route per language
-        // const lang = btn.dataset.lang;
-        // console.log("Language selected:", lang);
       });
     });
   </script>
