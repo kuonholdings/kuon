@@ -16,7 +16,14 @@
   --ease:cubic-bezier(.20,.85,.20,1);
 
   --lineDur:720ms;
-  --lineStagger:140ms;
+
+  /* ---- layout system ---- */
+  --gutter: clamp(18px, 4.5vw, 56px);
+  --spineW: 118px;                 /* language column */
+  --gap: clamp(18px, 4vw, 60px);   /* space between spine + content */
+
+  /* toggle guide lines: 0 = off, 1 = on */
+  --guides: 0;
 }
 
 *{box-sizing:border-box;}
@@ -30,17 +37,86 @@ body{
   letter-spacing:.2px;
 }
 
-/* ---------- LANDING ---------- */
-.wrap{
-  min-height:100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  padding:40px 18px;
+/* ---------- guide overlay (optional) ---------- */
+.guides{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:calc(var(--guides) * 1);
+}
+.guides::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  /* horizontal centre datum + spine/content vertical datum */
+  background:
+    linear-gradient(to bottom,
+      transparent calc(50% - .5px),
+      rgba(0,0,0,.06) calc(50% - .5px),
+      rgba(0,0,0,.06) calc(50% + .5px),
+      transparent calc(50% + .5px)
+    );
+}
+.guides::after{
+  content:"";
+  position:absolute;
+  top:0; bottom:0;
+  left: calc(var(--gutter) + var(--spineW) + var(--gap));
+  width:1px;
+  background:rgba(0,0,0,.06);
 }
 
-.landing,.info{
+/* ---------- master grid (shared by landing + info) ---------- */
+.stage{
+  position:fixed;
+  inset:0;
+  display:grid;
+  grid-template-columns: var(--gutter) var(--spineW) var(--gap) 1fr var(--gutter);
+  grid-template-rows: 1fr; /* we’ll center inside each section */
+}
+
+.spine{
+  grid-column:2;
+  display:flex;
+  align-items:center;      /* <-- shared vertical datum */
+  justify-content:flex-start;
+}
+
+/* language menu */
+.lang-switch{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  font-size:13px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  align-items:flex-start;
+}
+
+.lang-switch button{
+  background:none;
+  border:0;
+  padding:0;
+  margin:0;
+  text-align:left;
+  cursor:pointer;
+  color:rgba(0,0,0,.38);
+  transition:color 300ms var(--ease);
+}
+.lang-switch button:hover{ color:rgba(0,0,0,.65); }
+.lang-switch button.active{ color:#111; }
+
+/* ---------- content areas ---------- */
+.main{
+  grid-column:4;
+  display:flex;
+  align-items:center;       /* <-- shared vertical datum */
+  justify-content:center;
+}
+
+/* Landing block */
+.landing{
+  text-align:center;
   transition:opacity var(--fade) var(--ease);
 }
 
@@ -53,7 +129,6 @@ body{
   line-height:1.05;
 }
 
-/* Typography buttons */
 .action{
   margin-top:20px;
   background:none;
@@ -64,29 +139,20 @@ body{
   font-size:14px;
   letter-spacing:.22em;
   text-transform:uppercase;
-
   display:inline-flex;
   align-items:center;
   gap:12px;
 }
-
 .action:focus{outline:none;}
-
-.action .word{
-  transition:color 360ms var(--ease);
-}
+.action .word{ transition:color 360ms var(--ease); }
 .action .arrow{
   display:inline-block;
   transition:transform 520ms var(--ease),color 360ms var(--ease);
   color:var(--faint);
 }
-.action:hover .word{color:rgba(0,0,0,.82);}
-.action:hover .arrow{
-  transform:translateX(4px);
-  color:rgba(0,0,0,.55);
-}
+.action:hover .word{ color:rgba(0,0,0,.82); }
+.action:hover .arrow{ transform:translateX(4px); color:rgba(0,0,0,.55); }
 
-/* UTC stamp */
 .live{
   margin-top:22px;
   font-size:12px;
@@ -95,12 +161,15 @@ body{
   color:var(--faint);
 }
 
-/* ---------- INFO VIEW ---------- */
+/* Info view (same grid + same vertical datum) */
 .info{
-  position:absolute;
+  position:fixed;
   inset:0;
-  opacity:0;
+  display:grid;
+  grid-template-columns: var(--gutter) var(--spineW) var(--gap) 1fr var(--gutter);
   pointer-events:none;
+  opacity:0;
+  transition:opacity var(--fade) var(--ease);
 }
 
 body.show-info .info{
@@ -112,20 +181,19 @@ body.show-info .landing{
   pointer-events:none;
 }
 
-.info-shell{
-  min-height:100%;
+.info .info-main{
+  grid-column:4;
   display:flex;
-  align-items:center;
-  justify-content:flex-start;
-  padding:40px 18px;
+  align-items:center;         /* <-- same vertical datum */
+  justify-content:flex-start; /* left aligned block */
 }
 
 .info-inner{
   width:min(720px,100%);
-  margin-left:12vw; /* breathing room */
   text-align:left;
 }
 
+/* heading */
 .info h2{
   margin:0 0 18px;
   font-size:20px;
@@ -134,13 +202,12 @@ body.show-info .landing{
   font-weight:500;
 }
 
-/* line reveal */
+/* line-by-line reveal */
 .line{
   margin:0;
   color:var(--muted);
   font-size:16px;
   line-height:1.75;
-
   opacity:0;
   transform:translateX(-10px);
 }
@@ -148,18 +215,15 @@ body.show-info .landing{
 body.show-info .line{
   animation:lineIn var(--lineDur) var(--ease) forwards;
 }
-
-body.show-info .l1{animation-delay:80ms;}
-body.show-info .l2{animation-delay:220ms;}
-body.show-info .l3{animation-delay:360ms;}
+body.show-info .l1{ animation-delay:80ms; }
+body.show-info .l2{ animation-delay:220ms; }
+body.show-info .l3{ animation-delay:360ms; }
 
 @keyframes lineIn{
   to{ opacity:1; transform:translateX(0); }
 }
 
-.line.l3{
-  color:rgba(0,0,0,.42);
-}
+.line.l3{ color:rgba(0,0,0,.42); }
 
 a{
   color:var(--fg);
@@ -168,44 +232,11 @@ a{
   padding-bottom:2px;
   transition:border-color 360ms var(--ease);
 }
-a:hover{border-bottom-color:rgba(0,0,0,.55);}
+a:hover{ border-bottom-color:rgba(0,0,0,.55); }
 
 .backRow{ margin-top:26px; }
 
-/* ---------- LANGUAGE MENU (aligned spine) ---------- */
-.lang-switch{
-  position:fixed;
-  left:4.5vw;
-  top:50%;
-  transform:translateY(-50%);
-
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-
-  font-size:13px;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-
-  align-items:flex-start;
-}
-
-.lang-switch button{
-  background:none;
-  border:0;
-  padding:0;
-  margin:0;
-  text-align:left;
-  cursor:pointer;
-
-  color:rgba(0,0,0,.38);
-  transition:color 300ms var(--ease);
-}
-
-.lang-switch button:hover{ color:rgba(0,0,0,.65); }
-.lang-switch button.active{ color:#111; }
-
-/* ---------- SINGLE CORNER MARK ---------- */
+/* single corner mark */
 .corner{
   position:fixed;
   width:14px;
@@ -219,30 +250,17 @@ a:hover{border-bottom-color:rgba(0,0,0,.55);}
   position:absolute;
   background:rgba(0,0,0,.18);
 }
-.corner::before{
-  height:1px;
-  width:14px;
-  right:0;
-  top:0;
-}
-.corner::after{
-  width:1px;
-  height:14px;
-  right:0;
-  top:0;
-}
+.corner::before{ height:1px; width:14px; right:0; top:0; }
+.corner::after{ width:1px; height:14px; right:0; top:0; }
 .tr{ top:12px; right:12px; }
 
-/* ---------- MOBILE ---------- */
+/* Mobile */
 @media(max-width:720px){
-  .info-inner{ margin-left:6vw; }
-  .lang-switch{ left:18px; }
+  :root{ --spineW: 104px; }
 }
 @media(max-width:520px){
-  .mark{
-    font-size:54px;
-    letter-spacing:.20em;
-  }
+  .mark{ font-size:54px; letter-spacing:.20em; }
+  .lang-switch{ font-size:12px; }
 }
 
 /* Reduced motion */
@@ -255,23 +273,37 @@ a:hover{border-bottom-color:rgba(0,0,0,.55);}
 
 <body>
 
-<!-- LANDING -->
-<div class="wrap landing">
-  <div>
-    <h1 class="mark" id="mark">Kuon</h1>
+<!-- optional guides: set --guides: 1 in :root to see datums -->
+<div class="guides" aria-hidden="true"></div>
 
-    <button class="action" id="openBtn" type="button" aria-label="Open contact details">
-      <span class="word">Contact</span>
-      <span class="arrow" aria-hidden="true">→</span>
-    </button>
+<!-- shared spine + landing -->
+<div class="stage">
+  <aside class="spine" aria-label="Language">
+    <div class="lang-switch">
+      <button data-lang="en" class="active" type="button">ENGLISH</button>
+      <button data-lang="zh" type="button">CHINESE</button>
+      <button data-lang="jp" type="button">JAPANESE</button>
+    </div>
+  </aside>
 
-    <div class="live" id="liveStamp" aria-label="UTC time"></div>
-  </div>
+  <main class="main">
+    <section class="landing" aria-label="Kuon landing">
+      <h1 class="mark">Kuon</h1>
+
+      <button class="action" id="openBtn" type="button" aria-label="Open contact details">
+        <span class="word">Contact</span>
+        <span class="arrow" aria-hidden="true">→</span>
+      </button>
+
+      <div class="live" id="liveStamp" aria-label="UTC time"></div>
+    </section>
+  </main>
 </div>
 
-<!-- INFO -->
-<div class="info" id="info" aria-hidden="true">
-  <div class="info-shell">
+<!-- info view shares the same grid + datum -->
+<section class="info" id="info" aria-hidden="true">
+  <div></div><div></div><div></div>
+  <div class="info-main">
     <div class="info-inner">
       <h2 id="infoTitle">Kuon Holdings</h2>
 
@@ -287,22 +319,13 @@ a:hover{border-bottom-color:rgba(0,0,0,.55);}
       </div>
     </div>
   </div>
-</div>
+</section>
 
-<!-- LANGUAGE MENU -->
-<div class="lang-switch" aria-label="Language">
-  <button data-lang="en" class="active" type="button">ENGLISH</button>
-  <button data-lang="zh" type="button">CHINESE</button>
-  <button data-lang="jp" type="button">JAPANESE</button>
-</div>
-
-<!-- CORNER MARK -->
+<!-- corner mark -->
 <div class="corner tr" aria-hidden="true"></div>
 
 <script>
-/* Keep landing identity and controls in English.
-   Language switches only affect the contact view. */
-
+/* Language affects contact view only (as agreed). */
 const content = {
   en: {
     infoTitle: "Kuon Holdings",
