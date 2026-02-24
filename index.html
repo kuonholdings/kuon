@@ -12,18 +12,21 @@
       --bg:#ffffff;
       --fg:#111;
 
+      /* layout */
       --baseline:54vh;
-      --contact-gap:62px;
       --clock-gap:22px;
+      --contact-gap:62px;
 
       --panel-gap:16px;
       --panel-stack-gap:14px;
       --langs-gap:22px;
 
+      /* contrast */
       --muted-1: rgba(0,0,0,0.66);
       --muted-2: rgba(0,0,0,0.70);
       --muted-3: rgba(0,0,0,0.58);
 
+      /* frame */
       --pad-x:64px;
       --pad-top:20px;
       --pad-bot:20px;
@@ -42,14 +45,14 @@
       --clock-size:18px;
       --clock-tone: rgba(0,0,0,0.14);
 
-      /* cycling underline */
+      /* underline cycle */
       --cycle-ms: 12000ms;
       --cycle-line: rgba(0,0,0,0.28);
       --cycle-line-h: 1px;
       --cycle-underline-gap: 2px;
 
       /* crossfade */
-      --xfade-ms: 1500ms;
+      --xfade-ms: 1600ms;
       --xfade-ease: cubic-bezier(.35,0,.25,1);
     }
 
@@ -97,14 +100,26 @@
       left:50%;
       top:var(--baseline);
       transform:translate(-50%, -50%);
-      text-align:center;
       width:min(980px, calc(100% - 40px));
+      text-align:center;
     }
 
-    /* ---- Crossfade wrapper (two layers) ---- */
+    /* --- Stack removes margin-collapse issues entirely --- */
+    .hero{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:var(--clock-gap);
+    }
+
+    /* ---- Crossfade system (two layers) ---- */
     .xfade{
       position:relative;
+      display:block;
+    }
+    .xfade.inline{
       display:inline-block;
+      vertical-align:baseline;
     }
     .xfade .layer{
       display:block;
@@ -123,7 +138,7 @@
     }
     .xfade.is-b .layer.b{
       opacity:1;
-      pointer-events:auto;
+      pointer-events:none; /* labels shouldn't capture clicks */
     }
 
     /* keep heights stable so nothing shifts */
@@ -142,9 +157,8 @@
       white-space:nowrap;
     }
 
-    /* clock */
+    /* clock (no margins here) */
     .clock{
-      margin-top:var(--clock-gap);
       font-size:var(--clock-size);
       font-weight:500;
       letter-spacing:0.14em;
@@ -185,8 +199,11 @@
     }
     .contact:hover{ color:var(--fg); }
     .contact:hover .arrow{ transform: translateX(3px) translateY(-1px); }
+
+    /* calm focus */
+    .contact:focus{ outline:none; }
     .contact:focus-visible{
-      outline:2px solid rgba(0,0,0,0.24);
+      outline:2px solid rgba(0,0,0,0.18);
       outline-offset:6px;
       border-radius:10px;
     }
@@ -200,7 +217,6 @@
       width:min(560px, 100%);
       margin-left:auto;
       margin-right:auto;
-      text-align:center;
 
       opacity:0;
       transform:translateY(6px);
@@ -263,6 +279,14 @@
     }
     .lang:hover{ color:var(--fg); }
     .lang[aria-current="true"]{ color:rgba(0,0,0,0.78); }
+
+    /* calm focus (remove blue default) */
+    .lang:focus{ outline:none; }
+    .lang:focus-visible{
+      outline:1px solid rgba(0,0,0,0.18);
+      outline-offset:4px;
+      border-radius:6px;
+    }
 
     .langs.is-cycling .lang[aria-current="true"]::after{
       content:"";
@@ -334,30 +358,31 @@
   <div class="wrap">
     <main class="center" aria-label="KUON">
 
-      <!-- LOGO crossfade -->
-      <div class="xfade logoBox" id="logoX">
-        <div class="layer a"><h1 class="logo" id="logoA">KUON</h1></div>
-        <div class="layer b"><h1 class="logo" id="logoB">KUON</h1></div>
-      </div>
+      <div class="hero">
+        <!-- LOGO crossfade -->
+        <div class="xfade logoBox" id="logoX">
+          <div class="layer a"><h1 class="logo" id="logoA">KUON</h1></div>
+          <div class="layer b"><h1 class="logo" id="logoB">KUON</h1></div>
+        </div>
 
-      <!-- CLOCK crossfade -->
-      <div class="xfade clockBox" id="clockX" aria-hidden="true">
-        <div class="layer a"><div class="clock" id="clockA">—</div></div>
-        <div class="layer b"><div class="clock" id="clockB">—</div></div>
+        <!-- CLOCK crossfade -->
+        <div class="xfade clockBox" id="clockX" aria-hidden="true">
+          <div class="layer a"><div class="clock" id="clockA">—</div></div>
+          <div class="layer b"><div class="clock" id="clockB">—</div></div>
+        </div>
       </div>
 
       <div class="contactRow">
-        <!-- CONTACT label crossfade (button itself stays stable) -->
         <button class="contact" id="contactBtn" type="button" aria-expanded="false" aria-controls="panel">
-          <span class="xfade" id="contactX" style="display:inline-block;">
+          <!-- CONTACT label crossfade (fixed properly) -->
+          <span class="xfade inline" id="contactX">
             <span class="layer a" id="contactA">contact</span>
-            <span class="layer b" id="contactB" style="position:absolute;inset:0;opacity:0;pointer-events:none;">contact</span>
+            <span class="layer b" id="contactB">contact</span>
           </span>
           <span class="arrow" id="contactArrow" aria-hidden="true">→</span>
         </button>
 
         <div class="panel" id="panel" aria-label="Contact panel">
-
           <!-- DESCRIPTOR crossfade -->
           <div class="xfade descBox" id="descX">
             <div class="layer a"><div class="descriptor" id="descA">KUON holds work intended to last — across design, sound, and structure.</div></div>
@@ -386,45 +411,20 @@
       window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const CONTENT = {
-      en: {
-        htmlLang: "en",
-        tz: "UTC",
-        tzLabel: "UTC",
-        logo: "KUON",
-        contact: "contact",
-        back: "back",
-        desc: "KUON holds work intended to last — across design, sound, and structure."
-      },
-      ja: {
-        htmlLang: "ja",
-        tz: "Asia/Tokyo",
-        tzLabel: "JPN",
-        logo: "クオン",
-        contact: "連絡",
-        back: "戻る",
-        desc: "KUONは、長く残ることを意図した仕事を保有します――デザイン、音、構造にわたって。"
-      },
-      zh: {
-        htmlLang: "zh",
-        tz: "Asia/Shanghai",
-        tzLabel: "CHN",
-        logo: "久音",
-        contact: "联系",
-        back: "返回",
-        desc: "KUON 持有旨在长久延续的工作——涵盖设计、声音与结构。"
-      }
+      en: { htmlLang:"en", tz:"UTC",          tzLabel:"UTC", logo:"KUON", contact:"contact", back:"back",
+            desc:"KUON holds work intended to last — across design, sound, and structure." },
+      ja: { htmlLang:"ja", tz:"Asia/Tokyo",   tzLabel:"JPN", logo:"クオン", contact:"連絡", back:"戻る",
+            desc:"KUONは、長く残ることを意図した仕事を保有します――デザイン、音、構造にわたって。" },
+      zh: { htmlLang:"zh", tz:"Asia/Shanghai",tzLabel:"CHN", logo:"久音", contact:"联系", back:"返回",
+            desc:"KUON 持有旨在长久延续的工作——涵盖设计、声音与结构。" }
     };
 
-    const ORDER = ["en", "ja", "zh"];
+    const ORDER = ["en","ja","zh"];
     let currentLang = "en";
 
     const CYCLE_MS = 12000;
     const MANUAL_PAUSE_MS = 30000;
-
     document.documentElement.style.setProperty("--cycle-ms", `${CYCLE_MS}ms`);
-
-    // Crossfade duration should match CSS --xfade-ms
-    const XFADE_MS = 1500;
 
     const panel = document.getElementById("panel");
     const contactBtn = document.getElementById("contactBtn");
@@ -432,13 +432,11 @@
     const langsEl = document.getElementById("langs");
     const langButtons = Array.from(document.querySelectorAll(".lang"));
 
-    // Crossfade containers
     const logoX  = document.getElementById("logoX");
     const clockX = document.getElementById("clockX");
     const descX  = document.getElementById("descX");
     const contactX = document.getElementById("contactX");
 
-    // Layer nodes
     const logoA  = document.getElementById("logoA");
     const logoB  = document.getElementById("logoB");
     const clockA = document.getElementById("clockA");
@@ -470,6 +468,11 @@
       return `${p.Y}.${p.M}.${p.D} ${p.h}:${p.m} ${tzLabel}`;
     }
 
+    function isB(container){ return container.classList.contains("is-b"); }
+    function flip(container){ container.classList.toggle("is-b"); }
+
+    function isOpen(){ return contactBtn.getAttribute("aria-expanded") === "true"; }
+
     function setActiveButton(langKey){
       langButtons.forEach(b => b.removeAttribute("aria-current"));
       const btn = langButtons.find(b => b.dataset.lang === langKey);
@@ -481,34 +484,24 @@
       langsEl.dataset.cycleId = String(cycleId);
     }
 
-    function isOpen(){
-      return contactBtn.getAttribute("aria-expanded") === "true";
-    }
-
-    // Toggle which layer is visible in a given xfade container
-    function flip(container){
-      container.classList.toggle("is-b");
-    }
-    function isB(container){
-      return container.classList.contains("is-b");
-    }
-
-    function writeToHiddenLayers(langKey){
+    function writeToHidden(langKey){
       const c = CONTENT[langKey];
       document.documentElement.setAttribute("lang", c.htmlLang);
 
-      // choose hidden layer depending on current state
-      const toB = !isB(logoX); // if A is showing, write to B
+      const toB = !isB(logoX); // if A showing, write to B
+      const label = isOpen() ? c.back : c.contact;
+      const clockText = formatInTZ(new Date(), langKey);
+
       if (toB){
         logoB.textContent = c.logo;
         descB.textContent = c.desc;
-        contactB.textContent = isOpen() ? c.back : c.contact;
-        clockB.textContent = formatInTZ(new Date(), langKey);
+        contactB.textContent = label;
+        clockB.textContent = clockText;
       } else {
         logoA.textContent = c.logo;
         descA.textContent = c.desc;
-        contactA.textContent = isOpen() ? c.back : c.contact;
-        clockA.textContent = formatInTZ(new Date(), langKey);
+        contactA.textContent = label;
+        clockA.textContent = clockText;
       }
 
       setActiveButton(langKey);
@@ -521,40 +514,34 @@
 
     function applyLanguage(langKey, { fromCycle=false } = {}){
       if (!CONTENT[langKey] || langKey === currentLang) return;
-
       currentLang = langKey;
 
       if (prefersReducedMotion){
-        // Just set both layers (no animation)
-        logoA.textContent = CONTENT[langKey].logo;
-        logoB.textContent = CONTENT[langKey].logo;
-        descA.textContent = CONTENT[langKey].desc;
-        descB.textContent = CONTENT[langKey].desc;
-        const lbl = isOpen() ? CONTENT[langKey].back : CONTENT[langKey].contact;
-        contactA.textContent = lbl;
-        contactB.textContent = lbl;
-        clockA.textContent = formatInTZ(new Date(), langKey);
-        clockB.textContent = clockA.textContent;
-        document.documentElement.setAttribute("lang", CONTENT[langKey].htmlLang);
+        const c = CONTENT[langKey];
+        const label = isOpen() ? c.back : c.contact;
+
+        logoA.textContent = c.logo; logoB.textContent = c.logo;
+        descA.textContent = c.desc; descB.textContent = c.desc;
+        contactA.textContent = label; contactB.textContent = label;
+
+        const ct = formatInTZ(new Date(), langKey);
+        clockA.textContent = ct; clockB.textContent = ct;
+
+        document.documentElement.setAttribute("lang", c.htmlLang);
         setActiveButton(langKey);
         return;
       }
 
-      // write new content into hidden layers, then flip all xfade containers
-      writeToHiddenLayers(langKey);
+      writeToHidden(langKey);
 
-      // flip simultaneously for a true crossfade
       flip(logoX);
       flip(clockX);
       flip(descX);
       flip(contactX);
 
-      if (!fromCycle && isOpen()){
-        pauseCyclingTemporarily();
-      }
+      if (!fromCycle && isOpen()) pauseCyclingTemporarily();
     }
 
-    // Keep clock “current” on whichever layer is visible
     function tick(){
       const text = formatInTZ(new Date(), currentLang);
       if (isB(clockX)) clockB.textContent = text;
@@ -571,10 +558,11 @@
       contactBtn.setAttribute("aria-expanded", String(open));
       contactArrow.textContent = open ? "←" : "→";
 
-      // update label in both layers to avoid mismatch
-      const lbl = open ? CONTENT[currentLang].back : CONTENT[currentLang].contact;
-      contactA.textContent = lbl;
-      contactB.textContent = lbl;
+      // Update BOTH layers so no mismatch during crossfade
+      const c = CONTENT[currentLang];
+      const label = open ? c.back : c.contact;
+      contactA.textContent = label;
+      contactB.textContent = label;
 
       if (open){
         if (!prefersReducedMotion){
@@ -619,14 +607,13 @@
 
       if (resetToEnglish){
         currentLang = "en";
-        // set both layers to English so closing never “flashes”
-        logoA.textContent = CONTENT.en.logo;
-        logoB.textContent = CONTENT.en.logo;
-        descA.textContent = CONTENT.en.desc;
-        descB.textContent = CONTENT.en.desc;
-        contactA.textContent = CONTENT.en.contact;
-        contactB.textContent = CONTENT.en.contact;
-        document.documentElement.setAttribute("lang", CONTENT.en.htmlLang);
+        const c = CONTENT.en;
+
+        logoA.textContent = c.logo; logoB.textContent = c.logo;
+        descA.textContent = c.desc; descB.textContent = c.desc;
+        contactA.textContent = c.contact; contactB.textContent = c.contact;
+
+        document.documentElement.setAttribute("lang", c.htmlLang);
         setActiveButton("en");
         tick();
       }
@@ -643,15 +630,16 @@
       btn.addEventListener("click", () => applyLanguage(btn.dataset.lang, { fromCycle:false }));
     });
 
-    // Init content to English on both layers
-    logoA.textContent = CONTENT.en.logo;
-    logoB.textContent = CONTENT.en.logo;
-    descA.textContent = CONTENT.en.desc;
-    descB.textContent = CONTENT.en.desc;
-    contactA.textContent = CONTENT.en.contact;
-    contactB.textContent = CONTENT.en.contact;
-    setActiveButton("en");
-    tick();
+    // Init English to both layers
+    (function init(){
+      const c = CONTENT.en;
+      logoA.textContent = c.logo; logoB.textContent = c.logo;
+      descA.textContent = c.desc; descB.textContent = c.desc;
+      contactA.textContent = c.contact; contactB.textContent = c.contact;
+      document.documentElement.setAttribute("lang", c.htmlLang);
+      setActiveButton("en");
+      tick();
+    })();
   </script>
 </body>
 </html>
