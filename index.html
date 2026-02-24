@@ -14,12 +14,14 @@
 
       /* layout */
       --baseline:54vh;
-      --contact-gap:64px;
+      --contact-gap:62px;
+      --clock-gap:22px;
+
       --panel-gap:16px;
       --panel-stack-gap:14px;
       --langs-gap:22px;
 
-      /* contrast (slightly darker than before) */
+      /* contrast (darker) */
       --muted-1: rgba(0,0,0,0.62);
       --muted-2: rgba(0,0,0,0.66);
       --muted-3: rgba(0,0,0,0.56);
@@ -32,8 +34,13 @@
       --rule: rgba(0,0,0,0.22);
       --rule-tick: rgba(0,0,0,0.18);
 
-      /* clock (frame element) */
-      --clock-size: 18px; /* keep subtle */
+      /* KUON presence */
+      --logo-size:56px;        /* was 50 */
+      --logo-track:0.28em;     /* was 0.30 */
+      --logo-pad:0.28em;       /* matches tracking */
+
+      /* clock (deboss) */
+      --clock-size:18px;
     }
 
     *{ box-sizing:border-box; }
@@ -75,13 +82,29 @@
       background:var(--rule-tick);
     }
 
-    /* Clock in the frame (top-right) */
-    .frame-clock{
-      position:fixed;
-      top:calc(var(--pad-top) - 2px);
-      right:var(--pad-x);
-      z-index:5;
-      pointer-events:none;
+    .center{
+      position:absolute;
+      left:50%;
+      top:var(--baseline);
+      transform:translate(-50%, -50%);
+      text-align:center;
+      width:min(980px, calc(100% - 40px));
+    }
+
+    .logo{
+      margin:0;
+      font-weight:700;
+      letter-spacing:var(--logo-track);
+      font-size:var(--logo-size);
+      line-height:1;
+      padding-left:var(--logo-pad);
+      color:var(--fg);
+      white-space:nowrap;
+    }
+
+    /* Clock under KUON (centered) */
+    .clock{
+      margin-top:var(--clock-gap);
 
       font-size:var(--clock-size);
       font-weight:500;
@@ -98,29 +121,9 @@
 
       white-space:nowrap;
       transition: opacity 200ms ease;
+      user-select:none;
     }
-    .frame-clock.is-switching{ opacity:0.65; }
-
-    .center{
-      position:absolute;
-      left:50%;
-      top:var(--baseline);
-      transform:translate(-50%, -50%);
-      text-align:center;
-      width:min(980px, calc(100% - 40px));
-    }
-
-    /* KUON as the hero: no games, no offsets */
-    .logo{
-      margin:0;
-      font-weight:700;
-      letter-spacing:0.30em;
-      font-size:50px;
-      line-height:1;
-      padding-left:0.30em; /* balances tracking */
-      color:var(--fg);
-      white-space:nowrap;
-    }
+    .clock.is-switching{ opacity:0.65; }
 
     .contactRow{ margin-top:var(--contact-gap); }
 
@@ -187,7 +190,7 @@
       max-width:58ch;
       line-height:1.7;
 
-      min-height:3.4em; /* lock height so languages don't shift layout */
+      min-height:3.4em;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -271,9 +274,11 @@
         --pad-top:18px;
         --pad-bot:18px;
         --clock-size: 16px;
+        --logo-size:48px;
+        --logo-track:0.27em;
+        --logo-pad:0.27em;
       }
       .wrap{ padding:40px var(--pad-x); }
-      .logo{ font-size:42px; }
       .bottom .left, .bottom .right{ white-space:normal; }
       .vsep{ height:10px; }
     }
@@ -282,11 +287,11 @@
 
 <body>
   <div class="top-rule" aria-hidden="true"><span></span></div>
-  <div class="frame-clock" id="frameClock" aria-hidden="true">—</div>
 
   <div class="wrap">
     <main class="center" aria-label="KUON">
       <h1 class="logo">KUON</h1>
+      <div class="clock" id="clock" aria-hidden="true">—</div>
 
       <div class="contactRow">
         <button class="contact" id="contactBtn" type="button" aria-expanded="false" aria-controls="panel">
@@ -341,7 +346,7 @@
     };
 
     let currentLang = "en";
-    const clockEl = document.getElementById("frameClock");
+    const clockEl = document.getElementById("clock");
     const descriptorEl = document.getElementById("descriptor");
 
     function partsForTZ(date, timeZone){
