@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>KUON</title>
   <meta name="description" content="KUON" />
+
   <style>
     :root{
       --fg:#111;
@@ -12,15 +13,15 @@
       --lite:#aaa;
       --bg:#fff;
 
-      --baseline:52vh;
-      --gap:28px;
-      --contact-gap:78px;
-      --panel-gap:18px;
-      --langs-gap:14px;
+      /* composition tuning */
+      --baseline:54vh;         /* slightly lower than true center */
+      --gap:26px;              /* KUON ↔ CLOCK */
+      --contact-gap:74px;      /* baseline → contact */
+      --panel-gap:18px;        /* contact → panel */
     }
 
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
     body{
       margin:0;
       background:var(--bg);
@@ -38,6 +39,7 @@
       position:relative;
     }
 
+    /* Center statement */
     .center{
       position:absolute;
       left:50%;
@@ -47,7 +49,6 @@
       width:min(980px, calc(100% - 40px));
     }
 
-    /* Row 1 */
     .statement{
       display:inline-flex;
       align-items:baseline;
@@ -60,17 +61,17 @@
       margin:0;
       font-weight:700;
       letter-spacing:0.32em;
-      font-size:56px;
+      font-size:50px;          /* reduced */
       line-height:1;
-      padding-left:0.32em;
+      padding-left:0.32em;     /* optical centering for tracking */
       color:var(--fg);
     }
 
-    /* Deboss clock option (same size as logo, very faint) */
+    /* Clock: same size as logo, debossed */
     .clock{
       font-weight:500;
       letter-spacing:0.14em;
-      font-size:56px;
+      font-size:50px;          /* match logo */
       line-height:1;
       color:rgba(0,0,0,0.08);
       text-shadow: 0 1px 0 rgba(255,255,255,0.55);
@@ -78,10 +79,7 @@
       user-select:none;
     }
 
-    /* Row 2 */
-    .contactRow{
-      margin-top:var(--contact-gap);
-    }
+    .contactRow{ margin-top:var(--contact-gap); }
 
     .contact{
       display:inline-block;
@@ -106,18 +104,17 @@
     }
 
     .contact:hover{ color:var(--fg); }
-
     .contact:focus-visible{
       outline:2px solid rgba(0,0,0,0.18);
       outline-offset:6px;
       border-radius:10px;
     }
 
-    /* Contact panel (details + languages) */
+    /* Panel (revealed on CONTACT) */
     .panel{
       margin-top:var(--panel-gap);
       display:grid;
-      gap:var(--langs-gap);
+      gap:16px;
       justify-items:center;
 
       opacity:0;
@@ -125,17 +122,20 @@
       pointer-events:none;
       transition: opacity 220ms ease, transform 220ms ease;
     }
-
     .panel.is-open{
       opacity:1;
       transform:translateY(0);
       pointer-events:auto;
     }
 
-    .details{
-      display:grid;
-      gap:8px;
-      justify-items:center;
+    /* Descriptive line about KUON (edit text below) */
+    .descriptor{
+      font-size:11px;
+      letter-spacing:0.12em;
+      color:rgba(0,0,0,0.42);
+      max-width:56ch;
+      line-height:1.7;
+      text-transform:none;
     }
 
     .email{
@@ -148,40 +148,74 @@
     }
     .email:hover{ color:var(--fg); }
 
-    .note{
-      font-size:11px;
-      letter-spacing:0.10em;
-      color:rgba(0,0,0,0.38);
-      max-width:42ch;
-      line-height:1.6;
-    }
-
+    /* Languages side-by-side */
     .langs{
-      display:grid;
-      gap:8px;
-      justify-items:center;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
     }
 
     .lang{
       background:transparent;
       border:0;
-      padding:4px 10px;
+      padding:4px 6px;
       cursor:pointer;
       color:var(--mid);
       font-weight:400;
-      letter-spacing:0.18em;
+      letter-spacing:0.16em;
       font-size:11px;
       text-transform:uppercase;
+      white-space:nowrap;
     }
     .lang:hover{ color:var(--fg); }
     .lang[aria-current="true"]{ color:var(--fg); }
 
-    @media (max-width: 560px){
+    .sep{
+      color:rgba(0,0,0,0.18);
+      letter-spacing:0.2em;
+      user-select:none;
+    }
+
+    /* Bottom info (always visible) */
+    .bottom{
+      position:fixed;
+      left:0; right:0;
+      bottom:22px;
+      padding:0 64px;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:24px;
+      pointer-events:none; /* purely informational */
+    }
+
+    .bottom .left,
+    .bottom .right{
+      font-size:11px;
+      letter-spacing:0.14em;
+      color:rgba(0,0,0,0.30);
+      line-height:1.6;
+      white-space:nowrap;
+    }
+
+    .bottom .left{
+      text-transform:uppercase;
+    }
+
+    .bottom .right{
+      text-transform:uppercase;
+      text-align:right;
+    }
+
+    @media (max-width: 720px){
       .wrap{ padding:40px 22px; }
-      .logo{ font-size:44px; }
-      .clock{ font-size:44px; }
-      :root{ --gap:16px; --contact-gap:70px; }
-      .note{ max-width:34ch; }
+      .bottom{ padding:0 22px; }
+      .logo{ font-size:42px; }
+      .clock{ font-size:42px; }
+      :root{ --gap:16px; --contact-gap:66px; }
+      .bottom .left, .bottom .right{ white-space:normal; }
     }
   </style>
 </head>
@@ -189,38 +223,50 @@
 <body>
   <div class="wrap">
     <main class="center" aria-label="KUON">
-      <!-- ROW 1 -->
+      <!-- Statement line -->
       <div class="statement" aria-label="KUON and clock">
         <h1 class="logo">KUON</h1>
         <div class="clock" id="clock">—</div>
       </div>
 
-      <!-- ROW 2 -->
+      <!-- Contact -->
       <div class="contactRow">
         <button class="contact" id="contactBtn" type="button" aria-expanded="false" aria-controls="panel">
           CONTACT <span class="arrow" aria-hidden="true">→</span>
         </button>
 
-        <!-- CONTACT PANEL -->
+        <!-- Panel -->
         <div class="panel" id="panel" aria-label="Contact panel">
-          <div class="details" aria-label="Contact details">
-            <!-- EDIT THIS -->
-            <a class="email" href="mailto:info@kuonholdings.com">info@kuonholdings.com</a>
-            <div class="note">Tokyo / London — By appointment.</div>
+          <!-- EDIT THIS descriptive line to match what you had before -->
+          <div class="descriptor" id="descriptor">
+            KUON is a holding studio for long-lived work — design, manufacturing, and quiet systems.
           </div>
 
-          <div class="langs" id="langs" aria-label="Languages">
-            <button class="lang" type="button" data-lang="en" aria-current="true">English</button>
-            <button class="lang" type="button" data-lang="ja">Japanese</button>
-            <button class="lang" type="button" data-lang="zh">Chinese</button>
+          <!-- Email -->
+          <a class="email" href="mailto:info@kuonholdings.com">info@kuonholdings.com</a>
+
+          <!-- Languages inline -->
+          <div class="langs" aria-label="Languages">
+            <button class="lang" type="button" data-lang="en" aria-current="true">ENGLISH</button>
+            <span class="sep" aria-hidden="true">|</span>
+            <button class="lang" type="button" data-lang="ja">JAPANESE</button>
+            <span class="sep" aria-hidden="true">|</span>
+            <button class="lang" type="button" data-lang="zh">CHINESE</button>
           </div>
         </div>
       </div>
     </main>
   </div>
 
+  <!-- Bottom info (always visible) -->
+  <footer class="bottom" aria-label="Footer info">
+    <!-- EDIT THESE -->
+    <div class="left">KUON HOLDINGS</div>
+    <div class="right">TOKYO / LONDON</div>
+  </footer>
+
   <script>
-    // --- Clock (UTC) ---
+    // --- Clock (UTC, no seconds) ---
     const clockEl = document.getElementById('clock');
     const pad = (n) => String(n).padStart(2, '0');
 
@@ -230,15 +276,14 @@
       const D = pad(d.getUTCDate());
       const h = pad(d.getUTCHours());
       const m = pad(d.getUTCMinutes());
-      const s = pad(d.getUTCSeconds());
-      return `${Y}.${M}.${D} ${h}:${m}:${s} UTC`;
+      return `${Y}.${M}.${D} ${h}:${m} UTC`;
     }
 
     function tick(){
       clockEl.textContent = formatUTC(new Date());
     }
     tick();
-    setInterval(tick, 1000);
+    setInterval(tick, 1000 * 10); // update every 10s (minutes still correct enough)
 
     // --- Contact panel toggle ---
     const contactBtn = document.getElementById('contactBtn');
@@ -260,7 +305,7 @@
       }
     });
 
-    // Language selection placeholder
+    // Language selection placeholder (keeps the selected one darker)
     const langButtons = Array.from(document.querySelectorAll('.lang'));
     langButtons.forEach(btn => {
       btn.addEventListener('click', () => {
