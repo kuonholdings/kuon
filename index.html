@@ -3,144 +3,224 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Kuon Holdings</title>
-
+<title>Kuon</title>
 <style>
-:root{
-  --bg:#f5f5f2;
-  --fg:#111;
-  --muted:rgba(0,0,0,.55);
-  --hair:rgba(0,0,0,.14);
-}
+  :root{
+    --bg:#f6f6f3;
+    --fg:#111;
+    --muted:rgba(0,0,0,.58);
+    --faint:rgba(0,0,0,.28);
+  }
 
-*{box-sizing:border-box;}
-html,body{height:100%;}
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
 
-body{
-  margin:0;
-  background:var(--bg);
-  color:var(--fg);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  letter-spacing:.2px;
-}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    letter-spacing:.2px;
+  }
 
-.wrap{
-  min-height:100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:48px 22px;
-}
-
-/* SAME COLOUR AS BACKGROUND */
-.card{
-  width:min(860px,100%);
-  border:1px solid var(--hair);
-  padding:42px 34px 24px;
-  background:var(--bg);
-}
-
-.top{
-  border-bottom:1px solid var(--hair);
-  padding-bottom:20px;
-  margin-bottom:20px;
-}
-
-.logo{
-  margin:0;
-  font-size:30px;        /* larger header */
-  letter-spacing:.22em;  /* less spacing = luxury feel */
-  text-transform:uppercase;
-  font-weight:500;
-}
-
-.body{
-  display:flex;
-  justify-content:space-between;
-  gap:18px;
-  flex-wrap:wrap;
-}
-
-.line{
-  margin:0;
-  font-size:15px;
-  color:var(--muted);
-}
-
-a{
-  color:var(--fg);
-  text-decoration:none;
-  border-bottom:1px solid rgba(0,0,0,.25);
-  padding-bottom:2px;
-}
-
-a:hover{
-  border-bottom-color:rgba(0,0,0,.6);
-}
-
-footer{
-  margin-top:18px;
-  padding-top:14px;
-  border-top:1px solid var(--hair);
-  font-size:12px;
-  color:rgba(0,0,0,.45);
-  letter-spacing:.08em;
-}
-
-/* MOBILE PORTRAIT */
-@media(max-width:720px){
-
+  /* Landing */
   .wrap{
-    padding:24px 14px;
+    min-height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:48px 18px;
   }
 
-  .card{
-    width:min(420px,100%);
-    padding:30px 20px 20px;
+  .landing{
+    text-align:center;
+    user-select:none;
   }
 
-  .logo{
-    font-size:24px;
-    letter-spacing:.16em;
+  .mark{
+    margin:0;
+    font-size:64px;
+    font-weight:500;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    line-height:1.05;
   }
 
-  .body{
-    flex-direction:column;
-    gap:12px;
+  .enter{
+    margin-top:18px;
+    display:inline-block;
+    font-size:13px;
+    letter-spacing:.26em;
+    text-transform:uppercase;
+    color:var(--muted);
+    background:none;
+    border:0;
+    padding:10px 12px;
+    cursor:pointer;
   }
 
-  .line{
-    font-size:14px;
+  .enter:focus{
+    outline:none;
   }
-}
+
+  .enter span{
+    border-bottom:1px solid transparent;
+    padding-bottom:3px;
+  }
+
+  .enter:hover span{
+    border-bottom-color:var(--faint);
+  }
+
+  /* Panel */
+  .overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.0);
+    pointer-events:none;
+    transition: background .25s ease;
+  }
+
+  .panel{
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    transform: translateY(102%);
+    transition: transform .32s ease;
+    background:var(--bg);
+    padding:22px 18px 26px;
+  }
+
+  .panel-inner{
+    max-width:720px;
+    margin:0 auto;
+  }
+
+  .panel-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:16px;
+    margin-bottom:16px;
+  }
+
+  .panel-title{
+    margin:0;
+    font-size:16px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    font-weight:500;
+  }
+
+  .close{
+    font-size:12px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--muted);
+    background:none;
+    border:0;
+    padding:8px 10px;
+    cursor:pointer;
+  }
+
+  .close:hover{
+    color:rgba(0,0,0,.8);
+  }
+
+  .copy{
+    margin:0;
+    color:var(--muted);
+    font-size:15px;
+    line-height:1.7;
+    max-width:64ch;
+  }
+
+  .copy + .copy{ margin-top:10px; }
+
+  a{
+    color:var(--fg);
+    text-decoration:none;
+    border-bottom:1px solid var(--faint);
+    padding-bottom:2px;
+  }
+
+  a:hover{
+    border-bottom-color:rgba(0,0,0,.55);
+  }
+
+  /* Open state */
+  body.is-open .overlay{
+    background:rgba(0,0,0,.06);
+    pointer-events:auto;
+  }
+  body.is-open .panel{
+    transform: translateY(0);
+  }
+
+  /* Mobile tuning */
+  @media(max-width:520px){
+    .mark{
+      font-size:46px;
+      letter-spacing:.22em;
+    }
+  }
+
+  @media(prefers-reduced-motion: reduce){
+    .panel, .overlay{ transition:none; }
+  }
 </style>
 </head>
 
 <body>
-<div class="wrap">
-<main class="card">
-
-  <div class="top">
-    <h1 class="logo">Kuon Holdings</h1>
+  <div class="wrap">
+    <div class="landing" aria-label="Kuon landing">
+      <h1 class="mark">Kuon</h1>
+      <button class="enter" id="openBtn" type="button" aria-haspopup="dialog" aria-controls="panel">
+        <span>Enter</span>
+      </button>
+    </div>
   </div>
 
-  <div class="body">
-    <p class="line">Kuon Holdings Ltd. (BVI)</p>
-    <p class="line">
-      <a href="mailto:contact@kuonholdings.com">contact@kuonholdings.com</a>
-    </p>
-  </div>
+  <div class="overlay" id="overlay" aria-hidden="true"></div>
 
-  <footer>
-    © <span id="y"></span> Kuon Holdings
-  </footer>
+  <section class="panel" id="panel" role="dialog" aria-modal="true" aria-label="Kuon information">
+    <div class="panel-inner">
+      <div class="panel-top">
+        <h2 class="panel-title">Kuon</h2>
+        <button class="close" id="closeBtn" type="button"><span>Close</span></button>
+      </div>
 
-</main>
-</div>
+      <p class="copy">Kuon Holdings Ltd. (BVI) is a holding structure for long-term ventures and investments.</p>
+      <p class="copy">For matters relating to Kuon ventures, please contact <a href="mailto:contact@kuonholdings.com">contact@kuonholdings.com</a>.</p>
+    </div>
+  </section>
 
 <script>
-document.getElementById("y").textContent = new Date().getFullYear();
-</script>
+  const openBtn = document.getElementById("openBtn");
+  const closeBtn = document.getElementById("closeBtn");
+  const overlay = document.getElementById("overlay");
 
+  function openPanel(){
+    document.body.classList.add("is-open");
+    // Move focus for accessibility
+    closeBtn.focus({ preventScroll: true });
+  }
+
+  function closePanel(){
+    document.body.classList.remove("is-open");
+    openBtn.focus({ preventScroll: true });
+  }
+
+  openBtn.addEventListener("click", openPanel);
+  closeBtn.addEventListener("click", closePanel);
+  overlay.addEventListener("click", closePanel);
+
+  document.addEventListener("keydown", (e) => {
+    if(e.key === "Escape" && document.body.classList.contains("is-open")){
+      closePanel();
+    }
+  });
+</script>
 </body>
 </html>
