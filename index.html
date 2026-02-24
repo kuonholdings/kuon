@@ -41,6 +41,12 @@
 
       /* clock (deboss) */
       --clock-size:18px;
+
+      /* cycle underline */
+      --cycle-ms: 9000ms;
+      --cycle-line: rgba(0,0,0,0.26);
+      --cycle-line-h: 1px;
+      --cycle-line-gap: 6px;
     }
 
     *{ box-sizing:border-box; }
@@ -91,7 +97,6 @@
       width:min(980px, calc(100% - 40px));
     }
 
-    /* Logo: keep height stable to avoid shifts when characters change */
     .logo{
       margin:0;
       font-weight:700;
@@ -106,14 +111,12 @@
     }
     .logo.is-switching{ opacity:0.72; }
 
-    /* Clock under KUON (centered) */
     .clock{
       margin-top:var(--clock-gap);
       font-size:var(--clock-size);
       font-weight:500;
       letter-spacing:0.14em;
 
-      /* deboss */
       color:rgba(0,0,0,0.10);
       text-shadow:
         0 -1px 0 rgba(0,0,0,0.05),
@@ -236,6 +239,7 @@
       font-size:11px;
       text-transform:uppercase;
       white-space:nowrap;
+      position:relative;
       transition: color 160ms ease;
     }
     .lang:hover{ color:var(--fg); }
@@ -247,6 +251,36 @@
       background:rgba(0,0,0,0.18);
       transform: translateY(1px);
       user-select:none;
+    }
+
+    /* ---- Progress underline (only when cycling) ---- */
+    .langs.is-cycling .lang[aria-current="true"]::after{
+      content:"";
+      position:absolute;
+      left:0;
+      right:0;
+      height:var(--cycle-line-h);
+      background:var(--cycle-line);
+      bottom:calc(-1 * var(--cycle-line-gap));
+      transform-origin:left center;
+      transform:scaleX(0);
+      opacity:0.9;
+      animation: langProgress var(--cycle-ms) linear forwards;
+    }
+
+    /* Restart animation on each language change by varying data-cycle-id */
+    .langs.is-cycling[data-cycle-id] .lang[aria-current="true"]::after{
+      animation-name: langProgress;
+    }
+
+    @keyframes langProgress{
+      from { transform: scaleX(0); }
+      to   { transform: scaleX(1); }
+    }
+
+    /* Reduce motion: remove cycling underline + animation */
+    @media (prefers-reduced-motion: reduce){
+      .langs.is-cycling .lang[aria-current="true"]::after{ animation:none; }
     }
 
     .bottom{
@@ -310,7 +344,7 @@
 
           <a class="email" href="mailto:info@kuonholdings.com">info@kuonholdings.com</a>
 
-          <div class="langs" aria-label="Languages">
+          <div class="langs" id="langs" aria-label="Languages">
             <button class="lang" type="button" data-lang="en" aria-current="true">ENGLISH</button>
             <span class="vsep" aria-hidden="true"></span>
             <button class="lang" type="button" data-lang="ja">JAPANESE</button>
@@ -328,7 +362,6 @@
   </footer>
 
   <script>
-    // Respect reduced motion: no cycling.
     const prefersReducedMotion = window.matchMedia &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -372,13 +405,18 @@
     const contactLabel = document.getElementById("contactLabel");
     const contactArrow = document.getElementById("contactArrow");
     const panel = document.getElementById("panel");
+    const langsEl = document.getElementById("langs");
     const langButtons = Array.from(document.querySelectorAll(".lang"));
 
     // Cycling controls
     let cycleTimer = null;
     let resumeTimer = null;
-    const CYCLE_MS = 9000;     // how often it rotates
-    const MANUAL_PAUSE_MS = 30000; // pause after manual click
+    const CYCLE_MS = 9000;
+    const MANUAL_PAUSE_MS = 30000;
+    let cycleId = 0;
+
+    // Keep CSS var in sync with JS interval
+    document.documentElement.style.setProperty("--cycle-ms", `${CYCLE_MS}ms`);
 
     function partsForTZ(date, timeZone){
       const fmt = new Intl.DateTimeFormat("en-GB", {
@@ -412,7 +450,13 @@
       if (btn) btn.setAttribute("aria-current", "true");
     }
 
-    function setLanguage(langKey, { animate=true } = {}){
+    function restartUnderline(){
+      // bump a data attribute so the ::after animation restarts reliably
+      cycleId += 1;
+      langsEl.dataset.cycleId = String(cycleId);
+    }
+
+    function setLanguage(langKey, { animate=true, fromCycle=false } = {}){
       if (!CONTENT[langKey]) return;
       if (langKey === currentLang) { tick(); return; }
 
@@ -429,7 +473,6 @@
       document.documentElement.setAttribute("lang", CONTENT[langKey].htmlLang);
       setActiveButton(langKey);
 
-      // Update text (slight delay for a soft “breathe”)
       const apply = () => {
         logoEl.textContent = CONTENT[langKey].logo;
         descriptorEl.textContent = CONTENT[langKey].descriptor;
@@ -437,6 +480,12 @@
         const isOpen = contactBtn.getAttribute("aria-expanded") === "true";
         contactLabel.textContent = isOpen ? CONTENT[langKey].back : CONTENT[langKey].contact;
         tick();
+
+        // Only show underline progress when contact is open and cycling is active
+        if (isOpen && !prefersReducedMotion){
+          langsEl.classList.add("is-cycling");
+          restartUnderline();
+        }
       };
 
       if (doAnim){
@@ -450,11 +499,12 @@
       } else {
         apply();
       }
-    }
 
-    // Clock updates
-    tick();
-    setInterval(tick, 1000 * 10);
+      // If the change was manual, pause cycling progress underline will still show for current cycle
+      if (!fromCycle && (contactBtn.getAttribute("aria-expanded") === "true")) {
+        pauseCyclingTemporarily();
+      }
+    }
 
     // Contact open/close
     let open = false;
@@ -463,12 +513,18 @@
       panel.classList.toggle("is-open", open);
       contactBtn.setAttribute("aria-expanded", String(open));
       contactArrow.textContent = open ? "←" : "→";
-
-      // Use localized label
       contactLabel.textContent = open ? CONTENT[currentLang].back : CONTENT[currentLang].contact;
 
-      if (open) startCycling();
-      else stopCycling(true);
+      if (open){
+        if (!prefersReducedMotion){
+          langsEl.classList.add("is-cycling");
+          restartUnderline();
+        }
+        startCycling();
+      } else {
+        langsEl.classList.remove("is-cycling");
+        stopCycling(true);
+      }
     }
 
     contactBtn.addEventListener("click", () => setOpen(!open));
@@ -480,31 +536,11 @@
       }
     });
 
-    // Language buttons: manual selection pauses cycling briefly
-    function pauseCyclingTemporarily(){
-      if (resumeTimer) clearTimeout(resumeTimer);
-      if (cycleTimer) clearInterval(cycleTimer);
-
-      if (!prefersReducedMotion){
-        resumeTimer = setTimeout(() => {
-          if (open) startCycling();
-        }, MANUAL_PAUSE_MS);
-      }
-    }
-
-    langButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const lang = btn.dataset.lang;
-        setLanguage(lang, { animate:true });
-        if (open) pauseCyclingTemporarily();
-      });
-    });
-
     // Cycling
     function nextLang(){
       const idx = ORDER.indexOf(currentLang);
       const next = ORDER[(idx + 1) % ORDER.length];
-      setLanguage(next, { animate:true });
+      setLanguage(next, { animate:true, fromCycle:true });
     }
 
     function startCycling(){
@@ -512,17 +548,48 @@
       if (cycleTimer) clearInterval(cycleTimer);
       if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null; }
 
-      // slight delay so it doesn't immediately switch on open
+      // restart underline at beginning of a cycle
+      langsEl.classList.add("is-cycling");
+      restartUnderline();
+
       cycleTimer = setInterval(nextLang, CYCLE_MS);
     }
 
     function stopCycling(resetToEnglish){
       if (cycleTimer) { clearInterval(cycleTimer); cycleTimer = null; }
       if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null; }
-      if (resetToEnglish) setLanguage("en", { animate:false });
+      langsEl.classList.remove("is-cycling");
+      if (resetToEnglish) {
+        currentLang = "en";
+        setActiveButton("en");
+        document.documentElement.setAttribute("lang", CONTENT.en.htmlLang);
+        logoEl.textContent = CONTENT.en.logo;
+        descriptorEl.textContent = CONTENT.en.descriptor;
+        tick();
+        contactLabel.textContent = CONTENT.en.contact;
+      }
     }
 
-    // Ensure initial labels match current lang
+    function pauseCyclingTemporarily(){
+      if (resumeTimer) clearTimeout(resumeTimer);
+      if (cycleTimer) { clearInterval(cycleTimer); cycleTimer = null; }
+
+      resumeTimer = setTimeout(() => {
+        if (open) startCycling();
+      }, MANUAL_PAUSE_MS);
+    }
+
+    // Language buttons
+    langButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const lang = btn.dataset.lang;
+        setLanguage(lang, { animate:true, fromCycle:false });
+      });
+    });
+
+    // Initial state
+    tick();
+    setInterval(tick, 1000 * 10);
     contactLabel.textContent = CONTENT[currentLang].contact;
   </script>
 </body>
