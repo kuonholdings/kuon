@@ -10,14 +10,15 @@
     :root{
       --fg:#111;
       --mid:#666;
-      --lite:#aaa;
       --bg:#fff;
 
-      /* composition tuning */
-      --baseline:54vh;         /* slightly lower than true center */
-      --gap:26px;              /* KUON ↔ CLOCK */
-      --contact-gap:74px;      /* baseline → contact */
-      --panel-gap:18px;        /* contact → panel */
+      /* composition */
+      --baseline:54vh;
+      --gap:18px;              /* tighter KUON ↔ clock */
+      --contact-gap:68px;      /* slightly tighter */
+      --panel-gap:16px;        /* contact → panel */
+      --panel-stack-gap:14px;  /* internal rhythm */
+      --langs-gap:22px;        /* MORE breathing space before languages */
     }
 
     *{ box-sizing:border-box; }
@@ -39,7 +40,6 @@
       position:relative;
     }
 
-    /* Center statement */
     .center{
       position:absolute;
       left:50%;
@@ -49,6 +49,7 @@
       width:min(980px, calc(100% - 40px));
     }
 
+    /* Statement line */
     .statement{
       display:inline-flex;
       align-items:baseline;
@@ -61,33 +62,40 @@
       margin:0;
       font-weight:700;
       letter-spacing:0.32em;
-      font-size:50px;          /* reduced */
+      font-size:50px;
       line-height:1;
-      padding-left:0.32em;     /* optical centering for tracking */
+      padding-left:0.32em; /* optical centering for tracking */
       color:var(--fg);
     }
 
-    /* Clock: same size as logo, debossed */
+    /* Clock: same size as logo, more debossed */
     .clock{
       font-weight:500;
       letter-spacing:0.14em;
-      font-size:50px;          /* match logo */
+      font-size:50px;
       line-height:1;
-      color:rgba(0,0,0,0.08);
-      text-shadow: 0 1px 0 rgba(255,255,255,0.55);
-      transform: translateY(-1px);
+
+      color:rgba(0,0,0,0.06);
+      text-shadow: 0 1px 1px rgba(255,255,255,0.55);
+
+      transform: translateY(0px); /* baseline lock */
       user-select:none;
     }
 
+    /* Contact row */
     .contactRow{ margin-top:var(--contact-gap); }
 
     .contact{
-      display:inline-block;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+
       border:0;
       background:transparent;
       padding:6px 10px;
       cursor:pointer;
-      color:var(--mid);
+
+      color:rgba(0,0,0,0.52);
       font-weight:400;
       letter-spacing:0.22em;
       font-size:12px;
@@ -95,26 +103,29 @@
     }
 
     .contact .arrow{
-      margin-left:10px;
       font-size:14px;
       line-height:1;
-      transform: translateY(-1px);
       display:inline-block;
+      transform: translateX(0) translateY(-1px);
+      transition: transform 180ms ease;
       color:inherit;
     }
 
+    /* subtle hover nudge */
     .contact:hover{ color:var(--fg); }
+    .contact:hover .arrow{ transform: translateX(3px) translateY(-1px); }
+
     .contact:focus-visible{
       outline:2px solid rgba(0,0,0,0.18);
       outline-offset:6px;
       border-radius:10px;
     }
 
-    /* Panel (revealed on CONTACT) */
+    /* Panel */
     .panel{
       margin-top:var(--panel-gap);
       display:grid;
-      gap:16px;
+      gap:var(--panel-stack-gap);
       justify-items:center;
 
       opacity:0;
@@ -128,32 +139,33 @@
       pointer-events:auto;
     }
 
-    /* Descriptive line about KUON (edit text below) */
     .descriptor{
       font-size:11px;
       letter-spacing:0.12em;
-      color:rgba(0,0,0,0.42);
+      color:rgba(0,0,0,0.38);
       max-width:56ch;
       line-height:1.7;
-      text-transform:none;
     }
 
+    /* Email in lowercase, quieter */
     .email{
       font-size:12px;
-      letter-spacing:0.16em;
-      text-transform:uppercase;
-      color:var(--mid);
+      letter-spacing:0.14em;
+      text-transform:none;              /* keep lowercase */
+      color:rgba(0,0,0,0.42);
       text-decoration:none;
       padding:4px 10px;
+      transition: color 160ms ease;
     }
     .email:hover{ color:var(--fg); }
 
-    /* Languages side-by-side */
+    /* Languages row with hairline separators */
     .langs{
+      margin-top:var(--langs-gap);      /* more breathing space */
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:12px;
+      gap:14px;
       flex-wrap:wrap;
     }
 
@@ -162,60 +174,59 @@
       border:0;
       padding:4px 6px;
       cursor:pointer;
-      color:var(--mid);
+
+      color:rgba(0,0,0,0.42);           /* slightly more greyed */
       font-weight:400;
       letter-spacing:0.16em;
       font-size:11px;
       text-transform:uppercase;
       white-space:nowrap;
+      transition: color 160ms ease;
     }
     .lang:hover{ color:var(--fg); }
-    .lang[aria-current="true"]{ color:var(--fg); }
+    .lang[aria-current="true"]{ color:rgba(0,0,0,0.62); }
 
-    .sep{
-      color:rgba(0,0,0,0.18);
-      letter-spacing:0.2em;
+    .hair{
+      width:22px;
+      height:1px;
+      background:rgba(0,0,0,0.12);
+      transform: translateY(1px);
       user-select:none;
     }
 
-    /* Bottom info (always visible) */
+    /* Footer */
     .bottom{
       position:fixed;
       left:0; right:0;
-      bottom:22px;
+      bottom:20px;
       padding:0 64px;
       display:flex;
       justify-content:space-between;
       align-items:flex-end;
       gap:24px;
-      pointer-events:none; /* purely informational */
+      pointer-events:none;
     }
 
     .bottom .left,
     .bottom .right{
       font-size:11px;
       letter-spacing:0.14em;
-      color:rgba(0,0,0,0.30);
+      color:rgba(0,0,0,0.22);
       line-height:1.6;
       white-space:nowrap;
-    }
-
-    .bottom .left{
       text-transform:uppercase;
     }
 
-    .bottom .right{
-      text-transform:uppercase;
-      text-align:right;
-    }
+    .bottom .right{ text-align:right; }
 
     @media (max-width: 720px){
       .wrap{ padding:40px 22px; }
       .bottom{ padding:0 22px; }
       .logo{ font-size:42px; }
       .clock{ font-size:42px; }
-      :root{ --gap:16px; --contact-gap:66px; }
+      :root{ --gap:14px; --contact-gap:64px; }
       .bottom .left, .bottom .right{ white-space:normal; }
+      .hair{ width:18px; }
     }
   </style>
 </head>
@@ -223,34 +234,31 @@
 <body>
   <div class="wrap">
     <main class="center" aria-label="KUON">
-      <!-- Statement line -->
       <div class="statement" aria-label="KUON and clock">
         <h1 class="logo">KUON</h1>
         <div class="clock" id="clock">—</div>
       </div>
 
-      <!-- Contact -->
       <div class="contactRow">
         <button class="contact" id="contactBtn" type="button" aria-expanded="false" aria-controls="panel">
-          CONTACT <span class="arrow" aria-hidden="true">→</span>
+          <span id="contactLabel">contact</span>
+          <span class="arrow" id="contactArrow" aria-hidden="true">→</span>
         </button>
 
-        <!-- Panel -->
         <div class="panel" id="panel" aria-label="Contact panel">
-          <!-- EDIT THIS descriptive line to match what you had before -->
+          <!-- EDIT THIS line to your final copy -->
           <div class="descriptor" id="descriptor">
             KUON is a holding studio for long-lived work — design, manufacturing, and quiet systems.
           </div>
 
-          <!-- Email -->
+          <!-- EDIT THIS email -->
           <a class="email" href="mailto:info@kuonholdings.com">info@kuonholdings.com</a>
 
-          <!-- Languages inline -->
           <div class="langs" aria-label="Languages">
             <button class="lang" type="button" data-lang="en" aria-current="true">ENGLISH</button>
-            <span class="sep" aria-hidden="true">|</span>
+            <span class="hair" aria-hidden="true"></span>
             <button class="lang" type="button" data-lang="ja">JAPANESE</button>
-            <span class="sep" aria-hidden="true">|</span>
+            <span class="hair" aria-hidden="true"></span>
             <button class="lang" type="button" data-lang="zh">CHINESE</button>
           </div>
         </div>
@@ -258,7 +266,6 @@
     </main>
   </div>
 
-  <!-- Bottom info (always visible) -->
   <footer class="bottom" aria-label="Footer info">
     <!-- EDIT THESE -->
     <div class="left">KUON HOLDINGS</div>
@@ -283,17 +290,24 @@
       clockEl.textContent = formatUTC(new Date());
     }
     tick();
-    setInterval(tick, 1000 * 10); // update every 10s (minutes still correct enough)
+    setInterval(tick, 1000 * 10); // calm updates (minute display)
 
-    // --- Contact panel toggle ---
+    // --- Contact panel toggle (label + arrow flips) ---
     const contactBtn = document.getElementById('contactBtn');
+    const contactLabel = document.getElementById('contactLabel');
+    const contactArrow = document.getElementById('contactArrow');
     const panel = document.getElementById('panel');
+
     let open = false;
 
     function setOpen(v){
       open = v;
       panel.classList.toggle('is-open', open);
       contactBtn.setAttribute('aria-expanded', String(open));
+
+      // swap label + arrow direction
+      contactLabel.textContent = open ? 'back' : 'contact';
+      contactArrow.textContent = open ? '←' : '→';
     }
 
     contactBtn.addEventListener('click', () => setOpen(!open));
@@ -305,7 +319,7 @@
       }
     });
 
-    // Language selection placeholder (keeps the selected one darker)
+    // Language selection placeholder
     const langButtons = Array.from(document.querySelectorAll('.lang'));
     langButtons.forEach(btn => {
       btn.addEventListener('click', () => {
