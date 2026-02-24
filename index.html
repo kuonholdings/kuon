@@ -14,10 +14,14 @@
       /* composition */
       --baseline:54vh;
       --gap:18px;
-      --contact-gap:66px;         /* refined */
+      --contact-gap:66px;
       --panel-gap:16px;
       --panel-stack-gap:14px;
       --langs-gap:22px;
+
+      /* hard lock widths to prevent drift */
+      --clock-col: 560px;   /* clock column */
+      --logo-col: 240px;    /* KUON column (enough for tracking) */
 
       /* tone */
       --contact-body: rgba(0,0,0,0.52);
@@ -47,7 +51,7 @@
     /* Top-right editorial hairline rule + tick */
     .top-rule{
       position:fixed;
-      top:20px;                /* matched to footer bottom */
+      top:20px;
       right:64px;
       width:72px;
       height:1px;
@@ -67,61 +71,65 @@
     .center{
       position:absolute;
       left:50%;
-      top:calc(var(--baseline) + 2px); /* subtle baseline grid snap */
+      top:calc(var(--baseline) + 2px);
       transform:translate(-50%, -50%);
       text-align:center;
       width:min(980px, calc(100% - 40px));
     }
 
-    /* Statement line */
+    /* ✅ Statement wrapper is fixed total width and centered */
+    .statementWrap{
+      width: calc(var(--logo-col) + var(--gap) + var(--clock-col));
+      margin: 0 auto;
+    }
+
     .statement{
-      display:inline-flex;
+      display:grid;
+      grid-template-columns: var(--logo-col) var(--clock-col);
+      column-gap: var(--gap);
       align-items:baseline;
-      justify-content:center;
-      gap:var(--gap);
+      justify-items:center;     /* centers content within each column */
       white-space:nowrap;
 
-      /* museum-grade optical correction */
+      /* optical correction */
       transform: translateX(-2px);
     }
 
     .logo{
       margin:0;
+      width:100%;
+      text-align:center;
+
       font-weight:700;
-      letter-spacing:0.30em;     /* refined tracking */
+      letter-spacing:0.30em;
       font-size:50px;
       line-height:1;
-      padding-left:0.30em;       /* match tracking for optical centering */
+      padding-left:0.30em;
       color:var(--fg);
     }
 
-    /* Clock: debossed + stable width + tabular numerals */
     .clock{
+      width:100%;
+      text-align:center;
+
       font-weight:500;
       letter-spacing:0.14em;
       font-size:50px;
       line-height:1;
 
-      /* deboss micro-contrast */
       color:rgba(0,0,0,0.055);
       text-shadow:
         0 -1px 0 rgba(0,0,0,0.03),
         0  1px 1px rgba(255,255,255,0.62);
 
-      transform: translateY(0px);
       user-select:none;
       transition: opacity 220ms ease;
 
-      /* prevent horizontal shifting */
       font-variant-numeric: tabular-nums;
       font-feature-settings: "tnum" 1, "lnum" 1;
-      display:inline-block;
-      min-width:23ch;            /* lock width */
-      text-align:center;         /* stabilize visual mass */
     }
     .clock.is-switching{ opacity:0.55; }
 
-    /* Contact row */
     .contactRow{ margin-top:var(--contact-gap); }
 
     .contact{
@@ -134,7 +142,6 @@
       padding:6px 10px;
       cursor:pointer;
 
-      /* caption-like */
       color:rgba(0,0,0,0.46);
       font-weight:400;
       letter-spacing:0.24em;
@@ -160,7 +167,6 @@
       border-radius:10px;
     }
 
-    /* Panel */
     .panel{
       margin-top:var(--panel-gap);
       display:grid;
@@ -168,6 +174,9 @@
       justify-items:center;
 
       width:min(560px, 100%);
+      margin-left:auto;
+      margin-right:auto;
+      text-align:center;
 
       opacity:0;
       transform:translateY(6px);
@@ -180,7 +189,6 @@
       pointer-events:auto;
     }
 
-    /* Descriptor: stable height (no shifts) */
     .descriptor{
       font-size:11px;
       letter-spacing:0.12em;
@@ -198,7 +206,6 @@
     }
     .descriptor.is-switching{ opacity:0.65; }
 
-    /* Email */
     .email{
       font-size:12px;
       letter-spacing:0.14em;
@@ -210,13 +217,12 @@
     }
     .email:hover{ color:var(--fg); }
 
-    /* Languages */
     .langs{
       margin-top:var(--langs-gap);
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:7px;                 /* tighter */
+      gap:7px;
       flex-wrap:wrap;
     }
 
@@ -228,7 +234,7 @@
 
       color:var(--contact-body-3);
       font-weight:400;
-      letter-spacing:0.13em;   /* refined */
+      letter-spacing:0.13em;
       font-size:11px;
       text-transform:uppercase;
       white-space:nowrap;
@@ -240,16 +246,15 @@
     .vsep{
       width:1px;
       height:11px;
-      background:rgba(0,0,0,0.13); /* softer */
+      background:rgba(0,0,0,0.13);
       transform: translateY(1px);
       user-select:none;
     }
 
-    /* Footer */
     .bottom{
       position:fixed;
       left:0; right:0;
-      bottom:20px;            /* matched to top-rule top */
+      bottom:20px;
       padding:0 64px;
       display:flex;
       justify-content:space-between;
@@ -272,14 +277,35 @@
     @media (max-width: 720px){
       .wrap{ padding:40px 22px; }
       .bottom{ padding:0 22px; }
-      .logo{ font-size:42px; }
-      .clock{ font-size:42px; min-width:22ch; }
-      :root{ --gap:14px; --contact-gap:62px; --langs-gap:18px; }
+
+      :root{
+        --gap:14px;
+        --contact-gap:62px;
+        --langs-gap:18px;
+        --clock-col: 420px;
+        --logo-col: 200px;
+      }
 
       .top-rule{ right:22px; top:18px; width:54px; }
+      .logo{ font-size:42px; }
+      .clock{ font-size:42px; }
       .statement{ transform: translateX(-1px); }
+
+      .statementWrap{
+        width: calc(var(--logo-col) + var(--gap) + var(--clock-col));
+        max-width: 100%;
+      }
+
       .bottom .left, .bottom .right{ white-space:normal; }
       .vsep{ height:10px; }
+    }
+
+    /* If the screen is narrower than the statement width, allow it to scale down slightly */
+    @media (max-width: 680px){
+      .statementWrap{ width:100%; }
+      .statement{
+        grid-template-columns: 1fr 1.35fr;
+      }
     }
   </style>
 </head>
@@ -289,9 +315,11 @@
 
   <div class="wrap">
     <main class="center" aria-label="KUON">
-      <div class="statement" aria-label="KUON and clock">
-        <h1 class="logo">KUON</h1>
-        <div class="clock" id="clock">—</div>
+      <div class="statementWrap">
+        <div class="statement" aria-label="KUON and clock">
+          <h1 class="logo">KUON</h1>
+          <div class="clock" id="clock">—</div>
+        </div>
       </div>
 
       <div class="contactRow">
@@ -325,7 +353,6 @@
   </footer>
 
   <script>
-    // --- Language content + timezones ---
     const CONTENT = {
       en: {
         htmlLang: "en",
@@ -336,20 +363,19 @@
       ja: {
         htmlLang: "ja",
         tz: "Asia/Tokyo",
-        tzLabel: "JST",
+        tzLabel: "JPN",
         descriptor: "KUONは、長く残ることを意図した仕事を保有します――デザイン、音、構造にわたって。"
       },
       zh: {
         htmlLang: "zh",
         tz: "Asia/Shanghai",
-        tzLabel: "CST",
+        tzLabel: "CHN",
         descriptor: "KUON 持有旨在长久延续的工作——涵盖设计、声音与结构。"
       }
     };
 
     let currentLang = "en";
 
-    // --- Clock formatting in chosen timezone (no seconds) ---
     const clockEl = document.getElementById("clock");
     const descriptorEl = document.getElementById("descriptor");
 
@@ -409,14 +435,12 @@
       }, 180);
     }
 
-    // --- Contact panel toggle (label + arrow flips) ---
     const contactBtn = document.getElementById("contactBtn");
     const contactLabel = document.getElementById("contactLabel");
     const contactArrow = document.getElementById("contactArrow");
     const panel = document.getElementById("panel");
 
     let open = false;
-
     function setOpen(v){
       open = v;
       panel.classList.toggle("is-open", open);
@@ -424,7 +448,6 @@
       contactLabel.textContent = open ? "back" : "contact";
       contactArrow.textContent = open ? "←" : "→";
     }
-
     contactBtn.addEventListener("click", () => setOpen(!open));
 
     document.addEventListener("keydown", (e) => {
@@ -434,7 +457,6 @@
       }
     });
 
-    // --- Language selection: switches text + timezone ---
     const langButtons = Array.from(document.querySelectorAll(".lang"));
     langButtons.forEach(btn => {
       btn.addEventListener("click", () => {
