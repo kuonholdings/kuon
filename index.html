@@ -21,7 +21,7 @@
       --panel-stack-gap:14px;
       --langs-gap:22px;
 
-      /* contrast (darker) */
+      /* contrast */
       --muted-1: rgba(0,0,0,0.62);
       --muted-2: rgba(0,0,0,0.66);
       --muted-3: rgba(0,0,0,0.56);
@@ -35,9 +35,9 @@
       --rule-tick: rgba(0,0,0,0.18);
 
       /* KUON presence */
-      --logo-size:56px;        /* was 50 */
-      --logo-track:0.28em;     /* was 0.30 */
-      --logo-pad:0.28em;       /* matches tracking */
+      --logo-size:56px;
+      --logo-track:0.28em;
+      --logo-pad:0.28em;
 
       /* clock (deboss) */
       --clock-size:18px;
@@ -91,6 +91,7 @@
       width:min(980px, calc(100% - 40px));
     }
 
+    /* Logo: keep height stable to avoid shifts when characters change */
     .logo{
       margin:0;
       font-weight:700;
@@ -100,12 +101,14 @@
       padding-left:var(--logo-pad);
       color:var(--fg);
       white-space:nowrap;
+      min-height:1.05em;
+      transition: opacity 160ms ease;
     }
+    .logo.is-switching{ opacity:0.72; }
 
     /* Clock under KUON (centered) */
     .clock{
       margin-top:var(--clock-gap);
-
       font-size:var(--clock-size);
       font-weight:500;
       letter-spacing:0.14em;
@@ -141,7 +144,9 @@
       letter-spacing:0.24em;
       font-size:11px;
       text-transform:uppercase;
+      transition: opacity 160ms ease;
     }
+    .contact.is-switching{ opacity:0.72; }
 
     .contact .arrow{
       font-size:14px;
@@ -151,7 +156,6 @@
       transition: transform 180ms ease;
       color:inherit;
     }
-
     .contact:hover{ color:var(--fg); }
     .contact:hover .arrow{ transform: translateX(3px) translateY(-1px); }
 
@@ -290,7 +294,7 @@
 
   <div class="wrap">
     <main class="center" aria-label="KUON">
-      <h1 class="logo">KUON</h1>
+      <h1 class="logo" id="logo">KUON</h1>
       <div class="clock" id="clock" aria-hidden="true">—</div>
 
       <div class="contactRow">
@@ -324,30 +328,57 @@
   </footer>
 
   <script>
+    // Respect reduced motion: no cycling.
+    const prefersReducedMotion = window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
     const CONTENT = {
       en: {
         htmlLang: "en",
         tz: "UTC",
         tzLabel: "UTC",
+        logo: "KUON",
+        contact: "contact",
+        back: "back",
         descriptor: "KUON holds work intended to last — across design, sound, and structure."
       },
       ja: {
         htmlLang: "ja",
         tz: "Asia/Tokyo",
         tzLabel: "JPN",
+        logo: "クオン",
+        contact: "連絡",
+        back: "戻る",
         descriptor: "KUONは、長く残ることを意図した仕事を保有します――デザイン、音、構造にわたって。"
       },
       zh: {
         htmlLang: "zh",
         tz: "Asia/Shanghai",
         tzLabel: "CHN",
+        logo: "久音",
+        contact: "联系",
+        back: "返回",
         descriptor: "KUON 持有旨在长久延续的工作——涵盖设计、声音与结构。"
       }
     };
 
+    const ORDER = ["en", "ja", "zh"];
     let currentLang = "en";
+
+    const logoEl = document.getElementById("logo");
     const clockEl = document.getElementById("clock");
     const descriptorEl = document.getElementById("descriptor");
+    const contactBtn = document.getElementById("contactBtn");
+    const contactLabel = document.getElementById("contactLabel");
+    const contactArrow = document.getElementById("contactArrow");
+    const panel = document.getElementById("panel");
+    const langButtons = Array.from(document.querySelectorAll(".lang"));
+
+    // Cycling controls
+    let cycleTimer = null;
+    let resumeTimer = null;
+    const CYCLE_MS = 9000;     // how often it rotates
+    const MANUAL_PAUSE_MS = 30000; // pause after manual click
 
     function partsForTZ(date, timeZone){
       const fmt = new Intl.DateTimeFormat("en-GB", {
@@ -362,13 +393,7 @@
 
       const parts = fmt.formatToParts(date);
       const get = (type) => parts.find(p => p.type === type)?.value || "";
-      return {
-        Y: get("year"),
-        M: get("month"),
-        D: get("day"),
-        h: get("hour"),
-        m: get("minute")
-      };
+      return { Y:get("year"), M:get("month"), D:get("day"), h:get("hour"), m:get("minute") };
     }
 
     function formatInTZ(date, langKey){
@@ -381,45 +406,73 @@
       clockEl.textContent = formatInTZ(new Date(), currentLang);
     }
 
-    tick();
-    setInterval(tick, 1000 * 10);
+    function setActiveButton(langKey){
+      langButtons.forEach(b => b.removeAttribute("aria-current"));
+      const btn = langButtons.find(b => b.dataset.lang === langKey);
+      if (btn) btn.setAttribute("aria-current", "true");
+    }
 
-    function setLanguage(langKey){
-      if (!CONTENT[langKey] || langKey === currentLang) return;
+    function setLanguage(langKey, { animate=true } = {}){
+      if (!CONTENT[langKey]) return;
+      if (langKey === currentLang) { tick(); return; }
 
-      clockEl.classList.add("is-switching");
-      descriptorEl.classList.add("is-switching");
+      const doAnim = animate && !prefersReducedMotion;
+
+      if (doAnim){
+        logoEl.classList.add("is-switching");
+        clockEl.classList.add("is-switching");
+        descriptorEl.classList.add("is-switching");
+        contactBtn.classList.add("is-switching");
+      }
 
       currentLang = langKey;
       document.documentElement.setAttribute("lang", CONTENT[langKey].htmlLang);
+      setActiveButton(langKey);
 
-      setTimeout(() => {
+      // Update text (slight delay for a soft “breathe”)
+      const apply = () => {
+        logoEl.textContent = CONTENT[langKey].logo;
         descriptorEl.textContent = CONTENT[langKey].descriptor;
-        tick();
-      }, 80);
 
-      setTimeout(() => {
-        clockEl.classList.remove("is-switching");
-        descriptorEl.classList.remove("is-switching");
-      }, 180);
+        const isOpen = contactBtn.getAttribute("aria-expanded") === "true";
+        contactLabel.textContent = isOpen ? CONTENT[langKey].back : CONTENT[langKey].contact;
+        tick();
+      };
+
+      if (doAnim){
+        setTimeout(apply, 70);
+        setTimeout(() => {
+          logoEl.classList.remove("is-switching");
+          clockEl.classList.remove("is-switching");
+          descriptorEl.classList.remove("is-switching");
+          contactBtn.classList.remove("is-switching");
+        }, 180);
+      } else {
+        apply();
+      }
     }
 
-    // Contact toggle
-    const contactBtn = document.getElementById("contactBtn");
-    const contactLabel = document.getElementById("contactLabel");
-    const contactArrow = document.getElementById("contactArrow");
-    const panel = document.getElementById("panel");
-    let open = false;
+    // Clock updates
+    tick();
+    setInterval(tick, 1000 * 10);
 
+    // Contact open/close
+    let open = false;
     function setOpen(v){
       open = v;
       panel.classList.toggle("is-open", open);
       contactBtn.setAttribute("aria-expanded", String(open));
-      contactLabel.textContent = open ? "back" : "contact";
       contactArrow.textContent = open ? "←" : "→";
+
+      // Use localized label
+      contactLabel.textContent = open ? CONTENT[currentLang].back : CONTENT[currentLang].contact;
+
+      if (open) startCycling();
+      else stopCycling(true);
     }
 
     contactBtn.addEventListener("click", () => setOpen(!open));
+
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && open){
         setOpen(false);
@@ -427,16 +480,50 @@
       }
     });
 
-    // Language buttons
-    const langButtons = Array.from(document.querySelectorAll(".lang"));
+    // Language buttons: manual selection pauses cycling briefly
+    function pauseCyclingTemporarily(){
+      if (resumeTimer) clearTimeout(resumeTimer);
+      if (cycleTimer) clearInterval(cycleTimer);
+
+      if (!prefersReducedMotion){
+        resumeTimer = setTimeout(() => {
+          if (open) startCycling();
+        }, MANUAL_PAUSE_MS);
+      }
+    }
+
     langButtons.forEach(btn => {
       btn.addEventListener("click", () => {
         const lang = btn.dataset.lang;
-        langButtons.forEach(b => b.removeAttribute("aria-current"));
-        btn.setAttribute("aria-current", "true");
-        setLanguage(lang);
+        setLanguage(lang, { animate:true });
+        if (open) pauseCyclingTemporarily();
       });
     });
+
+    // Cycling
+    function nextLang(){
+      const idx = ORDER.indexOf(currentLang);
+      const next = ORDER[(idx + 1) % ORDER.length];
+      setLanguage(next, { animate:true });
+    }
+
+    function startCycling(){
+      if (prefersReducedMotion) return;
+      if (cycleTimer) clearInterval(cycleTimer);
+      if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null; }
+
+      // slight delay so it doesn't immediately switch on open
+      cycleTimer = setInterval(nextLang, CYCLE_MS);
+    }
+
+    function stopCycling(resetToEnglish){
+      if (cycleTimer) { clearInterval(cycleTimer); cycleTimer = null; }
+      if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null; }
+      if (resetToEnglish) setLanguage("en", { animate:false });
+    }
+
+    // Ensure initial labels match current lang
+    contactLabel.textContent = CONTENT[currentLang].contact;
   </script>
 </body>
 </html>
