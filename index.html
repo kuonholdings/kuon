@@ -12,11 +12,8 @@
   --muted:rgba(0,0,0,.58);
   --faint:rgba(0,0,0,.28);
 
-  --fade: 740ms;
-  --ease: cubic-bezier(.20,.85,.20,1);
-
-  --lineDur: 720ms;
-  --lineStagger: 140ms;
+  --fade:740ms;
+  --ease:cubic-bezier(.20,.85,.20,1);
 }
 
 *{box-sizing:border-box;}
@@ -30,20 +27,16 @@ body{
   letter-spacing:.2px;
 }
 
-/* ---------- LANDING ---------- */
-
+/* LANDING */
 .wrap{
   min-height:100%;
   display:flex;
   align-items:center;
   justify-content:center;
   text-align:center;
-  padding:40px 18px;
 }
 
-.landing,.info{
-  transition:opacity var(--fade) var(--ease);
-}
+.landing,.info{transition:opacity var(--fade) var(--ease);}
 
 .mark{
   margin:0;
@@ -51,43 +44,26 @@ body{
   letter-spacing:.26em;
   text-transform:uppercase;
   font-weight:500;
-  line-height:1.05;
 }
 
-/* Typography buttons */
 .action{
   margin-top:20px;
   background:none;
   border:0;
-  padding:10px 4px;
   cursor:pointer;
   color:var(--muted);
   font-size:14px;
   letter-spacing:.22em;
   text-transform:uppercase;
-
   display:inline-flex;
-  align-items:center;
   gap:12px;
 }
 
-.action:focus{outline:none;}
-
-.action .word{
-  transition:color 360ms var(--ease);
-}
 .action .arrow{
-  display:inline-block;
-  transition:transform 520ms var(--ease),color 360ms var(--ease);
-  color:var(--faint);
+  transition:transform .5s var(--ease);
 }
-.action:hover .word{color:rgba(0,0,0,.82);}
-.action:hover .arrow{
-  transform:translateX(4px);
-  color:rgba(0,0,0,.55);
-}
+.action:hover .arrow{transform:translateX(4px);}
 
-/* UTC stamp */
 .live{
   margin-top:22px;
   font-size:12px;
@@ -96,36 +72,26 @@ body{
   color:var(--faint);
 }
 
-/* ---------- INFO VIEW ---------- */
-
+/* INFO */
 .info{
   position:absolute;
   inset:0;
   opacity:0;
   pointer-events:none;
 }
+body.show-info .info{opacity:1;pointer-events:auto;}
+body.show-info .landing{opacity:0;pointer-events:none;}
 
-body.show-info .info{
-  opacity:1;
-  pointer-events:auto;
-}
-body.show-info .landing{
-  opacity:0;
-  pointer-events:none;
-}
-
-/* left-biased layout */
 .info-shell{
   min-height:100%;
   display:flex;
   align-items:center;
   justify-content:flex-start;
-  padding:40px 18px;
 }
 
 .info-inner{
   width:min(720px,100%);
-  margin-left:8vw;
+  margin-left:12vw; /* MORE BREATHING ROOM */
   text-align:left;
 }
 
@@ -134,208 +100,162 @@ body.show-info .landing{
   font-size:20px;
   letter-spacing:.20em;
   text-transform:uppercase;
-  font-weight:500;
 }
 
-/* line reveal */
 .line{
   margin:0;
-  color:var(--muted);
   font-size:16px;
   line-height:1.75;
-
+  color:var(--muted);
   opacity:0;
   transform:translateX(-10px);
 }
-
 body.show-info .line{
-  animation:lineIn var(--lineDur) var(--ease) forwards;
+  animation:lineIn .7s var(--ease) forwards;
 }
-
-body.show-info .l1{animation-delay:80ms;}
-body.show-info .l2{animation-delay:220ms;}
-body.show-info .l3{animation-delay:360ms;}
+.l1{animation-delay:.08s;}
+.l2{animation-delay:.22s;}
+.l3{animation-delay:.36s;}
 
 @keyframes lineIn{
-  to{
-    opacity:1;
-    transform:translateX(0);
-  }
-}
-
-.line.l3{
-  color:rgba(0,0,0,.42);
+  to{opacity:1;transform:none;}
 }
 
 a{
   color:var(--fg);
   text-decoration:none;
-  border-bottom:1px solid rgba(0,0,0,.30);
-  padding-bottom:2px;
-  transition:border-color 360ms var(--ease);
-}
-a:hover{border-bottom-color:rgba(0,0,0,.55);}
-
-.backRow{
-  margin-top:26px;
+  border-bottom:1px solid rgba(0,0,0,.3);
 }
 
-/* ---------- LANGUAGE META ---------- */
+.backRow{margin-top:26px;}
 
+/* LANGUAGE SWITCH */
 .lang-switch{
   position:fixed;
-  bottom:14px;
-  left:14px;
-
+  bottom:24px;   /* pulled away from edge */
+  left:24px;
   display:flex;
   flex-direction:column;
-  align-items:flex-start;
-  gap:3px;
-
-  font-size:11px;
-  letter-spacing:.08em;
-  color:rgba(0,0,0,.30);
-
-  user-select:none;
-  pointer-events:none;
+  gap:6px;
+  font-size:13px; /* bigger */
+  letter-spacing:.06em;
 }
 
-/* ---------- CORNER MARK ---------- */
+.lang-switch button{
+  background:none;
+  border:0;
+  text-align:left;
+  padding:0;
+  cursor:pointer;
+  color:rgba(0,0,0,.45);
+}
+.lang-switch button.active{
+  color:#111;
+}
 
+/* CORNER MARK */
 .corner{
   position:fixed;
-  width:14px;
-  height:14px;
-  pointer-events:none;
+  top:12px;
+  right:12px;
+  width:14px;height:14px;
   opacity:.18;
 }
-.corner::before,
-.corner::after{
+.corner::before,.corner::after{
   content:"";
   position:absolute;
   background:rgba(0,0,0,.18);
 }
-.corner::before{
-  height:1px;
-  width:14px;
-  right:0;
-  top:0;
-}
-.corner::after{
-  width:1px;
-  height:14px;
-  right:0;
-  top:0;
-}
-.tr{
-  top:12px;
-  right:12px;
-}
-
-/* ---------- MOBILE ---------- */
+.corner::before{height:1px;width:14px;}
+.corner::after{width:1px;height:14px;right:0;}
 
 @media(max-width:720px){
-  .info-inner{margin-left:0;}
+  .info-inner{margin-left:6vw;}
 }
 @media(max-width:520px){
-  .mark{
-    font-size:54px;
-    letter-spacing:.20em;
-  }
-}
-
-/* reduced motion */
-@media(prefers-reduced-motion:reduce){
-  :root{--fade:0ms;--lineDur:0ms;}
-  .line{opacity:1 !important;transform:none !important;animation:none !important;}
+  .mark{font-size:54px;letter-spacing:.20em;}
 }
 </style>
 </head>
 
 <body>
 
-<!-- LANDING -->
 <div class="wrap landing">
-  <div>
-    <h1 class="mark">Kuon</h1>
-
-    <button class="action" id="openBtn" type="button">
-      <span class="word">Contact</span>
-      <span class="arrow">→</span>
-    </button>
-
-    <div class="live" id="liveStamp"></div>
-  </div>
+<div>
+<h1 class="mark">Kuon</h1>
+<button class="action" id="openBtn"><span>Contact</span><span class="arrow">→</span></button>
+<div class="live" id="liveStamp"></div>
+</div>
 </div>
 
-<!-- INFO -->
 <div class="info" id="info">
-  <div class="info-shell">
-    <div class="info-inner">
-      <h2>Kuon Holdings</h2>
+<div class="info-shell">
+<div class="info-inner">
 
-      <p class="line l1">Kuon Holdings Ltd. (BVI) is a private holding structure.</p>
+<h2>Kuon Holdings</h2>
 
-      <p class="line l2">
-        For matters relating to Kuon ventures, please contact
-      </p>
+<p class="line l1" id="t1"></p>
+<p class="line l2" id="t2"></p>
+<p class="line l3" id="t3"></p>
 
-      <p class="line l3">
-        <a href="mailto:contact@kuonholdings.com">contact@kuonholdings.com</a>.
-      </p>
-
-      <div class="backRow">
-        <button class="action" id="closeBtn" type="button" style="margin-top:0;">
-          <span class="word">Back</span>
-          <span class="arrow">→</span>
-        </button>
-      </div>
-    </div>
-  </div>
+<div class="backRow">
+<button class="action" id="closeBtn"><span>Back</span><span class="arrow">→</span></button>
 </div>
 
-<!-- language meta -->
+</div>
+</div>
+</div>
+
 <div class="lang-switch">
-  <span>English</span>
-  <span>Chinese</span>
-  <span>Japanese</span>
+<button data-lang="en" class="active">English</button>
+<button data-lang="zh">Chinese</button>
+<button data-lang="jp">Japanese</button>
 </div>
 
-<!-- single corner marker -->
-<div class="corner tr"></div>
+<div class="corner"></div>
 
 <script>
-const openBtn=document.getElementById("openBtn");
-const closeBtn=document.getElementById("closeBtn");
-const liveStamp=document.getElementById("liveStamp");
+const texts={
+en:[
+"Kuon Holdings Ltd. (BVI) is a private holding structure.",
+"For matters relating to Kuon ventures, please contact",
+"<a href='mailto:contact@kuonholdings.com'>contact@kuonholdings.com</a>."
+],
+zh:[
+"Kuon Holdings Ltd.（BVI）是一家私人控股结构。",
+"有关 Kuon 项目的事宜，请联系",
+"<a href='mailto:contact@kuonholdings.com'>contact@kuonholdings.com</a>。"
+],
+jp:[
+"Kuon Holdings Ltd.（BVI）はプライベートな持株構造です。",
+"Kuon の事業に関するお問い合わせは",
+"<a href='mailto:contact@kuonholdings.com'>contact@kuonholdings.com</a> までご連絡ください。"
+]
+};
 
-function showInfo(){
-  document.body.classList.add("show-info");
-  setTimeout(()=>closeBtn.focus({preventScroll:true}),320);
+function setLang(lang){
+document.getElementById("t1").innerHTML=texts[lang][0];
+document.getElementById("t2").innerHTML=texts[lang][1];
+document.getElementById("t3").innerHTML=texts[lang][2];
+document.querySelectorAll(".lang-switch button").forEach(b=>b.classList.remove("active"));
+document.querySelector(`[data-lang='${lang}']`).classList.add("active");
 }
-function hideInfo(){
-  document.body.classList.remove("show-info");
-  setTimeout(()=>openBtn.focus({preventScroll:true}),320);
-}
+setLang("en");
 
-openBtn.addEventListener("click",showInfo);
-closeBtn.addEventListener("click",hideInfo);
+document.querySelectorAll(".lang-switch button").forEach(btn=>{
+btn.onclick=()=>setLang(btn.dataset.lang);
+});
+
+openBtn.onclick=()=>document.body.classList.add("show-info");
+closeBtn.onclick=()=>document.body.classList.remove("show-info");
 
 function pad(n){return String(n).padStart(2,"0");}
 function updateStamp(){
-  const d=new Date();
-  liveStamp.textContent =
-    `${d.getUTCFullYear()}.${pad(d.getUTCMonth()+1)}.${pad(d.getUTCDate())}  ` +
-    `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())} UTC`;
+const d=new Date();
+liveStamp.textContent=`${d.getUTCFullYear()}.${pad(d.getUTCMonth()+1)}.${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())} UTC`;
 }
 updateStamp();
 setInterval(updateStamp,1000);
-
-document.addEventListener("keydown",(e)=>{
-  if(e.key==="Escape" && document.body.classList.contains("show-info")){
-    hideInfo();
-  }
-});
 </script>
 
 </body>
