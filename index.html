@@ -14,7 +14,7 @@
       /* composition */
       --baseline:54vh;
       --gap:18px;
-      --contact-gap:68px;
+      --contact-gap:66px;         /* refined */
       --panel-gap:16px;
       --panel-stack-gap:14px;
       --langs-gap:22px;
@@ -47,8 +47,8 @@
     /* Top-right editorial hairline rule + tick */
     .top-rule{
       position:fixed;
-      top:22px;
-      right:64px;      /* aligns with footer padding */
+      top:20px;                /* matched to footer bottom */
+      right:64px;
       width:72px;
       height:1px;
       background:rgba(0,0,0,0.12);
@@ -67,7 +67,7 @@
     .center{
       position:absolute;
       left:50%;
-      top:var(--baseline);
+      top:calc(var(--baseline) + 2px); /* subtle baseline grid snap */
       transform:translate(-50%, -50%);
       text-align:center;
       width:min(980px, calc(100% - 40px));
@@ -88,24 +88,36 @@
     .logo{
       margin:0;
       font-weight:700;
-      letter-spacing:0.32em;
+      letter-spacing:0.30em;     /* refined tracking */
       font-size:50px;
       line-height:1;
-      padding-left:0.32em; /* optical centering for tracking */
+      padding-left:0.30em;       /* match tracking for optical centering */
       color:var(--fg);
     }
 
-    /* Clock: same size as logo, debossed */
+    /* Clock: debossed + stable width + tabular numerals */
     .clock{
       font-weight:500;
       letter-spacing:0.14em;
       font-size:50px;
       line-height:1;
-      color:rgba(0,0,0,0.06);
-      text-shadow: 0 1px 1px rgba(255,255,255,0.55);
+
+      /* deboss micro-contrast */
+      color:rgba(0,0,0,0.055);
+      text-shadow:
+        0 -1px 0 rgba(0,0,0,0.03),
+        0  1px 1px rgba(255,255,255,0.62);
+
       transform: translateY(0px);
       user-select:none;
       transition: opacity 220ms ease;
+
+      /* prevent horizontal shifting */
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1, "lnum" 1;
+      display:inline-block;
+      min-width:23ch;            /* lock width */
+      text-align:center;         /* stabilize visual mass */
     }
     .clock.is-switching{ opacity:0.55; }
 
@@ -122,10 +134,11 @@
       padding:6px 10px;
       cursor:pointer;
 
-      color:rgba(0,0,0,0.52);
+      /* caption-like */
+      color:rgba(0,0,0,0.46);
       font-weight:400;
-      letter-spacing:0.22em;
-      font-size:12px;
+      letter-spacing:0.24em;
+      font-size:11px;
       text-transform:uppercase;
     }
 
@@ -154,7 +167,6 @@
       gap:var(--panel-stack-gap);
       justify-items:center;
 
-      /* stabilise panel width */
       width:min(560px, 100%);
 
       opacity:0;
@@ -168,7 +180,7 @@
       pointer-events:auto;
     }
 
-    /* Descriptor: stabilise height to prevent shifts across languages */
+    /* Descriptor: stable height (no shifts) */
     .descriptor{
       font-size:11px;
       letter-spacing:0.12em;
@@ -176,7 +188,7 @@
       max-width:58ch;
       line-height:1.7;
 
-      min-height:3.4em; /* lock to two lines */
+      min-height:3.4em;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -186,7 +198,7 @@
     }
     .descriptor.is-switching{ opacity:0.65; }
 
-    /* Email in lowercase */
+    /* Email */
     .email{
       font-size:12px;
       letter-spacing:0.14em;
@@ -198,13 +210,13 @@
     }
     .email:hover{ color:var(--fg); }
 
-    /* Languages: vertical separators, tighter */
+    /* Languages */
     .langs{
       margin-top:var(--langs-gap);
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:8px;
+      gap:7px;                 /* tighter */
       flex-wrap:wrap;
     }
 
@@ -216,7 +228,7 @@
 
       color:var(--contact-body-3);
       font-weight:400;
-      letter-spacing:0.14em;
+      letter-spacing:0.13em;   /* refined */
       font-size:11px;
       text-transform:uppercase;
       white-space:nowrap;
@@ -227,8 +239,8 @@
 
     .vsep{
       width:1px;
-      height:12px;
-      background:rgba(0,0,0,0.16);
+      height:11px;
+      background:rgba(0,0,0,0.13); /* softer */
       transform: translateY(1px);
       user-select:none;
     }
@@ -237,7 +249,7 @@
     .bottom{
       position:fixed;
       left:0; right:0;
-      bottom:20px;
+      bottom:20px;            /* matched to top-rule top */
       padding:0 64px;
       display:flex;
       justify-content:space-between;
@@ -261,19 +273,18 @@
       .wrap{ padding:40px 22px; }
       .bottom{ padding:0 22px; }
       .logo{ font-size:42px; }
-      .clock{ font-size:42px; }
-      :root{ --gap:14px; --contact-gap:64px; --langs-gap:18px; }
+      .clock{ font-size:42px; min-width:22ch; }
+      :root{ --gap:14px; --contact-gap:62px; --langs-gap:18px; }
 
       .top-rule{ right:22px; top:18px; width:54px; }
-      .statement{ transform: translateX(-1px); } /* slightly less nudge on mobile */
+      .statement{ transform: translateX(-1px); }
       .bottom .left, .bottom .right{ white-space:normal; }
-      .vsep{ height:11px; }
+      .vsep{ height:10px; }
     }
   </style>
 </head>
 
 <body>
-  <!-- top-right print rule -->
   <div class="top-rule" aria-hidden="true"><span></span></div>
 
   <div class="wrap">
@@ -294,7 +305,6 @@
             KUON holds work intended to last — across design, sound, and structure.
           </div>
 
-          <!-- EDIT email if needed -->
           <a class="email" href="mailto:info@kuonholdings.com">info@kuonholdings.com</a>
 
           <div class="langs" aria-label="Languages">
@@ -310,7 +320,6 @@
   </div>
 
   <footer class="bottom" aria-label="Footer info">
-    <!-- EDIT THESE -->
     <div class="left">KUON HOLDINGS</div>
     <div class="right">TOKYO / LONDON</div>
   </footer>
@@ -341,8 +350,8 @@
     let currentLang = "en";
 
     // --- Clock formatting in chosen timezone (no seconds) ---
-    const clockEl = document.getElementById('clock');
-    const descriptorEl = document.getElementById('descriptor');
+    const clockEl = document.getElementById("clock");
+    const descriptorEl = document.getElementById("descriptor");
 
     function partsForTZ(date, timeZone){
       const fmt = new Intl.DateTimeFormat("en-GB", {
@@ -383,16 +392,12 @@
       if (!CONTENT[langKey]) return;
       if (langKey === currentLang) return;
 
-      // subtle cue
       clockEl.classList.add("is-switching");
       descriptorEl.classList.add("is-switching");
 
       currentLang = langKey;
-
-      // update html lang
       document.documentElement.setAttribute("lang", CONTENT[langKey].htmlLang);
 
-      // delayed swap for smoother feel
       setTimeout(() => {
         descriptorEl.textContent = CONTENT[langKey].descriptor;
         tick();
@@ -405,37 +410,37 @@
     }
 
     // --- Contact panel toggle (label + arrow flips) ---
-    const contactBtn = document.getElementById('contactBtn');
-    const contactLabel = document.getElementById('contactLabel');
-    const contactArrow = document.getElementById('contactArrow');
-    const panel = document.getElementById('panel');
+    const contactBtn = document.getElementById("contactBtn");
+    const contactLabel = document.getElementById("contactLabel");
+    const contactArrow = document.getElementById("contactArrow");
+    const panel = document.getElementById("panel");
 
     let open = false;
 
     function setOpen(v){
       open = v;
-      panel.classList.toggle('is-open', open);
-      contactBtn.setAttribute('aria-expanded', String(open));
-      contactLabel.textContent = open ? 'back' : 'contact';
-      contactArrow.textContent = open ? '←' : '→';
+      panel.classList.toggle("is-open", open);
+      contactBtn.setAttribute("aria-expanded", String(open));
+      contactLabel.textContent = open ? "back" : "contact";
+      contactArrow.textContent = open ? "←" : "→";
     }
 
-    contactBtn.addEventListener('click', () => setOpen(!open));
+    contactBtn.addEventListener("click", () => setOpen(!open));
 
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && open){
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && open){
         setOpen(false);
         contactBtn.focus();
       }
     });
 
     // --- Language selection: switches text + timezone ---
-    const langButtons = Array.from(document.querySelectorAll('.lang'));
+    const langButtons = Array.from(document.querySelectorAll(".lang"));
     langButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener("click", () => {
         const lang = btn.dataset.lang;
-        langButtons.forEach(b => b.removeAttribute('aria-current'));
-        btn.setAttribute('aria-current', 'true');
+        langButtons.forEach(b => b.removeAttribute("aria-current"));
+        btn.setAttribute("aria-current", "true");
         setLanguage(lang);
       });
     });
