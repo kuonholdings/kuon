@@ -44,6 +44,26 @@
       position:relative;
     }
 
+    /* Top-right editorial hairline rule + tick */
+    .top-rule{
+      position:fixed;
+      top:22px;
+      right:64px;      /* aligns with footer padding */
+      width:72px;
+      height:1px;
+      background:rgba(0,0,0,0.12);
+      z-index:2;
+      pointer-events:none;
+    }
+    .top-rule span{
+      position:absolute;
+      right:0;
+      top:-3px;
+      width:1px;
+      height:7px;
+      background:rgba(0,0,0,0.10);
+    }
+
     .center{
       position:absolute;
       left:50%;
@@ -53,12 +73,16 @@
       width:min(980px, calc(100% - 40px));
     }
 
+    /* Statement line */
     .statement{
       display:inline-flex;
       align-items:baseline;
       justify-content:center;
       gap:var(--gap);
       white-space:nowrap;
+
+      /* museum-grade optical correction */
+      transform: translateX(-2px);
     }
 
     .logo{
@@ -67,10 +91,11 @@
       letter-spacing:0.32em;
       font-size:50px;
       line-height:1;
-      padding-left:0.32em;
+      padding-left:0.32em; /* optical centering for tracking */
       color:var(--fg);
     }
 
+    /* Clock: same size as logo, debossed */
     .clock{
       font-weight:500;
       letter-spacing:0.14em;
@@ -82,8 +107,9 @@
       user-select:none;
       transition: opacity 220ms ease;
     }
-    .clock.is-switching{ opacity:0.55; } /* subtle cue when timezone changes */
+    .clock.is-switching{ opacity:0.55; }
 
+    /* Contact row */
     .contactRow{ margin-top:var(--contact-gap); }
 
     .contact{
@@ -121,11 +147,15 @@
       border-radius:10px;
     }
 
+    /* Panel */
     .panel{
       margin-top:var(--panel-gap);
       display:grid;
       gap:var(--panel-stack-gap);
       justify-items:center;
+
+      /* stabilise panel width */
+      width:min(560px, 100%);
 
       opacity:0;
       transform:translateY(6px);
@@ -138,16 +168,25 @@
       pointer-events:auto;
     }
 
+    /* Descriptor: stabilise height to prevent shifts across languages */
     .descriptor{
       font-size:11px;
       letter-spacing:0.12em;
       color:var(--contact-body);
       max-width:58ch;
       line-height:1.7;
+
+      min-height:3.4em; /* lock to two lines */
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+
       transition: opacity 180ms ease;
     }
     .descriptor.is-switching{ opacity:0.65; }
 
+    /* Email in lowercase */
     .email{
       font-size:12px;
       letter-spacing:0.14em;
@@ -159,6 +198,7 @@
     }
     .email:hover{ color:var(--fg); }
 
+    /* Languages: vertical separators, tighter */
     .langs{
       margin-top:var(--langs-gap);
       display:flex;
@@ -193,6 +233,7 @@
       user-select:none;
     }
 
+    /* Footer */
     .bottom{
       position:fixed;
       left:0; right:0;
@@ -214,7 +255,6 @@
       white-space:nowrap;
       text-transform:uppercase;
     }
-
     .bottom .right{ text-align:right; }
 
     @media (max-width: 720px){
@@ -223,6 +263,9 @@
       .logo{ font-size:42px; }
       .clock{ font-size:42px; }
       :root{ --gap:14px; --contact-gap:64px; --langs-gap:18px; }
+
+      .top-rule{ right:22px; top:18px; width:54px; }
+      .statement{ transform: translateX(-1px); } /* slightly less nudge on mobile */
       .bottom .left, .bottom .right{ white-space:normal; }
       .vsep{ height:11px; }
     }
@@ -230,6 +273,9 @@
 </head>
 
 <body>
+  <!-- top-right print rule -->
+  <div class="top-rule" aria-hidden="true"><span></span></div>
+
   <div class="wrap">
     <main class="center" aria-label="KUON">
       <div class="statement" aria-label="KUON and clock">
@@ -248,6 +294,7 @@
             KUON holds work intended to last — across design, sound, and structure.
           </div>
 
+          <!-- EDIT email if needed -->
           <a class="email" href="mailto:info@kuonholdings.com">info@kuonholdings.com</a>
 
           <div class="langs" aria-label="Languages">
@@ -263,6 +310,7 @@
   </div>
 
   <footer class="bottom" aria-label="Footer info">
+    <!-- EDIT THESE -->
     <div class="left">KUON HOLDINGS</div>
     <div class="right">TOKYO / LONDON</div>
   </footer>
@@ -296,10 +344,7 @@
     const clockEl = document.getElementById('clock');
     const descriptorEl = document.getElementById('descriptor');
 
-    const pad = (n) => String(n).padStart(2, '0');
-
     function partsForTZ(date, timeZone){
-      // Use formatToParts so we can force YYYY.MM.DD HH:MM
       const fmt = new Intl.DateTimeFormat("en-GB", {
         timeZone,
         year: "numeric",
@@ -332,14 +377,13 @@
     }
 
     tick();
-    // minute precision; still update regularly so it rolls over cleanly
     setInterval(tick, 1000 * 10);
 
     function setLanguage(langKey){
       if (!CONTENT[langKey]) return;
       if (langKey === currentLang) return;
 
-      // subtle transition cue
+      // subtle cue
       clockEl.classList.add("is-switching");
       descriptorEl.classList.add("is-switching");
 
@@ -348,11 +392,12 @@
       // update html lang
       document.documentElement.setAttribute("lang", CONTENT[langKey].htmlLang);
 
-      // update descriptor + clock
-      descriptorEl.textContent = CONTENT[langKey].descriptor;
-      tick();
+      // delayed swap for smoother feel
+      setTimeout(() => {
+        descriptorEl.textContent = CONTENT[langKey].descriptor;
+        tick();
+      }, 80);
 
-      // remove cue
       setTimeout(() => {
         clockEl.classList.remove("is-switching");
         descriptorEl.classList.remove("is-switching");
