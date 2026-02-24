@@ -1,395 +1,243 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Kuon</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>KUON</title>
+  <meta name="description" content="KUON" />
+  <style>
+    :root{
+      --fg:#111;
+      --mid:#666;
+      --lite:#aaa;
+      --bg:#fff;
 
-<style>
-:root{
-  --bg:#fbfbfa;
-  --fg:#111;
-  --muted:rgba(0,0,0,.58);
-  --faint:rgba(0,0,0,.28);
+      /* layout tuning */
+      --baseline:52vh;        /* where the KUON + CLOCK line sits */
+      --gap:32px;             /* space between KUON and CLOCK */
+      --contact-gap:84px;     /* vertical gap from baseline to CONTACT */
+      --lang-gap:14px;        /* space from CONTACT to language list */
+    }
 
-  --fade:760ms;
-  --ease:cubic-bezier(.20,.85,.20,1);
-  --lineDur:720ms;
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--fg);
+      overflow:hidden; /* no scroll */
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
 
-  /* --- layout --- */
-  --gutter: clamp(18px, 4.5vw, 56px);
-  --spineW: 132px;                 /* language column width */
-  --gap: clamp(20px, 4vw, 64px);   /* space between spine and content */
-  --contentW: min(760px, 100%);
-}
+    /* A quiet container with generous margins */
+    .wrap{
+      height:100%;
+      width:100%;
+      padding:56px 64px;
+      position:relative;
+    }
 
-*{box-sizing:border-box;}
-html,body{height:100%;}
+    /* Centered composition block */
+    .center{
+      position:absolute;
+      left:50%;
+      top:var(--baseline);
+      transform:translate(-50%, -50%);
+      text-align:center;
+      width:min(920px, calc(100% - 40px));
+    }
 
-body{
-  margin:0;
-  background:var(--bg);
-  color:var(--fg);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  letter-spacing:.2px;
-}
+    /* KUON + CLOCK on one intentional line */
+    .line{
+      display:inline-flex;
+      align-items:baseline;
+      justify-content:center;
+      gap:var(--gap);
+      white-space:nowrap;
+    }
 
-/* ---------- MASTER GRID (used by both states) ---------- */
-.stage{
-  position:fixed;
-  inset:0;
-  display:grid;
-  grid-template-columns: var(--gutter) var(--spineW) var(--gap) 1fr var(--gutter);
-  grid-template-rows: 1fr;
-}
+    .logo{
+      font-weight:700;
+      letter-spacing:0.32em;
+      font-size:56px;
+      line-height:1;
+      margin:0;
+      padding-left:0.32em; /* visually centers letterspacing */
+      color:var(--fg);
+    }
 
-/* spine column (languages) */
-.spine{
-  grid-column:2;
-  display:flex;
-  align-items:center;
-  justify-content:flex-start;
-}
+    .clock{
+      font-weight:300;
+      letter-spacing:0.18em;
+      font-size:18px;
+      line-height:1;
+      color:var(--lite);
+      transform: translateY(-4px); /* optical baseline refinement */
+      user-select:none;
+    }
 
-.lang-switch{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  font-size:13px;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-}
+    /* CONTACT centered underneath */
+    .contact{
+      margin-top:var(--contact-gap);
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      border:0;
+      background:transparent;
+      padding:6px 10px;
+      cursor:pointer;
+      color:var(--mid);
+      font-weight:400;
+      letter-spacing:0.22em;
+      font-size:12px;
+      text-transform:uppercase;
+      position:relative;
+    }
 
-.lang-switch button{
-  background:none;
-  border:0;
-  padding:0;
-  margin:0;
-  text-align:left;
-  cursor:pointer;
-  color:rgba(0,0,0,.38);
-  transition:color 300ms var(--ease);
-}
-.lang-switch button:hover{ color:rgba(0,0,0,.65); }
-.lang-switch button.active{ color:#111; }
+    .contact:focus-visible{
+      outline:2px solid rgba(0,0,0,0.18);
+      outline-offset:6px;
+      border-radius:10px;
+    }
 
-/* ---------- LANDING ---------- */
-.main{
-  grid-column:4;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
+    .arrow{
+      font-size:14px;
+      line-height:1;
+      transform: translateY(-1px);
+      color:var(--mid);
+    }
 
-.landing{
-  width:var(--contentW);
-  display:flex;
-  align-items:center;               /* logo and contact share one datum */
-  justify-content:space-between;    /* contact sits to the right */
-  gap:32px;
-  transition:opacity var(--fade) var(--ease);
-}
+    /* Language list appears only after clicking CONTACT */
+    .langs{
+      margin-top:var(--lang-gap);
+      display:grid;
+      gap:8px;
+      justify-items:center;
+      opacity:0;
+      transform:translateY(6px);
+      pointer-events:none;
+      transition: opacity 220ms ease, transform 220ms ease;
+    }
 
-/* Logo sized to be roughly comparable height to language stack */
-.mark{
-  margin:0;
-  font-size:58px;                   /* reduced so it sits closer to menu height */
-  letter-spacing:.24em;
-  text-transform:uppercase;
-  font-weight:500;
-  line-height:1;
-  white-space:nowrap;
-}
+    .langs.is-open{
+      opacity:1;
+      transform:translateY(0);
+      pointer-events:auto;
+    }
 
-/* typography button */
-.action{
-  background:none;
-  border:0;
-  padding:10px 4px;
-  cursor:pointer;
-  color:var(--muted);
-  font-size:14px;
-  letter-spacing:.22em;
-  text-transform:uppercase;
-  display:inline-flex;
-  align-items:center;
-  gap:12px;
-}
+    .lang{
+      background:transparent;
+      border:0;
+      padding:4px 10px;
+      cursor:pointer;
+      color:var(--mid);
+      font-weight:400;
+      letter-spacing:0.18em;
+      font-size:11px;
+      text-transform:uppercase;
+    }
 
-.action:focus{outline:none;}
-.action .word{ transition:color 360ms var(--ease); }
-.action .arrow{
-  display:inline-block;
-  transition:transform 520ms var(--ease),color 360ms var(--ease);
-  color:var(--faint);
-}
-.action:hover .word{ color:rgba(0,0,0,.82); }
-.action:hover .arrow{ transform:translateX(4px); color:rgba(0,0,0,.55); }
+    .lang:hover{ color:var(--fg); }
+    .lang[aria-current="true"]{
+      color:var(--fg);
+    }
 
-/* ---------- INFO VIEW (same grid) ---------- */
-.info{
-  position:fixed;
-  inset:0;
-  display:grid;
-  grid-template-columns: var(--gutter) var(--spineW) var(--gap) 1fr var(--gutter);
-  opacity:0;
-  pointer-events:none;
-  transition:opacity var(--fade) var(--ease);
-}
+    /* Subtle hover for contact */
+    .contact:hover{ color:var(--fg); }
+    .contact:hover .arrow{ color:var(--fg); }
 
-body.show-info .info{ opacity:1; pointer-events:auto; }
-body.show-info .landing{ opacity:0; pointer-events:none; }
-
-.info-main{
-  grid-column:4;
-  display:flex;
-  align-items:center;
-  justify-content:flex-start;
-}
-
-.info-inner{
-  width:var(--contentW);
-  text-align:left;
-}
-
-.info h2{
-  margin:0 0 18px;
-  font-size:20px;
-  letter-spacing:.20em;
-  text-transform:uppercase;
-  font-weight:500;
-}
-
-.line{
-  margin:0;
-  color:var(--muted);
-  font-size:16px;
-  line-height:1.75;
-  opacity:0;
-  transform:translateX(-10px);
-}
-
-body.show-info .line{
-  animation:lineIn var(--lineDur) var(--ease) forwards;
-}
-body.show-info .l1{ animation-delay:80ms; }
-body.show-info .l2{ animation-delay:220ms; }
-body.show-info .l3{ animation-delay:360ms; }
-
-@keyframes lineIn{
-  to{ opacity:1; transform:translateX(0); }
-}
-
-.line.l3{ color:rgba(0,0,0,.42); }
-
-a{
-  color:var(--fg);
-  text-decoration:none;
-  border-bottom:1px solid rgba(0,0,0,.30);
-  padding-bottom:2px;
-  transition:border-color 360ms var(--ease);
-}
-a:hover{ border-bottom-color:rgba(0,0,0,.55); }
-
-.backRow{ margin-top:26px; }
-
-/* ---------- UTC IN CORNER ---------- */
-.utc{
-  position:fixed;
-  right:24px;
-  bottom:22px;
-  font-size:12px;                   /* slightly more obvious */
-  letter-spacing:.18em;
-  text-transform:uppercase;
-  color:rgba(0,0,0,.38);            /* a touch stronger than before */
-  user-select:none;
-  pointer-events:none;
-}
-
-/* ---------- single corner mark (optional, very faint) ---------- */
-.corner{
-  position:fixed;
-  width:14px;
-  height:14px;
-  pointer-events:none;
-  opacity:.14;
-}
-.corner::before,
-.corner::after{
-  content:"";
-  position:absolute;
-  background:rgba(0,0,0,.18);
-}
-.corner::before{ height:1px; width:14px; right:0; top:0; }
-.corner::after{ width:1px; height:14px; right:0; top:0; }
-.tr{ top:12px; right:12px; }
-
-/* ---------- Mobile ---------- */
-@media(max-width:860px){
-  .landing{
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:18px;
-    text-align:center;
-  }
-  .action{ margin-top:6px; }
-}
-
-@media(max-width:520px){
-  .mark{ font-size:50px; letter-spacing:.20em; }
-  .lang-switch{ font-size:12px; }
-  .utc{ right:18px; bottom:18px; font-size:11px; }
-}
-
-/* Reduced motion */
-@media(prefers-reduced-motion:reduce){
-  :root{ --fade:0ms; --lineDur:0ms; }
-  .line{ opacity:1 !important; transform:none !important; animation:none !important; }
-}
-</style>
+    /* Small screens: keep the statement intact */
+    @media (max-width: 560px){
+      .wrap{ padding:40px 22px; }
+      .logo{ font-size:44px; }
+      .clock{ font-size:14px; letter-spacing:0.14em; transform: translateY(-3px); }
+      :root{ --gap:18px; --contact-gap:72px; }
+    }
+  </style>
 </head>
 
 <body>
-
-<!-- shared language spine -->
-<div class="stage" aria-hidden="false">
-  <aside class="spine" aria-label="Language">
-    <div class="lang-switch">
-      <button data-lang="en" class="active" type="button">ENGLISH</button>
-      <button data-lang="zh" type="button">CHINESE</button>
-      <button data-lang="jp" type="button">JAPANESE</button>
-    </div>
-  </aside>
-
-  <!-- landing -->
-  <main class="main">
-    <section class="landing" aria-label="Kuon landing">
-      <h1 class="mark">Kuon</h1>
-
-      <button class="action" id="openBtn" type="button" aria-label="Open contact details">
-        <span class="word">Contact</span>
-        <span class="arrow" aria-hidden="true">→</span>
-      </button>
-    </section>
-  </main>
-</div>
-
-<!-- info view -->
-<section class="info" id="info" aria-hidden="true">
-  <div></div>
-  <div></div>
-  <div></div>
-  <div class="info-main">
-    <div class="info-inner">
-      <h2 id="infoTitle">Kuon Holdings</h2>
-
-      <p class="line l1" id="t1"></p>
-      <p class="line l2" id="t2"></p>
-      <p class="line l3" id="t3"></p>
-
-      <div class="backRow">
-        <button class="action" id="closeBtn" type="button" aria-label="Back to landing">
-          <span class="word">Back</span>
-          <span class="arrow" aria-hidden="true">→</span>
-        </button>
+  <div class="wrap">
+    <main class="center" aria-label="KUON">
+      <div class="line" aria-label="KUON and clock">
+        <h1 class="logo" aria-label="KUON">KUON</h1>
+        <div class="clock" id="clock" aria-label="UTC clock">—</div>
       </div>
-    </div>
+
+      <button class="contact" id="contactBtn" type="button" aria-expanded="false" aria-controls="langs">
+        CONTACT <span class="arrow" aria-hidden="true">→</span>
+      </button>
+
+      <div class="langs" id="langs" aria-label="Languages">
+        <button class="lang" type="button" data-lang="en" aria-current="true">English</button>
+        <button class="lang" type="button" data-lang="ja">Japanese</button>
+        <button class="lang" type="button" data-lang="zh">Chinese</button>
+      </div>
+    </main>
   </div>
-</section>
 
-<!-- UTC corner stamp -->
-<div class="utc" id="utcStamp" aria-label="UTC time"></div>
+  <script>
+    // --- Clock (UTC) ---
+    const clockEl = document.getElementById('clock');
 
-<!-- (optional) tiny top-right marker -->
-<div class="corner tr" aria-hidden="true"></div>
+    function pad(n){ return String(n).padStart(2, '0'); }
 
-<script>
-/* Language affects contact view only (as agreed). */
-const content = {
-  en: {
-    infoTitle: "Kuon Holdings",
-    lines: [
-      "Kuon Holdings Ltd. (BVI) is a private holding structure.",
-      "For matters relating to Kuon ventures, please contact",
-      "<a href='mailto:contact@kuonholdings.com'>contact@kuonholdings.com</a>."
-    ]
-  },
-  zh: {
-    infoTitle: "久音控股",
-    lines: [
-      "Kuon Holdings Ltd.（BVI）是一家私人控股结构。",
-      "有关 Kuon 项目的事宜，请联系",
-      "<a href='mailto:contact@kuonholdings.com'>contact@kuonholdings.com</a>。"
-    ]
-  },
-  jp: {
-    infoTitle: "久音ホールディングス",
-    lines: [
-      "Kuon Holdings Ltd.（BVI）はプライベートな持株構造です。",
-      "Kuon の事業に関するお問い合わせは",
-      "<a href='mailto:contact@kuonholdings.com'>contact@kuonholdings.com</a> までご連絡ください。"
-    ]
-  }
-};
+    function formatUTC(d){
+      const Y = d.getUTCFullYear();
+      const M = pad(d.getUTCMonth() + 1);
+      const D = pad(d.getUTCDate());
+      const h = pad(d.getUTCHours());
+      const m = pad(d.getUTCMinutes());
+      const s = pad(d.getUTCSeconds());
+      return `${Y}.${M}.${D} ${h}:${m}:${s} UTC`;
+    }
 
-const infoTitleEl = document.getElementById("infoTitle");
-const t1 = document.getElementById("t1");
-const t2 = document.getElementById("t2");
-const t3 = document.getElementById("t3");
+    function tick(){
+      const now = new Date();
+      clockEl.textContent = formatUTC(now);
+    }
 
-function setLang(lang){
-  const c = content[lang];
-  infoTitleEl.textContent = c.infoTitle;
-  t1.textContent = c.lines[0];
-  t2.textContent = c.lines[1];
-  t3.innerHTML  = c.lines[2];
+    tick();
+    setInterval(tick, 1000);
 
-  document.querySelectorAll(".lang-switch button").forEach(b => b.classList.remove("active"));
-  document.querySelector(`.lang-switch button[data-lang='${lang}']`).classList.add("active");
-}
-setLang("en");
+    // --- Contact toggle for languages ---
+    const contactBtn = document.getElementById('contactBtn');
+    const langs = document.getElementById('langs');
 
-document.querySelectorAll(".lang-switch button").forEach(btn=>{
-  btn.addEventListener("click", ()=> setLang(btn.dataset.lang));
-});
+    function setOpen(open){
+      langs.classList.toggle('is-open', open);
+      contactBtn.setAttribute('aria-expanded', String(open));
+    }
 
-/* Open/close */
-const openBtn = document.getElementById("openBtn");
-const closeBtn = document.getElementById("closeBtn");
-const info = document.getElementById("info");
+    let open = false;
+    contactBtn.addEventListener('click', () => {
+      open = !open;
+      setOpen(open);
+    });
 
-function showInfo(){
-  document.body.classList.add("show-info");
-  info.setAttribute("aria-hidden","false");
-  setTimeout(()=> closeBtn.focus({preventScroll:true}), 320);
-}
-function hideInfo(){
-  document.body.classList.remove("show-info");
-  info.setAttribute("aria-hidden","true");
-  setTimeout(()=> openBtn.focus({preventScroll:true}), 320);
-}
-openBtn.addEventListener("click", showInfo);
-closeBtn.addEventListener("click", hideInfo);
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && open){
+        open = false;
+        setOpen(false);
+        contactBtn.focus();
+      }
+    });
 
-document.addEventListener("keydown",(e)=>{
-  if(e.key==="Escape" && document.body.classList.contains("show-info")){
-    hideInfo();
-  }
-});
+    // Language selection (placeholder – can later change page text/routes)
+    const langButtons = Array.from(document.querySelectorAll('.lang'));
+    langButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        langButtons.forEach(b => b.removeAttribute('aria-current'));
+        btn.setAttribute('aria-current', 'true');
 
-/* UTC corner stamp */
-const utcStamp = document.getElementById("utcStamp");
-function pad(n){ return String(n).padStart(2,"0"); }
-function updateUTC(){
-  const d = new Date();
-  utcStamp.textContent =
-    `${d.getUTCFullYear()}.${pad(d.getUTCMonth()+1)}.${pad(d.getUTCDate())} ` +
-    `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())} UTC`;
-}
-updateUTC();
-setInterval(updateUTC, 1000);
-</script>
-
+        // Hook for future: update content / route per language
+        // const lang = btn.dataset.lang;
+        // console.log("Language selected:", lang);
+      });
+    });
+  </script>
 </body>
 </html>
