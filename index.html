@@ -7,10 +7,14 @@
 
 <style>
 :root{
-  --bg:#fbfbfa;           /* closer to white */
+  --bg:#fbfbfa;
   --fg:#111;
   --muted:rgba(0,0,0,.58);
   --faint:rgba(0,0,0,.28);
+
+  /* Transition tuning (slower + deliberate) */
+  --fade: 720ms;
+  --ease: cubic-bezier(.20, .85, .20, 1);
 }
 
 *{box-sizing:border-box;}
@@ -34,27 +38,55 @@ body{
   padding:40px 18px;
 }
 
+.landing, .info{
+  transition: opacity var(--fade) var(--ease);
+}
+
 .mark{
   margin:0;
-  font-size:72px;          /* bigger for impact */
+  font-size:72px;
   letter-spacing:.26em;
   text-transform:uppercase;
   font-weight:500;
   line-height:1.05;
 }
 
-.trigger{
+/* “Button” as typography */
+.action{
   margin-top:20px;
   background:none;
   border:0;
-  font-size:14px;          /* slightly larger */
+  padding:10px 4px;
+  cursor:pointer;
+  color:var(--muted);
+  font-size:14px;
   letter-spacing:.22em;
   text-transform:uppercase;
-  color:var(--muted);
-  cursor:pointer;
+
+  display:inline-flex;
+  align-items:center;
+  gap:12px; /* word ↔ arrow separation */
 }
 
-.trigger:hover{ color:#000; }
+.action:focus{ outline:none; }
+
+/* Word and arrow separated, with micro-motion on hover */
+.action .word{
+  transition: transform 360ms var(--ease), color 360ms var(--ease);
+}
+.action .arrow{
+  display:inline-block;
+  transition: transform 520ms var(--ease), color 360ms var(--ease);
+  color:var(--faint);
+}
+
+.action:hover .word{
+  color:rgba(0,0,0,.82);
+}
+.action:hover .arrow{
+  transform: translateX(4px);
+  color:rgba(0,0,0,.55);
+}
 
 /* Live time/date – subtle completion cue */
 .live{
@@ -74,9 +106,9 @@ body{
   justify-content:center;
   text-align:center;
   padding:40px 18px;
+
   opacity:0;
   pointer-events:none;
-  transition:opacity .35s ease;
 }
 
 body.show-info .info{
@@ -87,7 +119,6 @@ body.show-info .info{
 body.show-info .landing{
   opacity:0;
   pointer-events:none;
-  transition:opacity .35s ease;
 }
 
 .info-inner{
@@ -96,7 +127,7 @@ body.show-info .landing{
 
 .info h2{
   margin:0 0 18px;
-  font-size:20px;          /* slightly larger */
+  font-size:20px;
   letter-spacing:.20em;
   text-transform:uppercase;
   font-weight:500;
@@ -105,7 +136,7 @@ body.show-info .landing{
 .info p{
   margin:0;
   color:var(--muted);
-  font-size:16px;          /* slightly larger */
+  font-size:16px;
   line-height:1.75;
 }
 
@@ -116,20 +147,9 @@ a{
   text-decoration:none;
   border-bottom:1px solid rgba(0,0,0,.30);
   padding-bottom:2px;
+  transition: border-color 360ms var(--ease);
 }
 a:hover{ border-bottom-color:rgba(0,0,0,.55); }
-
-.back{
-  margin-top:26px;
-  background:none;
-  border:0;
-  font-size:12px;
-  letter-spacing:.22em;
-  text-transform:uppercase;
-  color:var(--muted);
-  cursor:pointer;
-}
-.back:hover{ color:#000; }
 
 /* Mobile */
 @media(max-width:520px){
@@ -137,6 +157,12 @@ a:hover{ border-bottom-color:rgba(0,0,0,.55); }
     font-size:54px;
     letter-spacing:.20em;
   }
+}
+
+/* Reduced motion */
+@media(prefers-reduced-motion: reduce){
+  :root{ --fade: 0ms; }
+  .action .word, .action .arrow, a{ transition:none; }
 }
 </style>
 </head>
@@ -147,20 +173,27 @@ a:hover{ border-bottom-color:rgba(0,0,0,.55); }
   <div>
     <h1 class="mark">Kuon</h1>
 
-    <button class="trigger" id="openBtn" type="button">Contact</button>
+    <button class="action" id="openBtn" type="button" aria-label="Open contact details">
+      <span class="word">Contact</span>
+      <span class="arrow" aria-hidden="true">→</span>
+    </button>
 
-    <div class="live" id="liveStamp" aria-label="Live time"></div>
+    <div class="live" id="liveStamp" aria-label="UTC time"></div>
   </div>
 </div>
 
-<div class="info" id="info">
+<div class="info" id="info" aria-hidden="true">
   <div class="info-inner">
     <h2>Kuon Holdings</h2>
     <p>Kuon Holdings Ltd. (BVI) is a private holding structure.</p>
     <p>For matters relating to Kuon ventures, please contact
       <a href="mailto:contact@kuonholdings.com">contact@kuonholdings.com</a>.
     </p>
-    <button class="back" id="closeBtn" type="button">Back</button>
+
+    <button class="action" id="closeBtn" type="button" aria-label="Back to landing" style="margin-top:26px;">
+      <span class="word">Back</span>
+      <span class="arrow" aria-hidden="true">→</span>
+    </button>
   </div>
 </div>
 
@@ -168,24 +201,45 @@ a:hover{ border-bottom-color:rgba(0,0,0,.55); }
   const openBtn = document.getElementById("openBtn");
   const closeBtn = document.getElementById("closeBtn");
   const liveStamp = document.getElementById("liveStamp");
+  const info = document.getElementById("info");
 
-  openBtn.onclick = () => document.body.classList.add("show-info");
-  closeBtn.onclick = () => document.body.classList.remove("show-info");
+  function showInfo(){
+    document.body.classList.add("show-info");
+    info.setAttribute("aria-hidden", "false");
+    // Let the fade begin, then move focus for a deliberate feel
+    setTimeout(() => closeBtn.focus({ preventScroll:true }), 240);
+  }
 
-  // Subtle "always live" cue (uses visitor's local time)
+  function hideInfo(){
+    document.body.classList.remove("show-info");
+    info.setAttribute("aria-hidden", "true");
+    setTimeout(() => openBtn.focus({ preventScroll:true }), 240);
+  }
+
+  openBtn.addEventListener("click", showInfo);
+  closeBtn.addEventListener("click", hideInfo);
+
+  // UTC live stamp
   function pad(n){ return String(n).padStart(2,"0"); }
   function updateStamp(){
     const d = new Date();
-    const yyyy = d.getFullYear();
-    const mm = pad(d.getMonth()+1);
-    const dd = pad(d.getDate());
-    const hh = pad(d.getHours());
-    const mi = pad(d.getMinutes());
-    const ss = pad(d.getSeconds());
-    liveStamp.textContent = `${yyyy}.${mm}.${dd}  ${hh}:${mi}:${ss}`;
+    const yyyy = d.getUTCFullYear();
+    const mm = pad(d.getUTCMonth()+1);
+    const dd = pad(d.getUTCDate());
+    const hh = pad(d.getUTCHours());
+    const mi = pad(d.getUTCMinutes());
+    const ss = pad(d.getUTCSeconds());
+    liveStamp.textContent = `${yyyy}.${mm}.${dd}  ${hh}:${mi}:${ss} UTC`;
   }
   updateStamp();
   setInterval(updateStamp, 1000);
+
+  // Escape closes
+  document.addEventListener("keydown", (e) => {
+    if(e.key === "Escape" && document.body.classList.contains("show-info")){
+      hideInfo();
+    }
+  });
 </script>
 
 </body>
