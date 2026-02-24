@@ -7,9 +7,10 @@
 
 <style>
 :root{
-  --bg:#f6f6f3;
+  --bg:#fbfbfa;           /* closer to white */
   --fg:#111;
   --muted:rgba(0,0,0,.58);
+  --faint:rgba(0,0,0,.28);
 }
 
 *{box-sizing:border-box;}
@@ -23,6 +24,7 @@ body{
   letter-spacing:.2px;
 }
 
+/* Center stage */
 .wrap{
   min-height:100%;
   display:flex;
@@ -34,25 +36,33 @@ body{
 
 .mark{
   margin:0;
-  font-size:64px;
-  letter-spacing:.28em;
+  font-size:72px;          /* bigger for impact */
+  letter-spacing:.26em;
   text-transform:uppercase;
   font-weight:500;
+  line-height:1.05;
 }
 
 .trigger{
-  margin-top:18px;
+  margin-top:20px;
   background:none;
   border:0;
-  font-size:13px;
-  letter-spacing:.24em;
+  font-size:14px;          /* slightly larger */
+  letter-spacing:.22em;
   text-transform:uppercase;
   color:var(--muted);
   cursor:pointer;
 }
 
-.trigger:hover{
-  color:#000;
+.trigger:hover{ color:#000; }
+
+/* Live time/date – subtle completion cue */
+.live{
+  margin-top:22px;
+  font-size:12px;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--faint);
 }
 
 /* INFO STATE */
@@ -81,13 +91,13 @@ body.show-info .landing{
 }
 
 .info-inner{
-  max-width:620px;
+  max-width:640px;
 }
 
 .info h2{
   margin:0 0 18px;
-  font-size:18px;
-  letter-spacing:.22em;
+  font-size:20px;          /* slightly larger */
+  letter-spacing:.20em;
   text-transform:uppercase;
   font-weight:500;
 }
@@ -95,23 +105,22 @@ body.show-info .landing{
 .info p{
   margin:0;
   color:var(--muted);
-  font-size:15px;
-  line-height:1.7;
+  font-size:16px;          /* slightly larger */
+  line-height:1.75;
 }
 
-.info p + p{
-  margin-top:10px;
-}
+.info p + p{ margin-top:12px; }
 
 a{
   color:var(--fg);
   text-decoration:none;
-  border-bottom:1px solid rgba(0,0,0,.3);
+  border-bottom:1px solid rgba(0,0,0,.30);
   padding-bottom:2px;
 }
+a:hover{ border-bottom-color:rgba(0,0,0,.55); }
 
 .back{
-  margin-top:24px;
+  margin-top:26px;
   background:none;
   border:0;
   font-size:12px;
@@ -120,11 +129,13 @@ a{
   color:var(--muted);
   cursor:pointer;
 }
+.back:hover{ color:#000; }
 
+/* Mobile */
 @media(max-width:520px){
   .mark{
-    font-size:46px;
-    letter-spacing:.22em;
+    font-size:54px;
+    letter-spacing:.20em;
   }
 }
 </style>
@@ -135,7 +146,10 @@ a{
 <div class="wrap landing">
   <div>
     <h1 class="mark">Kuon</h1>
-    <button class="trigger" id="openBtn">Contact</button>
+
+    <button class="trigger" id="openBtn" type="button">Contact</button>
+
+    <div class="live" id="liveStamp" aria-label="Live time"></div>
   </div>
 </div>
 
@@ -146,16 +160,32 @@ a{
     <p>For matters relating to Kuon ventures, please contact
       <a href="mailto:contact@kuonholdings.com">contact@kuonholdings.com</a>.
     </p>
-    <button class="back" id="closeBtn">Back</button>
+    <button class="back" id="closeBtn" type="button">Back</button>
   </div>
 </div>
 
 <script>
-const openBtn = document.getElementById("openBtn");
-const closeBtn = document.getElementById("closeBtn");
+  const openBtn = document.getElementById("openBtn");
+  const closeBtn = document.getElementById("closeBtn");
+  const liveStamp = document.getElementById("liveStamp");
 
-openBtn.onclick = () => document.body.classList.add("show-info");
-closeBtn.onclick = () => document.body.classList.remove("show-info");
+  openBtn.onclick = () => document.body.classList.add("show-info");
+  closeBtn.onclick = () => document.body.classList.remove("show-info");
+
+  // Subtle "always live" cue (uses visitor's local time)
+  function pad(n){ return String(n).padStart(2,"0"); }
+  function updateStamp(){
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = pad(d.getMonth()+1);
+    const dd = pad(d.getDate());
+    const hh = pad(d.getHours());
+    const mi = pad(d.getMinutes());
+    const ss = pad(d.getSeconds());
+    liveStamp.textContent = `${yyyy}.${mm}.${dd}  ${hh}:${mi}:${ss}`;
+  }
+  updateStamp();
+  setInterval(updateStamp, 1000);
 </script>
 
 </body>
