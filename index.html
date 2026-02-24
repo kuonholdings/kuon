@@ -9,31 +9,31 @@
 
   <style>
     :root{
-      --fg:#111;
       --bg:#ffffff;
+      --fg:#111;
 
-      /* ---- Physical centering control (Mac tuning) ---- */
-      --page-nudge: 0px; /* try 8px if it still looks left */
-
-      /* composition */
+      /* layout */
       --baseline:54vh;
-      --gap:18px;
-      --contact-gap:66px;
+      --contact-gap:64px;
       --panel-gap:16px;
       --panel-stack-gap:14px;
       --langs-gap:22px;
 
-      /* clock block width (stable) */
-      --clock-w: 560px;
+      /* contrast (slightly darker than before) */
+      --muted-1: rgba(0,0,0,0.62);
+      --muted-2: rgba(0,0,0,0.66);
+      --muted-3: rgba(0,0,0,0.56);
 
-      /* contrast (darken these slightly) */
-      --contact-body: rgba(0,0,0,0.62);
-      --contact-body-2: rgba(0,0,0,0.66);
-      --contact-body-3: rgba(0,0,0,0.56);
+      /* frame */
+      --pad-x:64px;
+      --pad-top:20px;
+      --pad-bot:20px;
 
-      /* rule */
       --rule: rgba(0,0,0,0.22);
       --rule-tick: rgba(0,0,0,0.18);
+
+      /* clock (frame element) */
+      --clock-size: 18px; /* keep subtle */
     }
 
     *{ box-sizing:border-box; }
@@ -51,19 +51,19 @@
     .wrap{
       height:100%;
       width:100%;
-      padding:56px 64px;
+      padding:56px var(--pad-x);
       position:relative;
     }
 
-    /* Top-left editorial rule + tick */
+    /* Top-left editorial mark */
     .top-rule{
       position:fixed;
-      top:20px;
-      left:64px;
+      top:var(--pad-top);
+      left:var(--pad-x);
       width:72px;
       height:1px;
       background:var(--rule);
-      z-index:2;
+      z-index:5;
       pointer-events:none;
     }
     .top-rule span{
@@ -75,68 +75,52 @@
       background:var(--rule-tick);
     }
 
+    /* Clock in the frame (top-right) */
+    .frame-clock{
+      position:fixed;
+      top:calc(var(--pad-top) - 2px);
+      right:var(--pad-x);
+      z-index:5;
+      pointer-events:none;
+
+      font-size:var(--clock-size);
+      font-weight:500;
+      letter-spacing:0.14em;
+
+      /* deboss */
+      color:rgba(0,0,0,0.10);
+      text-shadow:
+        0 -1px 0 rgba(0,0,0,0.05),
+        0  1px 1px rgba(255,255,255,0.62);
+
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1, "lnum" 1;
+
+      white-space:nowrap;
+      transition: opacity 200ms ease;
+    }
+    .frame-clock.is-switching{ opacity:0.65; }
+
     .center{
       position:absolute;
       left:50%;
-      top:calc(var(--baseline) + 2px);
-      transform:translate(calc(-50% + var(--page-nudge)), -50%);
+      top:var(--baseline);
+      transform:translate(-50%, -50%);
       text-align:center;
       width:min(980px, calc(100% - 40px));
     }
 
-    /* Statement: KUON is the anchor, clock sits to the right */
-    .statement{
-      position:relative;
-      height:56px;
-      margin:0 auto;
-    }
-
+    /* KUON as the hero: no games, no offsets */
     .logo{
-      position:absolute;
-      left:50%;
-      top:0;
-      transform:translateX(-50%);
-
       margin:0;
       font-weight:700;
       letter-spacing:0.30em;
       font-size:50px;
       line-height:1;
-      padding-left:0.30em;
+      padding-left:0.30em; /* balances tracking */
       color:var(--fg);
       white-space:nowrap;
     }
-
-    .clock{
-      position:absolute;
-      left:50%;
-      top:0;
-
-      /* positioned relative to KUON (keeps KUON locked) */
-      transform: translateX(calc(120px + var(--gap)));
-
-      width:var(--clock-w);
-      text-align:left;
-
-      font-weight:500;
-      letter-spacing:0.14em;
-      font-size:50px;
-      line-height:1;
-
-      /* slightly darker deboss for more contrast */
-      color:rgba(0,0,0,0.085);
-      text-shadow:
-        0 -1px 0 rgba(0,0,0,0.05),
-        0  1px 1px rgba(255,255,255,0.60);
-
-      user-select:none;
-      transition: opacity 220ms ease;
-
-      font-variant-numeric: tabular-nums;
-      font-feature-settings: "tnum" 1, "lnum" 1;
-      white-space:nowrap;
-    }
-    .clock.is-switching{ opacity:0.65; }
 
     .contactRow{ margin-top:var(--contact-gap); }
 
@@ -144,7 +128,6 @@
       display:inline-flex;
       align-items:center;
       gap:10px;
-
       border:0;
       background:transparent;
       padding:6px 10px;
@@ -200,11 +183,11 @@
     .descriptor{
       font-size:11px;
       letter-spacing:0.12em;
-      color:var(--contact-body);
+      color:var(--muted-1);
       max-width:58ch;
       line-height:1.7;
 
-      min-height:3.4em;
+      min-height:3.4em; /* lock height so languages don't shift layout */
       display:flex;
       align-items:center;
       justify-content:center;
@@ -218,7 +201,7 @@
       font-size:12px;
       letter-spacing:0.14em;
       text-transform:none;
-      color:var(--contact-body-2);
+      color:var(--muted-2);
       text-decoration:none;
       padding:4px 10px;
       transition: color 160ms ease;
@@ -240,7 +223,7 @@
       padding:4px 4px;
       cursor:pointer;
 
-      color:var(--contact-body-3);
+      color:var(--muted-3);
       font-weight:400;
       letter-spacing:0.13em;
       font-size:11px;
@@ -249,7 +232,7 @@
       transition: color 160ms ease;
     }
     .lang:hover{ color:var(--fg); }
-    .lang[aria-current="true"]{ color:rgba(0,0,0,0.74); }
+    .lang[aria-current="true"]{ color:rgba(0,0,0,0.76); }
 
     .vsep{
       width:1px;
@@ -262,8 +245,8 @@
     .bottom{
       position:fixed;
       left:0; right:0;
-      bottom:20px;
-      padding:0 64px;
+      bottom:var(--pad-bot);
+      padding:0 var(--pad-x);
       display:flex;
       justify-content:space-between;
       align-items:flex-end;
@@ -283,19 +266,14 @@
     .bottom .right{ text-align:right; }
 
     @media (max-width: 720px){
-      .wrap{ padding:40px 22px; }
-      .bottom{ padding:0 22px; }
       :root{
-        --gap:14px;
-        --contact-gap:62px;
-        --langs-gap:18px;
-        --clock-w: 420px;
-        --page-nudge: 0px;
+        --pad-x:22px;
+        --pad-top:18px;
+        --pad-bot:18px;
+        --clock-size: 16px;
       }
-
-      .top-rule{ left:22px; top:18px; width:54px; }
+      .wrap{ padding:40px var(--pad-x); }
       .logo{ font-size:42px; }
-      .clock{ font-size:42px; transform: translateX(calc(98px + var(--gap))); }
       .bottom .left, .bottom .right{ white-space:normal; }
       .vsep{ height:10px; }
     }
@@ -304,13 +282,11 @@
 
 <body>
   <div class="top-rule" aria-hidden="true"><span></span></div>
+  <div class="frame-clock" id="frameClock" aria-hidden="true">—</div>
 
   <div class="wrap">
     <main class="center" aria-label="KUON">
-      <div class="statement" aria-label="KUON and clock">
-        <h1 class="logo">KUON</h1>
-        <div class="clock" id="clock">—</div>
-      </div>
+      <h1 class="logo">KUON</h1>
 
       <div class="contactRow">
         <button class="contact" id="contactBtn" type="button" aria-expanded="false" aria-controls="panel">
@@ -365,8 +341,7 @@
     };
 
     let currentLang = "en";
-
-    const clockEl = document.getElementById("clock");
+    const clockEl = document.getElementById("frameClock");
     const descriptorEl = document.getElementById("descriptor");
 
     function partsForTZ(date, timeZone){
@@ -405,8 +380,7 @@
     setInterval(tick, 1000 * 10);
 
     function setLanguage(langKey){
-      if (!CONTENT[langKey]) return;
-      if (langKey === currentLang) return;
+      if (!CONTENT[langKey] || langKey === currentLang) return;
 
       clockEl.classList.add("is-switching");
       descriptorEl.classList.add("is-switching");
@@ -425,12 +399,13 @@
       }, 180);
     }
 
+    // Contact toggle
     const contactBtn = document.getElementById("contactBtn");
     const contactLabel = document.getElementById("contactLabel");
     const contactArrow = document.getElementById("contactArrow");
     const panel = document.getElementById("panel");
-
     let open = false;
+
     function setOpen(v){
       open = v;
       panel.classList.toggle("is-open", open);
@@ -438,8 +413,8 @@
       contactLabel.textContent = open ? "back" : "contact";
       contactArrow.textContent = open ? "←" : "→";
     }
-    contactBtn.addEventListener("click", () => setOpen(!open));
 
+    contactBtn.addEventListener("click", () => setOpen(!open));
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && open){
         setOpen(false);
@@ -447,6 +422,7 @@
       }
     });
 
+    // Language buttons
     const langButtons = Array.from(document.querySelectorAll(".lang"));
     langButtons.forEach(btn => {
       btn.addEventListener("click", () => {
