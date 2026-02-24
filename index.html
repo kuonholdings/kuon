@@ -12,18 +12,15 @@
   --muted:rgba(0,0,0,.58);
   --faint:rgba(0,0,0,.28);
 
-  --fade:740ms;
+  --fade:760ms;
   --ease:cubic-bezier(.20,.85,.20,1);
-
   --lineDur:720ms;
 
-  /* ---- layout system ---- */
+  /* --- layout --- */
   --gutter: clamp(18px, 4.5vw, 56px);
-  --spineW: 118px;                 /* language column */
-  --gap: clamp(18px, 4vw, 60px);   /* space between spine + content */
-
-  /* toggle guide lines: 0 = off, 1 = on */
-  --guides: 0;
+  --spineW: 132px;                 /* language column width */
+  --gap: clamp(20px, 4vw, 64px);   /* space between spine and content */
+  --contentW: min(760px, 100%);
 }
 
 *{box-sizing:border-box;}
@@ -37,60 +34,30 @@ body{
   letter-spacing:.2px;
 }
 
-/* ---------- guide overlay (optional) ---------- */
-.guides{
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  opacity:calc(var(--guides) * 1);
-}
-.guides::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  /* horizontal centre datum + spine/content vertical datum */
-  background:
-    linear-gradient(to bottom,
-      transparent calc(50% - .5px),
-      rgba(0,0,0,.06) calc(50% - .5px),
-      rgba(0,0,0,.06) calc(50% + .5px),
-      transparent calc(50% + .5px)
-    );
-}
-.guides::after{
-  content:"";
-  position:absolute;
-  top:0; bottom:0;
-  left: calc(var(--gutter) + var(--spineW) + var(--gap));
-  width:1px;
-  background:rgba(0,0,0,.06);
-}
-
-/* ---------- master grid (shared by landing + info) ---------- */
+/* ---------- MASTER GRID (used by both states) ---------- */
 .stage{
   position:fixed;
   inset:0;
   display:grid;
   grid-template-columns: var(--gutter) var(--spineW) var(--gap) 1fr var(--gutter);
-  grid-template-rows: 1fr; /* we’ll center inside each section */
+  grid-template-rows: 1fr;
 }
 
+/* spine column (languages) */
 .spine{
   grid-column:2;
   display:flex;
-  align-items:center;      /* <-- shared vertical datum */
+  align-items:center;
   justify-content:flex-start;
 }
 
-/* language menu */
 .lang-switch{
   display:flex;
   flex-direction:column;
-  gap:8px;
+  gap:10px;
   font-size:13px;
   letter-spacing:.12em;
   text-transform:uppercase;
-  align-items:flex-start;
 }
 
 .lang-switch button{
@@ -106,31 +73,36 @@ body{
 .lang-switch button:hover{ color:rgba(0,0,0,.65); }
 .lang-switch button.active{ color:#111; }
 
-/* ---------- content areas ---------- */
+/* ---------- LANDING ---------- */
 .main{
   grid-column:4;
   display:flex;
-  align-items:center;       /* <-- shared vertical datum */
+  align-items:center;
   justify-content:center;
 }
 
-/* Landing block */
 .landing{
-  text-align:center;
+  width:var(--contentW);
+  display:flex;
+  align-items:center;               /* logo and contact share one datum */
+  justify-content:space-between;    /* contact sits to the right */
+  gap:32px;
   transition:opacity var(--fade) var(--ease);
 }
 
+/* Logo sized to be roughly comparable height to language stack */
 .mark{
   margin:0;
-  font-size:72px;
-  letter-spacing:.26em;
+  font-size:58px;                   /* reduced so it sits closer to menu height */
+  letter-spacing:.24em;
   text-transform:uppercase;
   font-weight:500;
-  line-height:1.05;
+  line-height:1;
+  white-space:nowrap;
 }
 
+/* typography button */
 .action{
-  margin-top:20px;
   background:none;
   border:0;
   padding:10px 4px;
@@ -143,6 +115,7 @@ body{
   align-items:center;
   gap:12px;
 }
+
 .action:focus{outline:none;}
 .action .word{ transition:color 360ms var(--ease); }
 .action .arrow{
@@ -153,47 +126,32 @@ body{
 .action:hover .word{ color:rgba(0,0,0,.82); }
 .action:hover .arrow{ transform:translateX(4px); color:rgba(0,0,0,.55); }
 
-.live{
-  margin-top:22px;
-  font-size:12px;
-  letter-spacing:.22em;
-  text-transform:uppercase;
-  color:var(--faint);
-}
-
-/* Info view (same grid + same vertical datum) */
+/* ---------- INFO VIEW (same grid) ---------- */
 .info{
   position:fixed;
   inset:0;
   display:grid;
   grid-template-columns: var(--gutter) var(--spineW) var(--gap) 1fr var(--gutter);
-  pointer-events:none;
   opacity:0;
+  pointer-events:none;
   transition:opacity var(--fade) var(--ease);
 }
 
-body.show-info .info{
-  opacity:1;
-  pointer-events:auto;
-}
-body.show-info .landing{
-  opacity:0;
-  pointer-events:none;
-}
+body.show-info .info{ opacity:1; pointer-events:auto; }
+body.show-info .landing{ opacity:0; pointer-events:none; }
 
-.info .info-main{
+.info-main{
   grid-column:4;
   display:flex;
-  align-items:center;         /* <-- same vertical datum */
-  justify-content:flex-start; /* left aligned block */
+  align-items:center;
+  justify-content:flex-start;
 }
 
 .info-inner{
-  width:min(720px,100%);
+  width:var(--contentW);
   text-align:left;
 }
 
-/* heading */
 .info h2{
   margin:0 0 18px;
   font-size:20px;
@@ -202,7 +160,6 @@ body.show-info .landing{
   font-weight:500;
 }
 
-/* line-by-line reveal */
 .line{
   margin:0;
   color:var(--muted);
@@ -236,13 +193,26 @@ a:hover{ border-bottom-color:rgba(0,0,0,.55); }
 
 .backRow{ margin-top:26px; }
 
-/* single corner mark */
+/* ---------- UTC IN CORNER ---------- */
+.utc{
+  position:fixed;
+  right:24px;
+  bottom:22px;
+  font-size:12px;                   /* slightly more obvious */
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:rgba(0,0,0,.38);            /* a touch stronger than before */
+  user-select:none;
+  pointer-events:none;
+}
+
+/* ---------- single corner mark (optional, very faint) ---------- */
 .corner{
   position:fixed;
   width:14px;
   height:14px;
   pointer-events:none;
-  opacity:.18;
+  opacity:.14;
 }
 .corner::before,
 .corner::after{
@@ -254,13 +224,22 @@ a:hover{ border-bottom-color:rgba(0,0,0,.55); }
 .corner::after{ width:1px; height:14px; right:0; top:0; }
 .tr{ top:12px; right:12px; }
 
-/* Mobile */
-@media(max-width:720px){
-  :root{ --spineW: 104px; }
+/* ---------- Mobile ---------- */
+@media(max-width:860px){
+  .landing{
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    text-align:center;
+  }
+  .action{ margin-top:6px; }
 }
+
 @media(max-width:520px){
-  .mark{ font-size:54px; letter-spacing:.20em; }
+  .mark{ font-size:50px; letter-spacing:.20em; }
   .lang-switch{ font-size:12px; }
+  .utc{ right:18px; bottom:18px; font-size:11px; }
 }
 
 /* Reduced motion */
@@ -273,11 +252,8 @@ a:hover{ border-bottom-color:rgba(0,0,0,.55); }
 
 <body>
 
-<!-- optional guides: set --guides: 1 in :root to see datums -->
-<div class="guides" aria-hidden="true"></div>
-
-<!-- shared spine + landing -->
-<div class="stage">
+<!-- shared language spine -->
+<div class="stage" aria-hidden="false">
   <aside class="spine" aria-label="Language">
     <div class="lang-switch">
       <button data-lang="en" class="active" type="button">ENGLISH</button>
@@ -286,6 +262,7 @@ a:hover{ border-bottom-color:rgba(0,0,0,.55); }
     </div>
   </aside>
 
+  <!-- landing -->
   <main class="main">
     <section class="landing" aria-label="Kuon landing">
       <h1 class="mark">Kuon</h1>
@@ -294,15 +271,15 @@ a:hover{ border-bottom-color:rgba(0,0,0,.55); }
         <span class="word">Contact</span>
         <span class="arrow" aria-hidden="true">→</span>
       </button>
-
-      <div class="live" id="liveStamp" aria-label="UTC time"></div>
     </section>
   </main>
 </div>
 
-<!-- info view shares the same grid + datum -->
+<!-- info view -->
 <section class="info" id="info" aria-hidden="true">
-  <div></div><div></div><div></div>
+  <div></div>
+  <div></div>
+  <div></div>
   <div class="info-main">
     <div class="info-inner">
       <h2 id="infoTitle">Kuon Holdings</h2>
@@ -312,7 +289,7 @@ a:hover{ border-bottom-color:rgba(0,0,0,.55); }
       <p class="line l3" id="t3"></p>
 
       <div class="backRow">
-        <button class="action" id="closeBtn" type="button" aria-label="Back to landing" style="margin-top:0;">
+        <button class="action" id="closeBtn" type="button" aria-label="Back to landing">
           <span class="word">Back</span>
           <span class="arrow" aria-hidden="true">→</span>
         </button>
@@ -321,7 +298,10 @@ a:hover{ border-bottom-color:rgba(0,0,0,.55); }
   </div>
 </section>
 
-<!-- corner mark -->
+<!-- UTC corner stamp -->
+<div class="utc" id="utcStamp" aria-label="UTC time"></div>
+
+<!-- (optional) tiny top-right marker -->
 <div class="corner tr" aria-hidden="true"></div>
 
 <script>
@@ -398,17 +378,17 @@ document.addEventListener("keydown",(e)=>{
   }
 });
 
-/* UTC live stamp */
-const liveStamp = document.getElementById("liveStamp");
+/* UTC corner stamp */
+const utcStamp = document.getElementById("utcStamp");
 function pad(n){ return String(n).padStart(2,"0"); }
-function updateStamp(){
+function updateUTC(){
   const d = new Date();
-  liveStamp.textContent =
-    `${d.getUTCFullYear()}.${pad(d.getUTCMonth()+1)}.${pad(d.getUTCDate())}  ` +
+  utcStamp.textContent =
+    `${d.getUTCFullYear()}.${pad(d.getUTCMonth()+1)}.${pad(d.getUTCDate())} ` +
     `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())} UTC`;
 }
-updateStamp();
-setInterval(updateStamp, 1000);
+updateUTC();
+setInterval(updateUTC, 1000);
 </script>
 
 </body>
