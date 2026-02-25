@@ -28,9 +28,11 @@
       --pad-top:20px;
       --pad-bot:20px;
 
+      /* corner marks */
       --rule: rgba(0,0,0,0.30);
       --rule-tick: rgba(0,0,0,0.24);
       --rule-h: 1.25px;
+      --rule-w: 76px;
 
       --logo-size:56px;
       --logo-track:0.28em;
@@ -39,13 +41,17 @@
       --clock-size:18px;
       --clock-tone: rgba(0,0,0,0.14);
 
+      /* cycling underline */
       --cycle-ms: 12000ms;
       --cycle-line: rgba(0,0,0,0.28);
       --cycle-line-h: 1px;
       --cycle-underline-gap: 2px;
 
-      --xfade-ms: 1800ms; /* calmer */
-      --xfade-ease: cubic-bezier(.35,0,.25,1);
+      /* curtain fade (the anti-jank fix) */
+      --swap-ms: 1600ms;
+      --swap-ease: cubic-bezier(.35,0,.25,1);
+      --swap-inset-y: 6px;
+      --swap-inset-x: 12px;
     }
 
     *{ box-sizing:border-box; }
@@ -67,24 +73,28 @@
       position:relative;
     }
 
-    .top-rule{
+    /* Top-left + top-right editorial marks */
+    .corner-rule{
       position:fixed;
       top:var(--pad-top);
-      left:var(--pad-x);
-      width:76px;
+      width:var(--rule-w);
       height:var(--rule-h);
       background:var(--rule);
       z-index:5;
       pointer-events:none;
     }
-    .top-rule span{
+    .corner-rule .tick{
       position:absolute;
-      left:0;
       top:-4px;
       width:var(--rule-h);
       height:9px;
       background:var(--rule-tick);
     }
+    .corner-rule.left{ left:var(--pad-x); }
+    .corner-rule.left .tick{ left:0; }
+
+    .corner-rule.right{ right:var(--pad-x); }
+    .corner-rule.right .tick{ right:0; }
 
     .center{
       position:absolute;
@@ -102,30 +112,23 @@
       gap:var(--clock-gap);
     }
 
-    /* ✅ GRID-based crossfade: container always sized to the max layer */
-    .xfade{
-      display:grid;
-      place-items:center;
+    /* Curtain-fade swap box (text never fades, only the curtain does) */
+    .swapBox{
+      position:relative;
+      display:inline-block;
     }
-    .xfade.inline{
-      display:inline-grid;
-      place-items:center;
+    .swapBox::before{
+      content:"";
+      position:absolute;
+      inset:calc(-1 * var(--swap-inset-y)) calc(-1 * var(--swap-inset-x));
+      background:var(--bg);
+      opacity:0;
+      pointer-events:none;
+      transition: opacity var(--swap-ms) var(--swap-ease);
     }
-    .xfade .layer{
-      grid-area:1 / 1;
-      opacity:1;
-      transition: opacity var(--xfade-ms) var(--xfade-ease);
-      will-change: opacity;
-      justify-self:center;
-      align-self:center;
-      pointer-events:none; /* layers never intercept clicks */
-    }
-    .xfade .layer.b{ opacity:0; }
+    .swapBox.is-covering::before{ opacity:1; }
 
-    .xfade.is-b .layer.a{ opacity:0; }
-    .xfade.is-b .layer.b{ opacity:1; }
-
-    /* lock heights to prevent any vertical nudge */
+    /* stable heights so nothing nudges */
     .logoBox{ min-height: 1.05em; }
     .clockBox{ min-height: 1.2em; }
     .descBox{ min-height: 3.4em; }
@@ -181,6 +184,7 @@
     }
     .contact:hover{ color:var(--fg); }
     .contact:hover .arrow{ transform: translateX(3px) translateY(-1px); }
+
     .contact:focus{ outline:none; }
     .contact:focus-visible{
       outline:2px solid rgba(0,0,0,0.18);
@@ -219,6 +223,7 @@
       display:flex;
       align-items:center;
       justify-content:center;
+      margin:0;
     }
 
     .email{
@@ -288,7 +293,7 @@
     }
 
     @media (prefers-reduced-motion: reduce){
-      .xfade .layer{ transition:none; }
+      .swapBox::before{ transition:none; }
       .langs.is-cycling .lang[aria-current="true"]::after{ animation:none; }
     }
 
@@ -323,6 +328,7 @@
         --logo-size:48px;
         --logo-track:0.27em;
         --logo-pad:0.27em;
+        --rule-w: 64px;
       }
       .wrap{ padding:40px var(--pad-x); }
       .bottom .left, .bottom .right{ white-space:normal; }
@@ -331,36 +337,39 @@
 </head>
 
 <body>
-  <div class="top-rule" aria-hidden="true"><span></span></div>
+  <div class="corner-rule left" aria-hidden="true"><span class="tick"></span></div>
+  <div class="corner-rule right" aria-hidden="true"><span class="tick"></span></div>
 
   <div class="wrap">
     <main class="center" aria-label="KUON">
 
       <div class="hero">
-        <div class="xfade logoBox" id="logoX">
-          <div class="layer a"><h1 class="logo" id="logoA">KUON</h1></div>
-          <div class="layer b"><h1 class="logo" id="logoB">KUON</h1></div>
+        <!-- KUON logo: curtain swap -->
+        <div class="swapBox logoBox" id="logoSwap">
+          <h1 class="logo" id="logoText">KUON</h1>
         </div>
 
-        <div class="xfade clockBox" id="clockX" aria-hidden="true">
-          <div class="layer a"><div class="clock" id="clockA">—</div></div>
-          <div class="layer b"><div class="clock" id="clockB">—</div></div>
+        <!-- Clock: curtain swap -->
+        <div class="swapBox clockBox" id="clockSwap" aria-hidden="true">
+          <div class="clock" id="clockText">—</div>
         </div>
       </div>
 
       <div class="contactRow">
         <button class="contact" id="contactBtn" type="button" aria-expanded="false" aria-controls="panel">
-          <span class="xfade inline" id="contactX">
-            <span class="layer a" id="contactA">contact</span>
-            <span class="layer b" id="contactB">contact</span>
+          <!-- Contact label: curtain swap -->
+          <span class="swapBox" id="contactSwap" style="display:inline-block;">
+            <span id="contactLabel">contact</span>
           </span>
           <span class="arrow" id="contactArrow" aria-hidden="true">→</span>
         </button>
 
         <div class="panel" id="panel" aria-label="Contact panel">
-          <div class="xfade descBox" id="descX">
-            <div class="layer a"><div class="descriptor" id="descA">KUON holds work intended to last — across design, sound, and structure.</div></div>
-            <div class="layer b"><div class="descriptor" id="descB">KUON holds work intended to last — across design, sound, and structure.</div></div>
+          <!-- Descriptor: curtain swap -->
+          <div class="swapBox descBox" id="descSwap">
+            <p class="descriptor" id="descText">
+              KUON holds work intended to last — across design, sound, and structure.
+            </p>
           </div>
 
           <a class="email" href="mailto:info@kuonholdings.com">info@kuonholdings.com</a>
@@ -385,11 +394,11 @@
       window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const CONTENT = {
-      en: { htmlLang:"en", tz:"UTC",           tzLabel:"UTC", logo:"KUON", contact:"contact", back:"back",
+      en: { htmlLang:"en", tz:"UTC",            tzLabel:"UTC", logo:"KUON", contact:"contact", back:"back",
             desc:"KUON holds work intended to last — across design, sound, and structure." },
-      ja: { htmlLang:"ja", tz:"Asia/Tokyo",    tzLabel:"JPN", logo:"クオン", contact:"連絡", back:"戻る",
+      ja: { htmlLang:"ja", tz:"Asia/Tokyo",     tzLabel:"JPN", logo:"クオン", contact:"連絡", back:"戻る",
             desc:"KUONは、長く残ることを意図した仕事を保有します――デザイン、音、構造にわたって。" },
-      zh: { htmlLang:"zh", tz:"Asia/Shanghai", tzLabel:"CHN", logo:"久音", contact:"联系", back:"返回",
+      zh: { htmlLang:"zh", tz:"Asia/Shanghai",  tzLabel:"CHN", logo:"久音", contact:"联系", back:"返回",
             desc:"KUON 持有旨在长久延续的工作——涵盖设计、声音与结构。" }
     };
 
@@ -400,32 +409,30 @@
     const MANUAL_PAUSE_MS = 30000;
     document.documentElement.style.setProperty("--cycle-ms", `${CYCLE_MS}ms`);
 
+    // Curtain timing: cover reaches near-opaque around half of swap-ms
+    const SWAP_TOTAL_MS = 1600;
+    const SWAP_AT_MS = 800;
+
+    const logoSwap = document.getElementById("logoSwap");
+    const clockSwap = document.getElementById("clockSwap");
+    const contactSwap = document.getElementById("contactSwap");
+    const descSwap = document.getElementById("descSwap");
+
+    const logoText = document.getElementById("logoText");
+    const clockText = document.getElementById("clockText");
+    const contactLabel = document.getElementById("contactLabel");
+    const descText = document.getElementById("descText");
+
     const panel = document.getElementById("panel");
     const contactBtn = document.getElementById("contactBtn");
     const contactArrow = document.getElementById("contactArrow");
     const langsEl = document.getElementById("langs");
     const langButtons = Array.from(document.querySelectorAll(".lang"));
 
-    const logoX  = document.getElementById("logoX");
-    const clockX = document.getElementById("clockX");
-    const descX  = document.getElementById("descX");
-    const contactX = document.getElementById("contactX");
-
-    const logoA  = document.getElementById("logoA");
-    const logoB  = document.getElementById("logoB");
-    const clockA = document.getElementById("clockA");
-    const clockB = document.getElementById("clockB");
-    const descA  = document.getElementById("descA");
-    const descB  = document.getElementById("descB");
-    const contactA = document.getElementById("contactA");
-    const contactB = document.getElementById("contactB");
-
     let cycleTimer = null;
     let resumeTimer = null;
     let cycleId = 0;
 
-    function isB(container){ return container.classList.contains("is-b"); }
-    function flip(container){ container.classList.toggle("is-b"); }
     function isOpen(){ return contactBtn.getAttribute("aria-expanded") === "true"; }
 
     function partsForTZ(date, timeZone){
@@ -455,67 +462,58 @@
       langsEl.dataset.cycleId = String(cycleId);
     }
 
-    function writeToHidden(langKey){
+    function cover(box){ box.classList.add("is-covering"); }
+    function uncover(box){ box.classList.remove("is-covering"); }
+
+    function curtainSwap(boxes, applyNewContent){
+      if (prefersReducedMotion){
+        applyNewContent();
+        return;
+      }
+
+      boxes.forEach(cover);
+      setTimeout(() => { applyNewContent(); }, SWAP_AT_MS);
+      setTimeout(() => { boxes.forEach(uncover); }, SWAP_TOTAL_MS);
+    }
+
+    function applyContent(langKey){
       const c = CONTENT[langKey];
       document.documentElement.setAttribute("lang", c.htmlLang);
 
-      const toB = !isB(logoX);
-      const label = isOpen() ? c.back : c.contact;
-      const clockText = formatInTZ(new Date(), langKey);
+      logoText.textContent = c.logo;
+      descText.textContent = c.desc;
 
-      if (toB){
-        logoB.textContent = c.logo;
-        descB.textContent = c.desc;
-        contactB.textContent = label;
-        clockB.textContent = clockText;
-      } else {
-        logoA.textContent = c.logo;
-        descA.textContent = c.desc;
-        contactA.textContent = label;
-        clockA.textContent = clockText;
-      }
+      contactLabel.textContent = isOpen() ? c.back : c.contact;
+      clockText.textContent = formatInTZ(new Date(), langKey);
 
       setActiveButton(langKey);
+
       if (isOpen() && !prefersReducedMotion){
         langsEl.classList.add("is-cycling");
         restartUnderline();
       }
     }
 
-    function applyLanguage(langKey, { fromCycle=false } = {}){
+    function setLanguage(langKey, { fromCycle=false } = {}){
       if (!CONTENT[langKey] || langKey === currentLang) return;
       currentLang = langKey;
 
-      if (prefersReducedMotion){
-        const c = CONTENT[langKey];
-        const label = isOpen() ? c.back : c.contact;
-
-        logoA.textContent = c.logo; logoB.textContent = c.logo;
-        descA.textContent = c.desc; descB.textContent = c.desc;
-        contactA.textContent = label; contactB.textContent = label;
-
-        const ct = formatInTZ(new Date(), langKey);
-        clockA.textContent = ct; clockB.textContent = ct;
-
-        document.documentElement.setAttribute("lang", c.htmlLang);
-        setActiveButton(langKey);
-        return;
-      }
-
-      writeToHidden(langKey);
-      flip(logoX); flip(clockX); flip(descX); flip(contactX);
+      curtainSwap(
+        [logoSwap, clockSwap, contactSwap, descSwap],
+        () => applyContent(langKey)
+      );
 
       if (!fromCycle && isOpen()) pauseCyclingTemporarily();
     }
 
     function tick(){
-      const text = formatInTZ(new Date(), currentLang);
-      if (isB(clockX)) clockB.textContent = text;
-      else clockA.textContent = text;
+      // keep clock current without animating anything
+      clockText.textContent = formatInTZ(new Date(), currentLang);
     }
     tick();
     setInterval(tick, 1000 * 10);
 
+    // Contact open/close
     let open = false;
     function setOpen(v){
       open = v;
@@ -523,10 +521,9 @@
       contactBtn.setAttribute("aria-expanded", String(open));
       contactArrow.textContent = open ? "←" : "→";
 
+      // label update (no fade needed)
       const c = CONTENT[currentLang];
-      const label = open ? c.back : c.contact;
-      contactA.textContent = label;
-      contactB.textContent = label;
+      contactLabel.textContent = open ? c.back : c.contact;
 
       if (open){
         if (!prefersReducedMotion){
@@ -547,10 +544,11 @@
       }
     });
 
+    // Cycling
     function nextLang(){
       const idx = ORDER.indexOf(currentLang);
       const next = ORDER[(idx + 1) % ORDER.length];
-      applyLanguage(next, { fromCycle:true });
+      setLanguage(next, { fromCycle:true });
     }
 
     function startCycling(){
@@ -570,15 +568,9 @@
 
       if (resetToEnglish){
         currentLang = "en";
-        const c = CONTENT.en;
-
-        logoA.textContent = c.logo; logoB.textContent = c.logo;
-        descA.textContent = c.desc; descB.textContent = c.desc;
-        contactA.textContent = c.contact; contactB.textContent = c.contact;
-
-        document.documentElement.setAttribute("lang", c.htmlLang);
-        setActiveButton("en");
-        tick();
+        applyContent("en");
+        // ensure contact label reads "contact" when closed
+        contactLabel.textContent = CONTENT.en.contact;
       }
     }
 
@@ -588,19 +580,13 @@
       resumeTimer = setTimeout(() => { if (open) startCycling(); }, MANUAL_PAUSE_MS);
     }
 
+    // Manual language selection
     langButtons.forEach(btn => {
-      btn.addEventListener("click", () => applyLanguage(btn.dataset.lang, { fromCycle:false }));
+      btn.addEventListener("click", () => setLanguage(btn.dataset.lang, { fromCycle:false }));
     });
 
-    (function init(){
-      const c = CONTENT.en;
-      logoA.textContent = c.logo; logoB.textContent = c.logo;
-      descA.textContent = c.desc; descB.textContent = c.desc;
-      contactA.textContent = c.contact; contactB.textContent = c.contact;
-      document.documentElement.setAttribute("lang", c.htmlLang);
-      setActiveButton("en");
-      tick();
-    })();
+    // Init
+    applyContent("en");
   </script>
 </body>
 </html>
