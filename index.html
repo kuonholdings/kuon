@@ -28,11 +28,11 @@
       --pad-top:20px;
       --pad-bot:20px;
 
-      /* corner marks */
-      --rule: rgba(0,0,0,0.30);
-      --rule-tick: rgba(0,0,0,0.24);
-      --rule-h: 1.25px;
-      --rule-w: 76px;
+      /* Japanese editorial crop marks */
+      --mark: rgba(0,0,0,0.20);
+      --mark-h: 1px;
+      --mark-l: 22px;  /* length of each leg */
+      --mark-gap: 18px;/* inset from edge */
 
       --logo-size:56px;
       --logo-track:0.28em;
@@ -47,11 +47,15 @@
       --cycle-line-h: 1px;
       --cycle-underline-gap: 2px;
 
-      /* curtain */
+      /* curtain swap */
       --swap-ms: 1700ms;
       --swap-ease: cubic-bezier(.35,0,.25,1);
       --swap-inset-y: 6px;
       --swap-inset-x: 12px;
+
+      /* clock micro fade */
+      --clockfade-ms: 900ms;
+      --clockfade-ease: cubic-bezier(.35,0,.25,1);
     }
 
     *{ box-sizing:border-box; }
@@ -73,28 +77,36 @@
       position:relative;
     }
 
-    /* Top-left + top-right editorial marks */
-    .corner-rule{
+    /* --- Corner crop marks (minimal) --- */
+    .crop{
       position:fixed;
-      top:var(--pad-top);
-      width:var(--rule-w);
-      height:var(--rule-h);
-      background:var(--rule);
-      z-index:5;
+      width:calc(var(--mark-l) + 2px);
+      height:calc(var(--mark-l) + 2px);
       pointer-events:none;
+      z-index:5;
+      opacity:1;
     }
-    .corner-rule .tick{
+    .crop::before,
+    .crop::after{
+      content:"";
       position:absolute;
-      top:-4px;
-      width:var(--rule-h);
-      height:9px;
-      background:var(--rule-tick);
+      background:var(--mark);
     }
-    .corner-rule.left{ left:var(--pad-x); }
-    .corner-rule.left .tick{ left:0; }
+    .crop::before{ /* horizontal leg */
+      height:var(--mark-h);
+      width:var(--mark-l);
+      top:0; left:0;
+    }
+    .crop::after{  /* vertical leg */
+      width:var(--mark-h);
+      height:var(--mark-l);
+      top:0; left:0;
+    }
 
-    .corner-rule.right{ right:var(--pad-x); }
-    .corner-rule.right .tick{ right:0; }
+    .crop.tl{ top:var(--mark-gap); left:var(--mark-gap); }
+    .crop.tr{ top:var(--mark-gap); right:var(--mark-gap); transform: scaleX(-1); }
+    .crop.bl{ bottom:var(--mark-gap); left:var(--mark-gap); transform: scaleY(-1); }
+    .crop.br{ bottom:var(--mark-gap); right:var(--mark-gap); transform: scale(-1); }
 
     .center{
       position:absolute;
@@ -120,487 +132,4 @@
     .swapBox::before{
       content:"";
       position:absolute;
-      inset:calc(-1 * var(--swap-inset-y)) calc(-1 * var(--swap-inset-x));
-      background:var(--bg);
-      opacity:0;
-      pointer-events:none;
-    }
-
-    /* Keyframes: fade in to fully opaque, HOLD, fade out */
-    @keyframes curtain{
-      0%   { opacity:0; }
-      45%  { opacity:1; }
-      55%  { opacity:1; }
-      100% { opacity:0; }
-    }
-
-    .swapBox.is-swapping::before{
-      animation: curtain var(--swap-ms) var(--swap-ease) both;
-    }
-
-    /* stable heights */
-    .logoBox{ min-height: 1.05em; }
-    .clockBox{ min-height: 1.2em; }
-    .descBox{ min-height: 3.4em; }
-
-    .logo{
-      margin:0;
-      font-weight:700;
-      letter-spacing:var(--logo-track);
-      font-size:var(--logo-size);
-      line-height:1;
-      padding-left:var(--logo-pad);
-      white-space:nowrap;
-    }
-
-    .clock{
-      font-size:var(--clock-size);
-      font-weight:500;
-      letter-spacing:0.14em;
-      color:var(--clock-tone);
-      text-shadow:
-        0 -1px 0 rgba(0,0,0,0.06),
-        0  1px 1px rgba(255,255,255,0.60);
-      font-variant-numeric: tabular-nums;
-      font-feature-settings: "tnum" 1, "lnum" 1;
-      white-space:nowrap;
-      user-select:none;
-    }
-
-    .contactRow{ margin-top:var(--contact-gap); }
-
-    .contact{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      border:0;
-      background:transparent;
-      padding:6px 10px;
-      cursor:pointer;
-
-      color:rgba(0,0,0,0.62);
-      font-weight:400;
-      letter-spacing:0.24em;
-      font-size:11px;
-      text-transform:uppercase;
-    }
-    .contact .arrow{
-      font-size:14px;
-      line-height:1;
-      display:inline-block;
-      transform: translateX(0) translateY(-1px);
-      transition: transform 180ms ease;
-      color:inherit;
-    }
-    .contact:hover{ color:var(--fg); }
-    .contact:hover .arrow{ transform: translateX(3px) translateY(-1px); }
-
-    .contact:focus{ outline:none; }
-    .contact:focus-visible{
-      outline:2px solid rgba(0,0,0,0.18);
-      outline-offset:6px;
-      border-radius:10px;
-    }
-
-    .panel{
-      margin-top:var(--panel-gap);
-      display:grid;
-      gap:var(--panel-stack-gap);
-      justify-items:center;
-
-      width:min(560px, 100%);
-      margin-left:auto;
-      margin-right:auto;
-
-      opacity:0;
-      transform:translateY(6px);
-      pointer-events:none;
-      transition: opacity 260ms ease, transform 260ms ease;
-    }
-    .panel.is-open{
-      opacity:1;
-      transform:translateY(0);
-      pointer-events:auto;
-    }
-
-    .descriptor{
-      font-size:11px;
-      letter-spacing:0.12em;
-      color:var(--muted-1);
-      max-width:58ch;
-      line-height:1.7;
-      text-align:center;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      margin:0;
-    }
-
-    .email{
-      font-size:12px;
-      letter-spacing:0.14em;
-      text-transform:none;
-      color:var(--muted-2);
-      text-decoration:none;
-      padding:4px 10px;
-      transition: color 160ms ease;
-    }
-    .email:hover{ color:var(--fg); }
-
-    .langs{
-      margin-top:var(--langs-gap);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:18px;
-      flex-wrap:wrap;
-    }
-
-    .lang{
-      background:transparent;
-      border:0;
-      padding:4px 2px;
-      cursor:pointer;
-
-      color:var(--muted-3);
-      font-weight:400;
-      letter-spacing:0.13em;
-      font-size:11px;
-      text-transform:uppercase;
-      white-space:nowrap;
-      position:relative;
-      transition: color 160ms ease;
-    }
-    .lang:hover{ color:var(--fg); }
-    .lang[aria-current="true"]{ color:rgba(0,0,0,0.78); }
-
-    .lang:focus{ outline:none; }
-    .lang:focus-visible{
-      outline:1px solid rgba(0,0,0,0.18);
-      outline-offset:4px;
-      border-radius:6px;
-    }
-
-    .langs.is-cycling .lang[aria-current="true"]::after{
-      content:"";
-      position:absolute;
-      left:0;
-      right:0;
-      height:var(--cycle-line-h);
-      background:var(--cycle-line);
-      bottom:calc(-1 * var(--cycle-underline-gap));
-      transform-origin:left center;
-      transform:scaleX(0);
-      opacity:0.85;
-      animation: langProgress var(--cycle-ms) linear forwards;
-    }
-    .langs.is-cycling[data-cycle-id] .lang[aria-current="true"]::after{
-      animation-name: langProgress;
-    }
-    @keyframes langProgress{
-      from { transform: scaleX(0); }
-      to   { transform: scaleX(1); }
-    }
-
-    @media (prefers-reduced-motion: reduce){
-      .swapBox.is-swapping::before{ animation:none; opacity:0; }
-      .langs.is-cycling .lang[aria-current="true"]::after{ animation:none; }
-    }
-
-    .bottom{
-      position:fixed;
-      left:0; right:0;
-      bottom:var(--pad-bot);
-      padding:0 var(--pad-x);
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-end;
-      gap:24px;
-      pointer-events:none;
-    }
-    .bottom .left,
-    .bottom .right{
-      font-size:11px;
-      letter-spacing:0.14em;
-      color:rgba(0,0,0,0.34);
-      line-height:1.6;
-      white-space:nowrap;
-      text-transform:uppercase;
-    }
-    .bottom .right{ text-align:right; }
-
-    @media (max-width: 720px){
-      :root{
-        --pad-x:22px;
-        --pad-top:18px;
-        --pad-bot:18px;
-        --clock-size:16px;
-        --logo-size:48px;
-        --logo-track:0.27em;
-        --logo-pad:0.27em;
-        --rule-w: 64px;
-      }
-      .wrap{ padding:40px var(--pad-x); }
-      .bottom .left, .bottom .right{ white-space:normal; }
-    }
-  </style>
-</head>
-
-<body>
-  <div class="corner-rule left" aria-hidden="true"><span class="tick"></span></div>
-  <div class="corner-rule right" aria-hidden="true"><span class="tick"></span></div>
-
-  <div class="wrap">
-    <main class="center" aria-label="KUON">
-
-      <div class="hero">
-        <div class="swapBox logoBox" id="logoSwap">
-          <h1 class="logo" id="logoText">KUON</h1>
-        </div>
-
-        <div class="swapBox clockBox" id="clockSwap" aria-hidden="true">
-          <div class="clock" id="clockText">—</div>
-        </div>
-      </div>
-
-      <div class="contactRow">
-        <button class="contact" id="contactBtn" type="button" aria-expanded="false" aria-controls="panel">
-          <span class="swapBox" id="contactSwap" style="display:inline-block;">
-            <span id="contactLabel">contact</span>
-          </span>
-          <span class="arrow" id="contactArrow" aria-hidden="true">→</span>
-        </button>
-
-        <div class="panel" id="panel" aria-label="Contact panel">
-          <div class="swapBox descBox" id="descSwap">
-            <p class="descriptor" id="descText">
-              KUON holds work intended to last — across design, sound, and structure.
-            </p>
-          </div>
-
-          <a class="email" href="mailto:info@kuonholdings.com">info@kuonholdings.com</a>
-
-          <div class="langs" id="langs" aria-label="Languages">
-            <button class="lang" type="button" data-lang="en" aria-current="true">ENGLISH</button>
-            <button class="lang" type="button" data-lang="ja">JAPANESE</button>
-            <button class="lang" type="button" data-lang="zh">CHINESE</button>
-          </div>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <footer class="bottom" aria-label="Footer info">
-    <div class="left">KUON HOLDINGS</div>
-    <div class="right">TOKYO / LONDON</div>
-  </footer>
-
-  <script>
-    const prefersReducedMotion =
-      window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    const CONTENT = {
-      en: { htmlLang:"en", tz:"UTC",            tzLabel:"UTC", logo:"KUON", contact:"contact", back:"back",
-            desc:"KUON holds work intended to last — across design, sound, and structure." },
-      ja: { htmlLang:"ja", tz:"Asia/Tokyo",     tzLabel:"JPN", logo:"クオン", contact:"連絡", back:"戻る",
-            desc:"KUONは、長く残ることを意図した仕事を保有します――デザイン、音、構造にわたって。" },
-      zh: { htmlLang:"zh", tz:"Asia/Shanghai",  tzLabel:"CHN", logo:"久音", contact:"联系", back:"返回",
-            desc:"KUON 持有旨在长久延续的工作——涵盖设计、声音与结构。" }
-    };
-
-    const ORDER = ["en","ja","zh"];
-    let currentLang = "en";
-
-    const CYCLE_MS = 12000;
-    const MANUAL_PAUSE_MS = 30000;
-    document.documentElement.style.setProperty("--cycle-ms", `${CYCLE_MS}ms`);
-
-    // Must match CSS --swap-ms
-    const SWAP_TOTAL_MS = 1700;
-    // Swap at mid “hold” (50% of keyframe) so fully covered.
-    const SWAP_AT_MS = Math.round(SWAP_TOTAL_MS * 0.50);
-
-    const logoSwap = document.getElementById("logoSwap");
-    const clockSwap = document.getElementById("clockSwap");
-    const contactSwap = document.getElementById("contactSwap");
-    const descSwap = document.getElementById("descSwap");
-
-    const logoText = document.getElementById("logoText");
-    const clockText = document.getElementById("clockText");
-    const contactLabel = document.getElementById("contactLabel");
-    const descText = document.getElementById("descText");
-
-    const panel = document.getElementById("panel");
-    const contactBtn = document.getElementById("contactBtn");
-    const contactArrow = document.getElementById("contactArrow");
-    const langsEl = document.getElementById("langs");
-    const langButtons = Array.from(document.querySelectorAll(".lang"));
-
-    let cycleTimer = null;
-    let resumeTimer = null;
-    let cycleId = 0;
-
-    function isOpen(){ return contactBtn.getAttribute("aria-expanded") === "true"; }
-
-    function partsForTZ(date, timeZone){
-      const fmt = new Intl.DateTimeFormat("en-GB", {
-        timeZone,
-        year:"numeric", month:"2-digit", day:"2-digit",
-        hour:"2-digit", minute:"2-digit", hour12:false
-      });
-      const parts = fmt.formatToParts(date);
-      const get = (t) => parts.find(p => p.type === t)?.value || "";
-      return { Y:get("year"), M:get("month"), D:get("day"), h:get("hour"), m:get("minute") };
-    }
-    function formatInTZ(date, langKey){
-      const { tz, tzLabel } = CONTENT[langKey];
-      const p = partsForTZ(date, tz);
-      return `${p.Y}.${p.M}.${p.D} ${p.h}:${p.m} ${tzLabel}`;
-    }
-
-    function setActiveButton(langKey){
-      langButtons.forEach(b => b.removeAttribute("aria-current"));
-      const btn = langButtons.find(b => b.dataset.lang === langKey);
-      if (btn) btn.setAttribute("aria-current", "true");
-    }
-
-    function restartUnderline(){
-      cycleId += 1;
-      langsEl.dataset.cycleId = String(cycleId);
-    }
-
-    function startCurtain(box){
-      box.classList.remove("is-swapping"); // restart reliably
-      // force reflow so animation restarts even if clicking quickly
-      void box.offsetWidth;
-      box.classList.add("is-swapping");
-    }
-    function stopCurtain(box){
-      box.classList.remove("is-swapping");
-    }
-
-    function curtainSwap(boxes, applyNewContent){
-      if (prefersReducedMotion){
-        applyNewContent();
-        return;
-      }
-
-      boxes.forEach(startCurtain);
-
-      setTimeout(() => {
-        applyNewContent(); // swap while fully covered
-      }, SWAP_AT_MS);
-
-      setTimeout(() => {
-        boxes.forEach(stopCurtain);
-      }, SWAP_TOTAL_MS);
-    }
-
-    function applyContent(langKey){
-      const c = CONTENT[langKey];
-      document.documentElement.setAttribute("lang", c.htmlLang);
-
-      logoText.textContent = c.logo;
-      descText.textContent = c.desc;
-
-      contactLabel.textContent = isOpen() ? c.back : c.contact;
-      clockText.textContent = formatInTZ(new Date(), langKey);
-
-      setActiveButton(langKey);
-
-      if (isOpen() && !prefersReducedMotion){
-        langsEl.classList.add("is-cycling");
-        restartUnderline();
-      }
-    }
-
-    function setLanguage(langKey, { fromCycle=false } = {}){
-      if (!CONTENT[langKey] || langKey === currentLang) return;
-      currentLang = langKey;
-
-      curtainSwap([logoSwap, clockSwap, contactSwap, descSwap], () => applyContent(langKey));
-
-      if (!fromCycle && isOpen()) pauseCyclingTemporarily();
-    }
-
-    function tick(){
-      clockText.textContent = formatInTZ(new Date(), currentLang);
-    }
-    tick();
-    setInterval(tick, 1000 * 10);
-
-    // Contact open/close
-    let open = false;
-    function setOpen(v){
-      open = v;
-      panel.classList.toggle("is-open", open);
-      contactBtn.setAttribute("aria-expanded", String(open));
-      contactArrow.textContent = open ? "←" : "→";
-
-      const c = CONTENT[currentLang];
-      contactLabel.textContent = open ? c.back : c.contact;
-
-      if (open){
-        if (!prefersReducedMotion){
-          langsEl.classList.add("is-cycling");
-          restartUnderline();
-        }
-        startCycling();
-      } else {
-        langsEl.classList.remove("is-cycling");
-        stopCycling(true);
-      }
-    }
-    contactBtn.addEventListener("click", () => setOpen(!open));
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && open){
-        setOpen(false);
-        contactBtn.focus();
-      }
-    });
-
-    // Cycling
-    function nextLang(){
-      const idx = ORDER.indexOf(currentLang);
-      const next = ORDER[(idx + 1) % ORDER.length];
-      setLanguage(next, { fromCycle:true });
-    }
-
-    function startCycling(){
-      if (prefersReducedMotion) return;
-      if (cycleTimer) clearInterval(cycleTimer);
-      if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null; }
-
-      langsEl.classList.add("is-cycling");
-      restartUnderline();
-      cycleTimer = setInterval(nextLang, CYCLE_MS);
-    }
-
-    function stopCycling(resetToEnglish){
-      if (cycleTimer) { clearInterval(cycleTimer); cycleTimer = null; }
-      if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null; }
-      langsEl.classList.remove("is-cycling");
-
-      if (resetToEnglish){
-        currentLang = "en";
-        applyContent("en");
-        contactLabel.textContent = CONTENT.en.contact;
-      }
-    }
-
-    function pauseCyclingTemporarily(){
-      if (resumeTimer) clearTimeout(resumeTimer);
-      if (cycleTimer) { clearInterval(cycleTimer); cycleTimer = null; }
-      resumeTimer = setTimeout(() => { if (open) startCycling(); }, MANUAL_PAUSE_MS);
-    }
-
-    // Manual language selection
-    langButtons.forEach(btn => {
-      btn.addEventListener("click", () => setLanguage(btn.dataset.lang, { fromCycle:false }));
-    });
-
-    // Init
-    applyContent("en");
-  </script>
-</body>
-</html>
+      inset
