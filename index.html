@@ -47,8 +47,8 @@
       --cycle-line-h: 1px;
       --cycle-underline-gap: 2px;
 
-      /* curtain fade (the anti-jank fix) */
-      --swap-ms: 1600ms;
+      /* curtain */
+      --swap-ms: 1700ms;
       --swap-ease: cubic-bezier(.35,0,.25,1);
       --swap-inset-y: 6px;
       --swap-inset-x: 12px;
@@ -112,7 +112,7 @@
       gap:var(--clock-gap);
     }
 
-    /* Curtain-fade swap box (text never fades, only the curtain does) */
+    /* ---- Curtain swap box ---- */
     .swapBox{
       position:relative;
       display:inline-block;
@@ -124,11 +124,21 @@
       background:var(--bg);
       opacity:0;
       pointer-events:none;
-      transition: opacity var(--swap-ms) var(--swap-ease);
     }
-    .swapBox.is-covering::before{ opacity:1; }
 
-    /* stable heights so nothing nudges */
+    /* Keyframes: fade in to fully opaque, HOLD, fade out */
+    @keyframes curtain{
+      0%   { opacity:0; }
+      45%  { opacity:1; }
+      55%  { opacity:1; }
+      100% { opacity:0; }
+    }
+
+    .swapBox.is-swapping::before{
+      animation: curtain var(--swap-ms) var(--swap-ease) both;
+    }
+
+    /* stable heights */
     .logoBox{ min-height: 1.05em; }
     .clockBox{ min-height: 1.2em; }
     .descBox{ min-height: 3.4em; }
@@ -293,7 +303,7 @@
     }
 
     @media (prefers-reduced-motion: reduce){
-      .swapBox::before{ transition:none; }
+      .swapBox.is-swapping::before{ animation:none; opacity:0; }
       .langs.is-cycling .lang[aria-current="true"]::after{ animation:none; }
     }
 
@@ -344,12 +354,10 @@
     <main class="center" aria-label="KUON">
 
       <div class="hero">
-        <!-- KUON logo: curtain swap -->
         <div class="swapBox logoBox" id="logoSwap">
           <h1 class="logo" id="logoText">KUON</h1>
         </div>
 
-        <!-- Clock: curtain swap -->
         <div class="swapBox clockBox" id="clockSwap" aria-hidden="true">
           <div class="clock" id="clockText">—</div>
         </div>
@@ -357,7 +365,6 @@
 
       <div class="contactRow">
         <button class="contact" id="contactBtn" type="button" aria-expanded="false" aria-controls="panel">
-          <!-- Contact label: curtain swap -->
           <span class="swapBox" id="contactSwap" style="display:inline-block;">
             <span id="contactLabel">contact</span>
           </span>
@@ -365,7 +372,6 @@
         </button>
 
         <div class="panel" id="panel" aria-label="Contact panel">
-          <!-- Descriptor: curtain swap -->
           <div class="swapBox descBox" id="descSwap">
             <p class="descriptor" id="descText">
               KUON holds work intended to last — across design, sound, and structure.
@@ -409,9 +415,10 @@
     const MANUAL_PAUSE_MS = 30000;
     document.documentElement.style.setProperty("--cycle-ms", `${CYCLE_MS}ms`);
 
-    // Curtain timing: cover reaches near-opaque around half of swap-ms
-    const SWAP_TOTAL_MS = 1600;
-    const SWAP_AT_MS = 800;
+    // Must match CSS --swap-ms
+    const SWAP_TOTAL_MS = 1700;
+    // Swap at mid “hold” (50% of keyframe) so fully covered.
+    const SWAP_AT_MS = Math.round(SWAP_TOTAL_MS * 0.50);
 
     const logoSwap = document.getElementById("logoSwap");
     const clockSwap = document.getElementById("clockSwap");
@@ -462,8 +469,15 @@
       langsEl.dataset.cycleId = String(cycleId);
     }
 
-    function cover(box){ box.classList.add("is-covering"); }
-    function uncover(box){ box.classList.remove("is-covering"); }
+    function startCurtain(box){
+      box.classList.remove("is-swapping"); // restart reliably
+      // force reflow so animation restarts even if clicking quickly
+      void box.offsetWidth;
+      box.classList.add("is-swapping");
+    }
+    function stopCurtain(box){
+      box.classList.remove("is-swapping");
+    }
 
     function curtainSwap(boxes, applyNewContent){
       if (prefersReducedMotion){
@@ -471,9 +485,15 @@
         return;
       }
 
-      boxes.forEach(cover);
-      setTimeout(() => { applyNewContent(); }, SWAP_AT_MS);
-      setTimeout(() => { boxes.forEach(uncover); }, SWAP_TOTAL_MS);
+      boxes.forEach(startCurtain);
+
+      setTimeout(() => {
+        applyNewContent(); // swap while fully covered
+      }, SWAP_AT_MS);
+
+      setTimeout(() => {
+        boxes.forEach(stopCurtain);
+      }, SWAP_TOTAL_MS);
     }
 
     function applyContent(langKey){
@@ -498,16 +518,12 @@
       if (!CONTENT[langKey] || langKey === currentLang) return;
       currentLang = langKey;
 
-      curtainSwap(
-        [logoSwap, clockSwap, contactSwap, descSwap],
-        () => applyContent(langKey)
-      );
+      curtainSwap([logoSwap, clockSwap, contactSwap, descSwap], () => applyContent(langKey));
 
       if (!fromCycle && isOpen()) pauseCyclingTemporarily();
     }
 
     function tick(){
-      // keep clock current without animating anything
       clockText.textContent = formatInTZ(new Date(), currentLang);
     }
     tick();
@@ -521,7 +537,6 @@
       contactBtn.setAttribute("aria-expanded", String(open));
       contactArrow.textContent = open ? "←" : "→";
 
-      // label update (no fade needed)
       const c = CONTENT[currentLang];
       contactLabel.textContent = open ? c.back : c.contact;
 
@@ -569,7 +584,6 @@
       if (resetToEnglish){
         currentLang = "en";
         applyContent("en");
-        // ensure contact label reads "contact" when closed
         contactLabel.textContent = CONTENT.en.contact;
       }
     }
