@@ -35,7 +35,7 @@
 
       --logo-size:56px;
       --logo-track:0.28em;
-      --logo-pad:0.28em;
+      --logo-pad:0.22em;
 
       --clock-size:18px;
       --clock-tone: rgba(0,0,0,0.14);
@@ -55,6 +55,11 @@
       /* clock soft fade */
       --clockfade-ms: 900ms;
       --clockfade-ease: cubic-bezier(.35,0,.25,1);
+
+      /* fixed line boxes (prevents vertical metric shift across scripts) */
+      --logo-line-h: calc(var(--logo-size) * 1.08);
+      --contact-font: 11px;
+      --contact-line-h: 18px;
     }
 
     *{ box-sizing:border-box; }
@@ -83,7 +88,12 @@
       height:calc(var(--mark-l) + 2px);
       pointer-events:none;
       z-index:5;
+
+      opacity:0.78;
+      transition: opacity 300ms ease;
     }
+    body:hover .crop{ opacity:1; }
+
     .crop::before, .crop::after{
       content:"";
       position:absolute;
@@ -116,7 +126,9 @@
     /* Curtain swap */
     .swapBox{
       position:relative;
-      display:inline-block;
+      display:inline-flex;   /* important: allow centring within fixed-height boxes */
+      align-items:center;
+      justify-content:center;
     }
     .swapBox::before{
       content:"";
@@ -136,10 +148,16 @@
       animation: curtain var(--swap-ms) var(--swap-ease) both;
     }
 
-    /* Stable block heights */
-    .logoBox{ min-height: 1.05em; }
-    .clockBox{ min-height: 1.2em; }
-    .descBox{ min-height: 3.4em; }
+    /* Fixed-height line boxes to prevent vertical shift across scripts */
+    .logoBox{
+      min-height: var(--logo-line-h);
+      height: var(--logo-line-h);
+    }
+    .descBox{ min-height: 3.4em; } /* descriptor already stable */
+    .contactLineBox{
+      height: var(--contact-line-h);
+      min-height: var(--contact-line-h);
+    }
 
     .logo{
       margin:0;
@@ -151,7 +169,7 @@
       white-space:nowrap;
     }
 
-    /* Clock soft crossfade (two layers, but NO opacity animation on text swap events) */
+    /* Clock soft crossfade */
     .clockX{
       display:grid;
       place-items:center;
@@ -178,6 +196,7 @@
       white-space:nowrap;
       user-select:none;
       margin:0;
+      line-height:1.15;
     }
 
     .contactRow{ margin-top:var(--contact-gap); }
@@ -185,28 +204,19 @@
     .contact{
       display:inline-flex;
       align-items:center;
-      gap:10px;
+      justify-content:center;
       border:0;
       background:transparent;
       padding:6px 10px;
       cursor:pointer;
+
       color:rgba(0,0,0,0.62);
       font-weight:400;
       letter-spacing:0.24em;
-      font-size:11px;
+      font-size:var(--contact-font);
       text-transform:uppercase;
     }
     .contact:hover{ color:var(--fg); }
-
-    .arrow{
-      font-size:14px;
-      line-height:1;
-      display:inline-block;
-      transform: translateY(-1px);
-      transition: transform 180ms ease;
-      color:inherit;
-    }
-    .contact:hover .arrow{ transform: translateX(3px) translateY(-1px); }
 
     .contact:focus{ outline:none; }
     .contact:focus-visible{
@@ -215,11 +225,13 @@
       border-radius:10px;
     }
 
-    /* Lock label width so arrow doesn't jump between "back" and 2-char labels */
+    /* Lock label width so it never reflows; no arrow now */
     #contactLabel{
       display:inline-block;
-      width:6ch;
+      width:8ch;          /* enough for “contact” comfortably */
       text-align:center;
+      line-height:1;
+      white-space:nowrap;
     }
 
     .panel{
@@ -351,9 +363,10 @@
         --clock-size:16px;
         --logo-size:48px;
         --logo-track:0.27em;
-        --logo-pad:0.27em;
+        --logo-pad:0.20em;
         --mark-l: 18px;
         --mark-gap: 14px;
+        --contact-line-h: 18px;
       }
       .bottom .left, .bottom .right{ white-space:normal; }
     }
@@ -384,10 +397,9 @@
 
       <div class="contactRow">
         <button class="contact" id="contactBtn" type="button" aria-expanded="false" aria-controls="panel">
-          <span class="swapBox" id="contactSwap">
+          <span class="swapBox contactLineBox" id="contactSwap">
             <span id="contactLabel">contact</span>
           </span>
-          <span class="arrow" id="contactArrow" aria-hidden="true">→</span>
         </button>
 
         <div class="panel" id="panel" aria-label="Contact panel">
@@ -441,6 +453,7 @@
 
     const CYCLE_MS = 12000;
     const MANUAL_PAUSE_MS = 30000;
+    document.documentElement.style.setProperty("--cycle-ms", `${CYCLE_MS}ms`);
 
     const SWAP_TOTAL_MS = 1700;              // must match CSS --swap-ms
     const SWAP_AT_MS = Math.round(SWAP_TOTAL_MS * 0.50);
@@ -455,7 +468,6 @@
     const logoText = document.getElementById("logoText");
     const contactLabel = document.getElementById("contactLabel");
     const contactBtn = document.getElementById("contactBtn");
-    const contactArrow = document.getElementById("contactArrow");
     const panel = document.getElementById("panel");
     const descText = document.getElementById("descText");
 
@@ -465,10 +477,7 @@
     let cycleTimer = null;
     let resumeTimer = null;
     let cycleId = 0;
-
-    function isOpen(){
-      return contactBtn.getAttribute("aria-expanded") === "true";
-    }
+    let open = false;
 
     function partsForTZ(date, timeZone){
       const fmt = new Intl.DateTimeFormat("en-GB", {
@@ -481,7 +490,6 @@
       const get = (t) => parts.find(p => p.type === t)?.value || "";
       return { Y:get("year"), M:get("month"), D:get("day"), h:get("hour"), m:get("minute") };
     }
-
     function formatInTZ(date, langKey){
       const { tz, tzLabel } = CONTENT[langKey];
       const p = partsForTZ(date, tz);
@@ -498,14 +506,13 @@
       cycleId += 1;
       langsEl.dataset.cycleId = String(cycleId);
       langsEl.classList.add("is-cycling");
-      // ensure the underline restarts cleanly
       void langsEl.offsetWidth;
       langsEl.classList.add("is-cycling");
     }
 
     function startCurtain(box){
       box.classList.remove("is-swapping");
-      void box.offsetWidth; // restart animation reliably
+      void box.offsetWidth;
       box.classList.add("is-swapping");
     }
     function stopCurtain(box){
@@ -522,11 +529,9 @@
       setTimeout(() => boxes.forEach(stopCurtain), SWAP_TOTAL_MS);
     }
 
-    // Clock soft fade helper
     function clockIsB(){ return clockX.classList.contains("is-b"); }
     function clockFlip(){ clockX.classList.toggle("is-b"); }
     function setClockText(text){
-      // write into hidden layer then flip
       if (prefersReducedMotion){
         clockA.textContent = text;
         clockB.textContent = text;
@@ -546,13 +551,10 @@
 
       logoText.textContent = c.logo;
       descText.textContent = c.desc;
-      contactLabel.textContent = isOpen() ? c.back : c.contact;
-
-      // also push a clock update at language change
-      setClockText(formatInTZ(new Date(), langKey));
+      contactLabel.textContent = open ? c.back : c.contact;
 
       setActiveButton(langKey);
-      if (isOpen() && !prefersReducedMotion){
+      if (open && !prefersReducedMotion){
         restartUnderline();
       }
     }
@@ -560,38 +562,31 @@
     function pauseCyclingTemporarily(){
       if (resumeTimer) clearTimeout(resumeTimer);
       if (cycleTimer) { clearInterval(cycleTimer); cycleTimer = null; }
-      resumeTimer = setTimeout(() => { if (isOpen()) startCycling(); }, MANUAL_PAUSE_MS);
+      resumeTimer = setTimeout(() => { if (open) startCycling(); }, MANUAL_PAUSE_MS);
     }
 
     function setLanguage(langKey, { fromCycle=false } = {}){
       if (!CONTENT[langKey] || langKey === currentLang) return;
       currentLang = langKey;
 
-      curtainSwap([logoSwap, contactSwap, descSwap], () => applyContent(langKey));
+      curtainSwap([logoSwap, contactSwap, descSwap], () => {
+        applyContent(langKey);
+        setClockText(formatInTZ(new Date(), langKey));
+      });
 
-      if (!fromCycle && isOpen()) pauseCyclingTemporarily();
+      if (!fromCycle && open) pauseCyclingTemporarily();
     }
 
-    // Keep the clock alive (subtle fade per update)
-    function tickClock(){
-      setClockText(formatInTZ(new Date(), currentLang));
-    }
-
-    // Contact open/close
-    let open = false;
     function setOpen(v){
       open = v;
       panel.classList.toggle("is-open", open);
       contactBtn.setAttribute("aria-expanded", String(open));
-      contactArrow.textContent = open ? "←" : "→";
 
       const c = CONTENT[currentLang];
       contactLabel.textContent = open ? c.back : c.contact;
 
       if (open){
-        if (!prefersReducedMotion){
-          restartUnderline();
-        }
+        if (!prefersReducedMotion) restartUnderline();
         startCycling();
       } else {
         langsEl.classList.remove("is-cycling");
@@ -617,6 +612,7 @@
       if (prefersReducedMotion) return;
       if (cycleTimer) clearInterval(cycleTimer);
       if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null; }
+
       langsEl.classList.add("is-cycling");
       restartUnderline();
       cycleTimer = setInterval(nextLang, CYCLE_MS);
@@ -630,21 +626,29 @@
       if (resetToEnglish){
         currentLang = "en";
         applyContent("en");
-        contactLabel.textContent = CONTENT.en.contact;
+        setClockText(formatInTZ(new Date(), "en"));
       }
     }
 
-    // Manual language selection
+    /* pause cycling when hovering over languages */
+    langsEl.addEventListener("mouseenter", () => {
+      if (cycleTimer) { clearInterval(cycleTimer); cycleTimer = null; }
+    });
+    langsEl.addEventListener("mouseleave", () => {
+      if (open) startCycling();
+    });
+
     langButtons.forEach(btn => {
       btn.addEventListener("click", () => setLanguage(btn.dataset.lang, { fromCycle:false }));
     });
 
-    // Init
+    /* Init */
     applyContent("en");
+    setClockText(formatInTZ(new Date(), "en"));
 
-    // Clock updates: every 10s with gentle fade
+    /* Clock updates: every 10 seconds, gentle fade */
     setInterval(() => {
-      tickClock();
+      setClockText(formatInTZ(new Date(), currentLang));
     }, 10000);
   </script>
 </body>
