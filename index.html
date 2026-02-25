@@ -35,7 +35,7 @@
 
       --logo-size:56px;
       --logo-track:0.28em;
-      --logo-pad:0.28em;
+      --logo-pad:0.22em; /* tweak: slightly better optical centring */
 
       --clock-size:18px;
       --clock-tone: rgba(0,0,0,0.14);
@@ -83,7 +83,13 @@
       height:calc(var(--mark-l) + 2px);
       pointer-events:none;
       z-index:5;
+
+      /* tweak: subtle life on hover */
+      opacity:0.78;
+      transition: opacity 300ms ease;
     }
+    body:hover .crop{ opacity:1; }
+
     .crop::before, .crop::after{
       content:"";
       position:absolute;
@@ -151,7 +157,7 @@
       white-space:nowrap;
     }
 
-    /* Clock soft crossfade (two layers, but NO opacity animation on text swap events) */
+    /* Clock soft crossfade */
     .clockX{
       display:grid;
       place-items:center;
@@ -215,7 +221,7 @@
       border-radius:10px;
     }
 
-    /* Lock label width so arrow doesn't jump between "back" and 2-char labels */
+    /* Lock label width so arrow doesn't jump */
     #contactLabel{
       display:inline-block;
       width:6ch;
@@ -351,7 +357,7 @@
         --clock-size:16px;
         --logo-size:48px;
         --logo-track:0.27em;
-        --logo-pad:0.27em;
+        --logo-pad:0.20em;
         --mark-l: 18px;
         --mark-gap: 14px;
       }
@@ -441,6 +447,7 @@
 
     const CYCLE_MS = 12000;
     const MANUAL_PAUSE_MS = 30000;
+    document.documentElement.style.setProperty("--cycle-ms", `${CYCLE_MS}ms`);
 
     const SWAP_TOTAL_MS = 1700;              // must match CSS --swap-ms
     const SWAP_AT_MS = Math.round(SWAP_TOTAL_MS * 0.50);
@@ -465,6 +472,7 @@
     let cycleTimer = null;
     let resumeTimer = null;
     let cycleId = 0;
+    let open = false;
 
     function isOpen(){
       return contactBtn.getAttribute("aria-expanded") === "true";
@@ -498,14 +506,13 @@
       cycleId += 1;
       langsEl.dataset.cycleId = String(cycleId);
       langsEl.classList.add("is-cycling");
-      // ensure the underline restarts cleanly
       void langsEl.offsetWidth;
       langsEl.classList.add("is-cycling");
     }
 
     function startCurtain(box){
       box.classList.remove("is-swapping");
-      void box.offsetWidth; // restart animation reliably
+      void box.offsetWidth;
       box.classList.add("is-swapping");
     }
     function stopCurtain(box){
@@ -522,11 +529,10 @@
       setTimeout(() => boxes.forEach(stopCurtain), SWAP_TOTAL_MS);
     }
 
-    // Clock soft fade helper
+    /* Clock soft fade */
     function clockIsB(){ return clockX.classList.contains("is-b"); }
     function clockFlip(){ clockX.classList.toggle("is-b"); }
     function setClockText(text){
-      // write into hidden layer then flip
       if (prefersReducedMotion){
         clockA.textContent = text;
         clockB.textContent = text;
@@ -548,9 +554,6 @@
       descText.textContent = c.desc;
       contactLabel.textContent = isOpen() ? c.back : c.contact;
 
-      // also push a clock update at language change
-      setClockText(formatInTZ(new Date(), langKey));
-
       setActiveButton(langKey);
       if (isOpen() && !prefersReducedMotion){
         restartUnderline();
@@ -560,25 +563,22 @@
     function pauseCyclingTemporarily(){
       if (resumeTimer) clearTimeout(resumeTimer);
       if (cycleTimer) { clearInterval(cycleTimer); cycleTimer = null; }
-      resumeTimer = setTimeout(() => { if (isOpen()) startCycling(); }, MANUAL_PAUSE_MS);
+      resumeTimer = setTimeout(() => { if (open) startCycling(); }, MANUAL_PAUSE_MS);
     }
 
     function setLanguage(langKey, { fromCycle=false } = {}){
       if (!CONTENT[langKey] || langKey === currentLang) return;
       currentLang = langKey;
 
-      curtainSwap([logoSwap, contactSwap, descSwap], () => applyContent(langKey));
+      curtainSwap([logoSwap, contactSwap, descSwap], () => {
+        applyContent(langKey);
+        setClockText(formatInTZ(new Date(), langKey)); // update clock with fade
+      });
 
-      if (!fromCycle && isOpen()) pauseCyclingTemporarily();
+      if (!fromCycle && open) pauseCyclingTemporarily();
     }
 
-    // Keep the clock alive (subtle fade per update)
-    function tickClock(){
-      setClockText(formatInTZ(new Date(), currentLang));
-    }
-
-    // Contact open/close
-    let open = false;
+    /* Contact open/close */
     function setOpen(v){
       open = v;
       panel.classList.toggle("is-open", open);
@@ -589,9 +589,7 @@
       contactLabel.textContent = open ? c.back : c.contact;
 
       if (open){
-        if (!prefersReducedMotion){
-          restartUnderline();
-        }
+        if (!prefersReducedMotion) restartUnderline();
         startCycling();
       } else {
         langsEl.classList.remove("is-cycling");
@@ -607,6 +605,7 @@
       }
     });
 
+    /* Cycling */
     function nextLang(){
       const idx = ORDER.indexOf(currentLang);
       const next = ORDER[(idx + 1) % ORDER.length];
@@ -617,6 +616,7 @@
       if (prefersReducedMotion) return;
       if (cycleTimer) clearInterval(cycleTimer);
       if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null; }
+
       langsEl.classList.add("is-cycling");
       restartUnderline();
       cycleTimer = setInterval(nextLang, CYCLE_MS);
@@ -631,20 +631,30 @@
         currentLang = "en";
         applyContent("en");
         contactLabel.textContent = CONTENT.en.contact;
+        setClockText(formatInTZ(new Date(), "en"));
       }
     }
 
-    // Manual language selection
+    /* tweak: pause cycling when hovering over languages */
+    langsEl.addEventListener("mouseenter", () => {
+      if (cycleTimer) { clearInterval(cycleTimer); cycleTimer = null; }
+    });
+    langsEl.addEventListener("mouseleave", () => {
+      if (open) startCycling();
+    });
+
+    /* Manual language selection */
     langButtons.forEach(btn => {
       btn.addEventListener("click", () => setLanguage(btn.dataset.lang, { fromCycle:false }));
     });
 
-    // Init
+    /* Init */
     applyContent("en");
+    setClockText(formatInTZ(new Date(), "en"));
 
-    // Clock updates: every 10s with gentle fade
+    /* Clock updates: every 10 seconds, gentle fade */
     setInterval(() => {
-      tickClock();
+      setClockText(formatInTZ(new Date(), currentLang));
     }, 10000);
   </script>
 </body>
