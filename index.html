@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>KUON</title>
-  <meta name="description" content="KUON" />
+  <title>KUON HOLDINGS</title>
+  <meta name="description" content="KUON HOLDINGS" />
   <meta name="theme-color" content="#ffffff" />
 
   <style>
@@ -34,8 +34,8 @@
       --mark-gap: 18px;
 
       --logo-size:56px;
-      --logo-track:0.28em;
-      --logo-pad:0.22em;
+      --logo-track:0.18em;
+      --logo-pad:0.18em;
 
       --clock-size:18px;
       --clock-tone: rgba(0,0,0,0.14);
@@ -81,14 +81,12 @@
       position:relative;
     }
 
-    /* Corner crop marks */
     .crop{
       position:fixed;
       width:calc(var(--mark-l) + 2px);
       height:calc(var(--mark-l) + 2px);
       pointer-events:none;
       z-index:5;
-
       opacity:0.78;
       transition: opacity 300ms ease;
     }
@@ -123,10 +121,9 @@
       gap:var(--clock-gap);
     }
 
-    /* Curtain swap */
     .swapBox{
       position:relative;
-      display:inline-flex;   /* important: allow centring within fixed-height boxes */
+      display:inline-flex;
       align-items:center;
       justify-content:center;
     }
@@ -148,12 +145,11 @@
       animation: curtain var(--swap-ms) var(--swap-ease) both;
     }
 
-    /* Fixed-height line boxes to prevent vertical shift across scripts */
     .logoBox{
       min-height: var(--logo-line-h);
       height: var(--logo-line-h);
     }
-    .descBox{ min-height: 3.4em; } /* descriptor already stable */
+    .descBox{ min-height: 3.4em; }
     .contactLineBox{
       height: var(--contact-line-h);
       min-height: var(--contact-line-h);
@@ -169,7 +165,6 @@
       white-space:nowrap;
     }
 
-    /* Clock soft crossfade */
     .clockX{
       display:grid;
       place-items:center;
@@ -225,10 +220,9 @@
       border-radius:10px;
     }
 
-    /* Lock label width so it never reflows; no arrow now */
     #contactLabel{
       display:inline-block;
-      width:8ch;          /* enough for “contact” comfortably */
+      width:8ch;
       text-align:center;
       line-height:1;
       white-space:nowrap;
@@ -336,7 +330,8 @@
 
     .bottom{
       position:fixed;
-      left:0; right:0;
+      left:0;
+      right:0;
       bottom:var(--mark-gap);
       padding:0 var(--pad-x);
       display:flex;
@@ -361,14 +356,17 @@
         --pad-x:22px;
         --pad-y:40px;
         --clock-size:16px;
-        --logo-size:48px;
-        --logo-track:0.27em;
-        --logo-pad:0.20em;
-        --mark-l: 18px;
-        --mark-gap: 14px;
-        --contact-line-h: 18px;
+        --logo-size:42px;
+        --logo-track:0.14em;
+        --logo-pad:0.14em;
+        --mark-l:18px;
+        --mark-gap:14px;
+        --contact-line-h:18px;
       }
-      .bottom .left, .bottom .right{ white-space:normal; }
+      .bottom .left,
+      .bottom .right{
+        white-space:normal;
+      }
     }
   </style>
 </head>
@@ -380,11 +378,11 @@
   <div class="crop br" aria-hidden="true"></div>
 
   <div class="wrap">
-    <main class="center" aria-label="KUON">
+    <main class="center" aria-label="KUON HOLDINGS">
 
       <div class="hero">
         <div class="swapBox logoBox" id="logoSwap">
-          <h1 class="logo" id="logoText">KUON</h1>
+          <h1 class="logo" id="logoText">KUON HOLDINGS</h1>
         </div>
 
         <div class="clockBox" aria-hidden="true">
@@ -422,8 +420,8 @@
   </div>
 
   <footer class="bottom" aria-label="Footer info">
-    <div class="left">KUON HOLDINGS</div>
-    <div class="right">TOKYO / LONDON</div>
+    <div class="left">KUON</div>
+    <div class="right">TAIPEI | LONDON</div>
   </footer>
 
   <script>
@@ -432,18 +430,30 @@
 
     const CONTENT = {
       en: {
-        htmlLang:"en", tz:"UTC", tzLabel:"UTC",
-        logo:"KUON", contact:"contact", back:"back",
+        htmlLang:"en",
+        tz:"UTC",
+        tzLabel:"UTC",
+        logo:"KUON HOLDINGS",
+        contact:"contact",
+        back:"back",
         desc:"KUON holds work intended to last — across design, sound, and structure."
       },
       ja: {
-        htmlLang:"ja", tz:"Asia/Tokyo", tzLabel:"JPN",
-        logo:"クオン", contact:"連絡", back:"戻る",
+        htmlLang:"ja",
+        tz:"Asia/Taipei",
+        tzLabel:"TPE",
+        logo:"KUON HOLDINGS",
+        contact:"連絡",
+        back:"戻る",
         desc:"KUONは、長く残ることを意図した仕事を保有します――デザイン、音、構造にわたって。"
       },
       zh: {
-        htmlLang:"zh", tz:"Asia/Shanghai", tzLabel:"CHN",
-        logo:"久音", contact:"联系", back:"返回",
+        htmlLang:"zh",
+        tz:"Asia/Taipei",
+        tzLabel:"TPE",
+        logo:"KUON HOLDINGS",
+        contact:"联系",
+        back:"返回",
         desc:"KUON 持有旨在长久延续的工作——涵盖设计、声音与结构。"
       }
     };
@@ -455,7 +465,7 @@
     const MANUAL_PAUSE_MS = 30000;
     document.documentElement.style.setProperty("--cycle-ms", `${CYCLE_MS}ms`);
 
-    const SWAP_TOTAL_MS = 1700;              // must match CSS --swap-ms
+    const SWAP_TOTAL_MS = 1700;
     const SWAP_AT_MS = Math.round(SWAP_TOTAL_MS * 0.50);
 
     const logoSwap = document.getElementById("logoSwap");
@@ -482,14 +492,24 @@
     function partsForTZ(date, timeZone){
       const fmt = new Intl.DateTimeFormat("en-GB", {
         timeZone,
-        year:"numeric", month:"2-digit", day:"2-digit",
-        hour:"2-digit", minute:"2-digit",
+        year:"numeric",
+        month:"2-digit",
+        day:"2-digit",
+        hour:"2-digit",
+        minute:"2-digit",
         hour12:false
       });
       const parts = fmt.formatToParts(date);
       const get = (t) => parts.find(p => p.type === t)?.value || "";
-      return { Y:get("year"), M:get("month"), D:get("day"), h:get("hour"), m:get("minute") };
+      return {
+        Y:get("year"),
+        M:get("month"),
+        D:get("day"),
+        h:get("hour"),
+        m:get("minute")
+      };
     }
+
     function formatInTZ(date, langKey){
       const { tz, tzLabel } = CONTENT[langKey];
       const p = partsForTZ(date, tz);
@@ -515,6 +535,7 @@
       void box.offsetWidth;
       box.classList.add("is-swapping");
     }
+
     function stopCurtain(box){
       box.classList.remove("is-swapping");
     }
@@ -529,8 +550,14 @@
       setTimeout(() => boxes.forEach(stopCurtain), SWAP_TOTAL_MS);
     }
 
-    function clockIsB(){ return clockX.classList.contains("is-b"); }
-    function clockFlip(){ clockX.classList.toggle("is-b"); }
+    function clockIsB(){
+      return clockX.classList.contains("is-b");
+    }
+
+    function clockFlip(){
+      clockX.classList.toggle("is-b");
+    }
+
     function setClockText(text){
       if (prefersReducedMotion){
         clockA.textContent = text;
@@ -561,8 +588,13 @@
 
     function pauseCyclingTemporarily(){
       if (resumeTimer) clearTimeout(resumeTimer);
-      if (cycleTimer) { clearInterval(cycleTimer); cycleTimer = null; }
-      resumeTimer = setTimeout(() => { if (open) startCycling(); }, MANUAL_PAUSE_MS);
+      if (cycleTimer) {
+        clearInterval(cycleTimer);
+        cycleTimer = null;
+      }
+      resumeTimer = setTimeout(() => {
+        if (open) startCycling();
+      }, MANUAL_PAUSE_MS);
     }
 
     function setLanguage(langKey, { fromCycle=false } = {}){
@@ -595,6 +627,7 @@
     }
 
     contactBtn.addEventListener("click", () => setOpen(!open));
+
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && open){
         setOpen(false);
@@ -611,7 +644,10 @@
     function startCycling(){
       if (prefersReducedMotion) return;
       if (cycleTimer) clearInterval(cycleTimer);
-      if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null; }
+      if (resumeTimer) {
+        clearTimeout(resumeTimer);
+        resumeTimer = null;
+      }
 
       langsEl.classList.add("is-cycling");
       restartUnderline();
@@ -619,8 +655,14 @@
     }
 
     function stopCycling(resetToEnglish){
-      if (cycleTimer) { clearInterval(cycleTimer); cycleTimer = null; }
-      if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null; }
+      if (cycleTimer) {
+        clearInterval(cycleTimer);
+        cycleTimer = null;
+      }
+      if (resumeTimer) {
+        clearTimeout(resumeTimer);
+        resumeTimer = null;
+      }
       langsEl.classList.remove("is-cycling");
 
       if (resetToEnglish){
@@ -630,10 +672,13 @@
       }
     }
 
-    /* pause cycling when hovering over languages */
     langsEl.addEventListener("mouseenter", () => {
-      if (cycleTimer) { clearInterval(cycleTimer); cycleTimer = null; }
+      if (cycleTimer) {
+        clearInterval(cycleTimer);
+        cycleTimer = null;
+      }
     });
+
     langsEl.addEventListener("mouseleave", () => {
       if (open) startCycling();
     });
@@ -642,11 +687,9 @@
       btn.addEventListener("click", () => setLanguage(btn.dataset.lang, { fromCycle:false }));
     });
 
-    /* Init */
     applyContent("en");
     setClockText(formatInTZ(new Date(), "en"));
 
-    /* Clock updates: every 10 seconds, gentle fade */
     setInterval(() => {
       setClockText(formatInTZ(new Date(), currentLang));
     }, 10000);
