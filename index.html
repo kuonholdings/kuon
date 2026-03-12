@@ -12,7 +12,7 @@
       --bg:#ffffff;
       --fg:#111111;
       --fg-soft:rgba(70,78,92,0.68);
-      --muted-1:rgba(0,0,0,0.74);
+      --muted-1:rgba(0,0,0,0.80);
       --muted-2:rgba(0,0,0,0.62);
       --muted-3:rgba(0,0,0,0.42);
       --muted-4:rgba(0,0,0,0.24);
@@ -35,9 +35,9 @@
       --meta-size:12px;
       --meta-track:0.15em;
 
-      --tag-size:14px;
-      --tag-line:1.85;
-      --tag-track:0.10em;
+      --tag-size:16px;
+      --tag-line:1.55;
+      --tag-track:0.04em;
       --tag-gap:18px;
 
       --contact-size:12px;
@@ -46,13 +46,14 @@
 
       --loc-size:12px;
       --loc-track:0.16em;
+      --loc-gap:26px;
 
       --email-size:13px;
       --email-track:0.12em;
 
       --panel-gap:14px;
       --panel-width:640px;
-      --panel-min-h:80px;
+      --panel-min-h:90px;
 
       --line-y-gap:18px;
       --horizon-color:rgba(80,90,100,0.22);
@@ -202,7 +203,7 @@
       flex-direction:column;
       align-items:center;
       justify-content:flex-start;
-      min-height:380px;
+      min-height:400px;
     }
 
     .logoBox{
@@ -246,6 +247,7 @@
       letter-spacing:var(--tag-track);
       color:var(--muted-1);
       text-align:center;
+      font-weight:500;
     }
 
     .contact{
@@ -266,7 +268,7 @@
     .panel{
       width:min(var(--panel-width), 100%);
       min-height:var(--panel-min-h);
-      margin:18px auto 0;
+      margin:var(--loc-gap) auto 0;
       display:grid;
       gap:var(--panel-gap);
       justify-items:center;
@@ -365,9 +367,10 @@
         --logo-size:42px;
         --logo-track:0.12em;
         --logo-pad:0.12em;
-        --tag-size:13px;
+        --tag-size:15px;
         --meta-size:11px;
         --contact-size:11px;
+        --loc-gap:22px;
       }
 
       .top-left{ left:calc(var(--mark-gap) + 28px); }
@@ -434,9 +437,6 @@
   </div>
 
   <script>
-    const prefersReducedMotion =
-      window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
     const CONTENT = {
       "en": {
         htmlLang: "en",
@@ -553,7 +553,7 @@
     updateClock();
     setInterval(updateClock, 10000);
 
-    if (!prefersReducedMotion) {
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       requestAnimationFrame(() => document.body.classList.add("is-ready"));
     } else {
       document.body.classList.add("is-ready");
