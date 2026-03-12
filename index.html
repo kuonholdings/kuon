@@ -11,10 +11,11 @@
     :root{
       --bg:#ffffff;
       --fg:#111111;
-      --fg-soft:rgba(0,0,0,0.44);
-      --muted-1:rgba(0,0,0,0.72);
+      --fg-soft:rgba(0,0,0,0.42);
+      --muted-1:rgba(0,0,0,0.74);
       --muted-2:rgba(0,0,0,0.62);
       --muted-3:rgba(0,0,0,0.42);
+      --muted-4:rgba(0,0,0,0.24);
       --line:rgba(0,0,0,0.18);
 
       --pad-x:64px;
@@ -32,7 +33,7 @@
       --logo-pad:0.15em;
       --logo-line-h:calc(var(--logo-size) * 1.12);
 
-      /* increased general text sizing */
+      /* increased general reading size */
       --meta-size:12px;
       --meta-track:0.15em;
 
@@ -46,7 +47,7 @@
       --desc-line:1.85;
       --desc-gap:24px;
 
-      --panel-gap:16px;
+      --panel-gap:14px;
       --panel-width:620px;
 
       --swap-ms:1200ms;
@@ -192,7 +193,7 @@
     }
 
     .lang-sep{
-      color:rgba(0,0,0,0.24);
+      color:var(--muted-4);
       pointer-events:none;
     }
 
@@ -210,7 +211,7 @@
       flex-direction:column;
       align-items:center;
       justify-content:flex-start;
-      min-height:260px;
+      min-height:265px;
     }
 
     .logoBox{
@@ -231,28 +232,23 @@
       font-weight:700;
     }
 
-    .logo .brand{
-      color:var(--fg);
-    }
-
-    .logo .division{
-      color:var(--fg-soft);
-    }
+    .logo .brand{ color:var(--fg); }
+    .logo .division{ color:var(--fg-soft); }
 
     .descriptorStatic{
       margin:var(--desc-gap) 0 0;
-      max-width:58ch;
+      max-width:60ch;
+      min-height:56px;
       font-size:var(--desc-size);
       line-height:var(--desc-line);
       letter-spacing:var(--desc-track);
       color:var(--muted-1);
       text-align:center;
-      min-height:54px;
     }
 
     .contactRow{
       margin-top:var(--contact-gap);
-      min-height:120px;
+      min-height:118px;
     }
 
     .contact{
@@ -427,7 +423,7 @@
         </div>
 
         <p class="descriptorStatic" id="descStatic">
-          KUON holds work intended to last — across design, sound, and structure.
+          KUON builds across products, distribution, and manufacturing.
         </p>
 
         <div class="contactRow">
@@ -458,7 +454,7 @@
         htmlLang: "en",
         contact: "contact",
         back: "back",
-        desc: "KUON holds work intended to last — across design, sound, and structure.",
+        desc: "KUON builds across products, distribution, and manufacturing.",
         location: "Taipei / London",
         footerBrand: "KUON",
         clockZone: "Europe/London",
@@ -468,7 +464,7 @@
         htmlLang: "zh-Hant",
         contact: "聯絡",
         back: "返回",
-        desc: "KUON 持有旨在長久延續的工作——涵蓋設計、聲音與結構。",
+        desc: "久音構建產品、通路與製造能力。",
         location: "台北 / 倫敦",
         footerBrand: "久音",
         clockZone: "Asia/Taipei",
