@@ -11,7 +11,7 @@
     :root{
       --bg:#ffffff;
       --fg:#111111;
-      --fg-soft:rgba(0,0,0,0.42);
+      --fg-soft:rgba(70,78,92,0.68); /* slightly cooler for HOLDINGS */
       --muted-1:rgba(0,0,0,0.74);
       --muted-2:rgba(0,0,0,0.62);
       --muted-3:rgba(0,0,0,0.42);
@@ -21,8 +21,8 @@
       --pad-y:56px;
 
       --mark:rgba(0,0,0,0.18);
-      --mark-l:22px;
       --mark-h:1px;
+      --mark-l:22px;
       --mark-gap:18px;
 
       --hero-top:51vh;
@@ -43,6 +43,7 @@
       --contact-size:12px;
       --contact-track:0.22em;
       --contact-gap:36px;
+      --contact-line-h:20px;
 
       --loc-size:12px;
       --loc-track:0.16em;
@@ -52,7 +53,19 @@
 
       --panel-gap:14px;
       --panel-width:640px;
-      --panel-min-h:70px;
+      --panel-min-h:80px;
+
+      --swap-ms:900ms;
+      --swap-ease:cubic-bezier(.35,0,.25,1);
+      --swap-inset-y:6px;
+      --swap-inset-x:12px;
+
+      --intro-brand-ms:700ms;
+      --intro-division-ms:700ms;
+      --intro-rest-ms:700ms;
+      --intro-delay-1:180ms;
+      --intro-delay-2:520ms;
+      --intro-delay-3:860ms;
     }
 
     *{ box-sizing:border-box; }
@@ -86,7 +99,10 @@
       pointer-events:none;
       z-index:1;
       opacity:0.78;
+      transition:opacity 300ms ease;
     }
+
+    body:hover .crop{ opacity:1; }
 
     .crop::before,
     .crop::after{
@@ -116,12 +132,20 @@
 
     .corner{
       position:fixed;
-      z-index:3;
+      z-index:2;
       font-size:var(--meta-size);
       letter-spacing:var(--meta-track);
       text-transform:uppercase;
       line-height:1.6;
       white-space:nowrap;
+    }
+
+    .corner a,
+    .corner button,
+    .corner span{
+      font:inherit;
+      letter-spacing:inherit;
+      text-transform:inherit;
     }
 
     .top-left{
@@ -139,15 +163,16 @@
     }
 
     .bottom-left{
-      bottom:calc(var(--mark-gap) - 2px);
       left:calc(var(--mark-gap) + 34px);
+      bottom:calc(var(--mark-gap) - 2px);
       color:var(--muted-3);
       pointer-events:none;
     }
 
     .bottom-right{
-      bottom:calc(var(--mark-gap) - 2px);
       right:calc(var(--mark-gap) + 34px);
+      bottom:calc(var(--mark-gap) - 2px);
+      text-align:right;
     }
 
     .sister-link{
@@ -165,14 +190,10 @@
     }
 
     .lang-btn{
-      background:none;
+      background:transparent;
       border:0;
       padding:0;
-      margin:0;
       cursor:pointer;
-      font:inherit;
-      letter-spacing:inherit;
-      text-transform:inherit;
       color:var(--muted-3);
       transition:color 180ms ease;
     }
@@ -180,7 +201,7 @@
     .lang-btn:hover{ color:var(--fg); }
 
     .lang-btn[aria-current="true"]{
-      color:var(--fg);
+      color:rgba(0,0,0,0.82);
     }
 
     .lang-sep{
@@ -193,9 +214,8 @@
       left:50%;
       top:var(--hero-top);
       transform:translate(-50%, -50%);
-      width:min(900px, calc(100% - 40px));
+      width:min(980px, calc(100% - 40px));
       text-align:center;
-      z-index:2;
     }
 
     .hero{
@@ -240,7 +260,7 @@
 
     .contact{
       margin-top:var(--contact-gap);
-      background:none;
+      background:transparent;
       border:0;
       padding:0;
       cursor:pointer;
@@ -310,6 +330,47 @@
 
     .email:hover{ color:var(--fg); }
 
+    /* intro */
+    .intro-brand,
+    .intro-division,
+    .intro-rest{
+      opacity:0;
+      transform:translateY(8px);
+    }
+
+    .is-ready .intro-brand{
+      animation:introRise var(--intro-brand-ms) cubic-bezier(.22,.61,.36,1) var(--intro-delay-1) forwards;
+    }
+
+    .is-ready .intro-division{
+      animation:introRise var(--intro-division-ms) cubic-bezier(.22,.61,.36,1) var(--intro-delay-2) forwards;
+    }
+
+    .is-ready .intro-rest{
+      animation:introRise var(--intro-rest-ms) cubic-bezier(.22,.61,.36,1) var(--intro-delay-3) forwards;
+    }
+
+    @keyframes introRise{
+      from{
+        opacity:0;
+        transform:translateY(8px);
+      }
+      to{
+        opacity:1;
+        transform:translateY(0);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .intro-brand,
+      .intro-division,
+      .intro-rest{
+        opacity:1;
+        transform:none;
+        animation:none !important;
+      }
+    }
+
     @media (max-width: 720px){
       :root{
         --pad-x:22px;
@@ -339,19 +400,19 @@
   <div class="crop bl" aria-hidden="true"></div>
   <div class="crop br" aria-hidden="true"></div>
 
-  <div class="corner top-left">
+  <div class="corner top-left intro-rest">
     <a class="sister-link" href="https://kuon.studio">STUDIO</a>
   </div>
 
-  <div class="corner top-right">
+  <div class="corner top-right intro-rest">
     <span id="clockText">—</span>
   </div>
 
-  <div class="corner bottom-left">
+  <div class="corner bottom-left intro-rest">
     <span id="footerBrand">KUON</span>
   </div>
 
-  <div class="corner bottom-right">
+  <div class="corner bottom-right intro-rest">
     <div class="lang-switch" aria-label="Language selector">
       <button class="lang-btn" type="button" data-lang="en" aria-current="true">EN</button>
       <span class="lang-sep">/</span>
@@ -364,20 +425,20 @@
       <div class="hero">
         <div class="logoBox">
           <h1 class="logo">
-            <span class="brand">KUON</span>
-            <span class="division">HOLDINGS</span>
+            <span class="brand intro-brand">KUON</span>
+            <span class="division intro-division">HOLDINGS</span>
           </h1>
         </div>
 
-        <p class="tagline" id="taglineText">
+        <p class="tagline intro-rest" id="taglineText">
           KUON builds across products, distribution, and manufacturing.
         </p>
 
-        <button class="contact" id="contactBtn" type="button" aria-expanded="false" aria-controls="contactPanel">
+        <button class="contact intro-rest" id="contactBtn" type="button" aria-expanded="false" aria-controls="contactPanel">
           <span id="contactLabel">CONTACT</span>
         </button>
 
-        <div class="panel" id="contactPanel" aria-live="polite">
+        <div class="panel intro-rest" id="contactPanel" aria-live="polite">
           <p class="location" id="locationText">Taipei / London</p>
           <a class="email" href="mailto:info@kuonholdings.com">info@kuonholdings.com</a>
         </div>
@@ -386,6 +447,9 @@
   </div>
 
   <script>
+    const prefersReducedMotion =
+      window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
     const CONTENT = {
       "en": {
         htmlLang: "en",
@@ -504,6 +568,14 @@
     applyLanguage("en");
     updateClock();
     setInterval(updateClock, 10000);
+
+    if (!prefersReducedMotion) {
+      requestAnimationFrame(() => {
+        document.body.classList.add("is-ready");
+      });
+    } else {
+      document.body.classList.add("is-ready");
+    }
   </script>
 </body>
 </html>
