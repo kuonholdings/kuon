@@ -12,7 +12,7 @@
       --bg:#ffffff;
       --fg:#111111;
       --fg-soft:rgba(70,78,92,0.68);
-      --muted-1:rgba(0,0,0,0.80);
+      --muted-1:rgba(0,0,0,0.82);
       --muted-2:rgba(0,0,0,0.62);
       --muted-3:rgba(0,0,0,0.42);
       --muted-4:rgba(0,0,0,0.24);
@@ -20,12 +20,7 @@
       --pad-x:64px;
       --pad-y:56px;
 
-      --mark:rgba(0,0,0,0.18);
-      --mark-h:1px;
-      --mark-l:22px;
-      --mark-gap:18px;
-
-      --hero-top:51vh;
+      --hero-top:50vh;
 
       --logo-size:56px;
       --logo-track:0.15em;
@@ -33,30 +28,34 @@
       --logo-line-h:calc(var(--logo-size) * 1.12);
 
       --meta-size:12px;
-      --meta-track:0.15em;
+      --meta-track:0.14em;
 
       --tag-size:16px;
-      --tag-line:1.55;
+      --tag-line:1.5;
       --tag-track:0.04em;
       --tag-gap:18px;
 
-      --contact-size:12px;
-      --contact-track:0.22em;
-      --contact-gap:30px;
+      --nav-size:12px;
+      --nav-track:0.20em;
+      --nav-gap:30px;
 
       --loc-size:12px;
       --loc-track:0.16em;
-      --loc-gap:26px;
+      --loc-gap:28px;
 
-      --email-size:13px;
-      --email-track:0.12em;
+      --body-size:14px;
+      --body-line:1.8;
+      --body-track:0.08em;
 
-      --panel-gap:14px;
-      --panel-width:640px;
-      --panel-min-h:90px;
+      --panel-gap:18px;
+      --panel-width:660px;
+      --panel-min-h:150px;
 
       --line-y-gap:18px;
       --horizon-color:rgba(80,90,100,0.22);
+
+      --swap-ms:900ms;
+      --swap-ease:cubic-bezier(.35,0,.25,1);
 
       --intro-brand-ms:1000ms;
       --intro-division-ms:1000ms;
@@ -81,7 +80,9 @@
       -moz-osx-font-smoothing:grayscale;
     }
 
-    a, button{ -webkit-tap-highlight-color:transparent; }
+    a, button{
+      -webkit-tap-highlight-color:transparent;
+    }
 
     .wrap{
       position:relative;
@@ -90,87 +91,56 @@
       padding:var(--pad-y) var(--pad-x);
     }
 
-    .crop{
+    .clock{
       position:fixed;
-      width:calc(var(--mark-l) + 2px);
-      height:calc(var(--mark-l) + 2px);
-      pointer-events:none;
-      z-index:1;
-      opacity:0.78;
-      transition:opacity 300ms ease;
-    }
-    body:hover .crop{ opacity:1; }
-
-    .crop::before,
-    .crop::after{
-      content:"";
-      position:absolute;
-      background:var(--mark);
-    }
-    .crop::before{
-      width:var(--mark-l);
-      height:1px;
-      top:0;
-      left:0;
-    }
-    .crop::after{
-      width:1px;
-      height:var(--mark-l);
-      top:0;
-      left:0;
-    }
-
-    .crop.tl{ top:var(--mark-gap); left:var(--mark-gap); }
-    .crop.tr{ top:var(--mark-gap); right:var(--mark-gap); transform:scaleX(-1); }
-    .crop.bl{ bottom:var(--mark-gap); left:var(--mark-gap); transform:scaleY(-1); }
-    .crop.br{ bottom:var(--mark-gap); right:var(--mark-gap); transform:scale(-1); }
-
-    .corner{
-      position:fixed;
-      z-index:2;
+      top:var(--pad-y);
+      right:var(--pad-x);
+      z-index:3;
       font-size:var(--meta-size);
       letter-spacing:var(--meta-track);
       text-transform:uppercase;
       line-height:1.6;
-      white-space:nowrap;
-    }
-
-    .top-left{
-      top:calc(var(--mark-gap) - 2px);
-      left:calc(var(--mark-gap) + 34px);
-    }
-    .top-right{
-      top:calc(var(--mark-gap) - 2px);
-      right:calc(var(--mark-gap) + 34px);
       color:var(--muted-3);
       font-variant-numeric:tabular-nums;
-      text-align:right;
+      white-space:nowrap;
       user-select:none;
     }
-    .bottom-left{
-      left:calc(var(--mark-gap) + 34px);
-      bottom:calc(var(--mark-gap) - 2px);
+
+    .stack{
+      position:fixed;
+      left:var(--pad-x);
+      bottom:var(--pad-y);
+      z-index:3;
+      display:grid;
+      gap:6px;
+      justify-items:start;
+      font-size:var(--meta-size);
+      letter-spacing:var(--meta-track);
+      text-transform:uppercase;
+      line-height:1.5;
       color:var(--muted-3);
-      pointer-events:none;
-    }
-    .bottom-right{
-      right:calc(var(--mark-gap) + 34px);
-      bottom:calc(var(--mark-gap) - 2px);
-      text-align:right;
     }
 
-    .sister-link{
+    .stack .brandline{
+      color:var(--muted-3);
+    }
+
+    .stack a{
       color:var(--muted-3);
       text-decoration:none;
       transition:color 180ms ease;
     }
-    .sister-link:hover{ color:var(--fg); }
+
+    .stack a:hover{
+      color:var(--fg);
+    }
 
     .lang-switch{
       display:flex;
       align-items:center;
       gap:10px;
     }
+
     .lang-btn{
       background:transparent;
       border:0;
@@ -182,8 +152,10 @@
       letter-spacing:inherit;
       text-transform:inherit;
     }
+
     .lang-btn:hover{ color:var(--fg); }
     .lang-btn[aria-current="true"]{ color:rgba(0,0,0,0.82); }
+
     .lang-sep{
       color:var(--muted-4);
       pointer-events:none;
@@ -202,13 +174,11 @@
       display:flex;
       flex-direction:column;
       align-items:center;
-      justify-content:flex-start;
-      min-height:400px;
+      min-height:420px;
     }
 
     .logoBox{
       height:var(--logo-line-h);
-      min-height:var(--logo-line-h);
       display:flex;
       align-items:center;
       justify-content:center;
@@ -223,14 +193,16 @@
       white-space:nowrap;
       font-weight:700;
     }
+
     .logo .brand{ color:var(--fg); }
     .logo .division{ color:var(--fg-soft); }
 
     .horizonWrap{
       width:100%;
       margin-top:var(--line-y-gap);
-      padding:0 calc(var(--mark-gap) + 34px);
+      padding:0;
     }
+
     .horizon{
       height:1px;
       background:var(--horizon-color);
@@ -250,50 +222,48 @@
       font-weight:500;
     }
 
-    .contact{
-      margin-top:var(--contact-gap);
+    .nav{
+      margin-top:var(--nav-gap);
+      min-height:20px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:22px;
+      flex-wrap:wrap;
+    }
+
+    .nav button{
       background:transparent;
       border:0;
       padding:0;
       cursor:pointer;
-      font-size:var(--contact-size);
-      line-height:1.6;
-      letter-spacing:var(--contact-track);
+      font-size:var(--nav-size);
+      letter-spacing:var(--nav-track);
       text-transform:uppercase;
       color:var(--muted-3);
       transition:color 180ms ease;
-    }
-    .contact:hover{ color:var(--fg); }
-
-    .panel{
-      width:min(var(--panel-width), 100%);
-      min-height:var(--panel-min-h);
-      margin:var(--loc-gap) auto 0;
-      display:grid;
-      gap:var(--panel-gap);
-      justify-items:center;
-      opacity:0;
-      visibility:hidden;
-      transform:translateY(6px);
-      pointer-events:none;
-      transition:
-        opacity 240ms ease,
-        transform 240ms ease,
-        visibility 0s linear 240ms;
-    }
-    .panel.is-open{
-      opacity:1;
-      visibility:visible;
-      transform:translateY(0);
-      pointer-events:auto;
-      transition:
-        opacity 240ms ease,
-        transform 240ms ease,
-        visibility 0s linear 0s;
+      position:relative;
     }
 
-    .location{
-      margin:0;
+    .nav button:hover{ color:var(--fg); }
+
+    .nav button.active{
+      color:rgba(0,0,0,0.82);
+    }
+
+    .nav button.active::after{
+      content:"";
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:-4px;
+      height:1px;
+      background:rgba(0,0,0,0.22);
+    }
+
+    .locationStatic{
+      margin:var(--loc-gap) 0 0;
+      min-height:20px;
       font-size:var(--loc-size);
       line-height:1.7;
       letter-spacing:var(--loc-track);
@@ -302,15 +272,70 @@
       text-align:center;
     }
 
+    .panel{
+      width:min(var(--panel-width), 100%);
+      min-height:var(--panel-min-h);
+      margin:22px auto 0;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+    }
+
+    .panelInner{
+      width:100%;
+      display:grid;
+      gap:var(--panel-gap);
+      justify-items:center;
+    }
+
+    .body{
+      margin:0;
+      max-width:62ch;
+      font-size:var(--body-size);
+      line-height:var(--body-line);
+      letter-spacing:var(--body-track);
+      color:var(--muted-1);
+      text-align:center;
+    }
+
     .email{
-      font-size:var(--email-size);
+      font-size:13px;
       line-height:1.7;
-      letter-spacing:var(--email-track);
-      color:var(--muted-2);
+      letter-spacing:0.12em;
       text-decoration:none;
+      color:var(--muted-2);
       transition:color 160ms ease;
     }
+
     .email:hover{ color:var(--fg); }
+
+    .swapBox{
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+    }
+
+    .swapBox::before{
+      content:"";
+      position:absolute;
+      inset:-6px -12px;
+      background:var(--bg);
+      opacity:0;
+      pointer-events:none;
+    }
+
+    @keyframes curtain{
+      0%{ opacity:0; }
+      45%{ opacity:1; }
+      55%{ opacity:1; }
+      100%{ opacity:0; }
+    }
+
+    .swapBox.is-swapping::before{
+      animation:curtain var(--swap-ms) var(--swap-ease) both;
+    }
 
     .intro-brand,
     .intro-division,
@@ -323,15 +348,19 @@
     .is-ready .intro-brand{
       animation:introRise var(--intro-brand-ms) cubic-bezier(.22,.61,.36,1) var(--intro-delay-1) forwards;
     }
+
     .is-ready .intro-division{
       animation:introRise var(--intro-division-ms) cubic-bezier(.22,.61,.36,1) var(--intro-delay-2) forwards;
     }
+
     .is-ready .intro-line{
       animation:introRise var(--intro-line-ms) cubic-bezier(.22,.61,.36,1) var(--intro-delay-3) forwards;
     }
+
     .is-ready .intro-line .horizon{
       animation:lineDraw var(--intro-line-ms) cubic-bezier(.22,.61,.36,1) var(--intro-delay-3) forwards;
     }
+
     .is-ready .intro-rest{
       animation:introRise var(--intro-rest-ms) cubic-bezier(.22,.61,.36,1) var(--intro-delay-4) forwards;
     }
@@ -340,12 +369,14 @@
       from{ opacity:0; transform:translateY(10px); }
       to{ opacity:1; transform:translateY(0); }
     }
+
     @keyframes lineDraw{
       from{ transform:scaleX(0); }
       to{ transform:scaleX(1); }
     }
 
     @media (prefers-reduced-motion: reduce){
+      .swapBox.is-swapping::before{ animation:none; opacity:0; }
       .intro-brand,
       .intro-division,
       .intro-line,
@@ -361,46 +392,28 @@
       :root{
         --pad-x:22px;
         --pad-y:40px;
-        --mark-l:18px;
-        --mark-gap:14px;
         --hero-top:50vh;
         --logo-size:42px;
         --logo-track:0.12em;
         --logo-pad:0.12em;
         --tag-size:15px;
         --meta-size:11px;
-        --contact-size:11px;
+        --nav-size:11px;
+        --body-size:13px;
         --loc-gap:22px;
       }
 
-      .top-left{ left:calc(var(--mark-gap) + 28px); }
-      .top-right{ right:calc(var(--mark-gap) + 28px); }
-      .bottom-left{ left:calc(var(--mark-gap) + 28px); }
-      .bottom-right{ right:calc(var(--mark-gap) + 28px); }
-      .horizonWrap{ padding:0 calc(var(--mark-gap) + 28px); }
+      .nav{ gap:16px; }
     }
   </style>
 </head>
 
 <body>
-  <div class="crop tl" aria-hidden="true"></div>
-  <div class="crop tr" aria-hidden="true"></div>
-  <div class="crop bl" aria-hidden="true"></div>
-  <div class="crop br" aria-hidden="true"></div>
+  <div class="clock intro-rest" id="clockText">—</div>
 
-  <div class="corner top-left intro-rest">
-    <a class="sister-link" href="https://kuon.studio">STUDIO</a>
-  </div>
-
-  <div class="corner top-right intro-rest">
-    <span id="clockText">—</span>
-  </div>
-
-  <div class="corner bottom-left intro-rest">
-    <span id="footerBrand">KUON</span>
-  </div>
-
-  <div class="corner bottom-right intro-rest">
+  <div class="stack intro-rest">
+    <div class="brandline" id="footerBrand">KUON</div>
+    <a href="https://kuon.studio">STUDIO</a>
     <div class="lang-switch" aria-label="Language selector">
       <button class="lang-btn" type="button" data-lang="en" aria-current="true">EN</button>
       <span class="lang-sep">/</span>
@@ -422,54 +435,114 @@
           <div class="horizon"></div>
         </div>
 
-        <p class="tagline intro-rest" id="taglineText">Products, Distribution, Manufacturing</p>
+        <p class="tagline intro-rest" id="taglineText">Industrial Development Platform</p>
 
-        <button class="contact intro-rest" id="contactBtn" type="button" aria-expanded="false" aria-controls="contactPanel">
-          <span id="contactLabel">CONTACT</span>
-        </button>
+        <div class="nav intro-rest" id="nav">
+          <button data-panel="products" class="active" type="button">PRODUCTS</button>
+          <button data-panel="distribution" type="button">DISTRIBUTION</button>
+          <button data-panel="manufacturing" type="button">MANUFACTURING</button>
+          <button data-panel="contact" type="button">CONTACT</button>
+        </div>
 
-        <div class="panel intro-rest" id="contactPanel" aria-live="polite">
-          <p class="location" id="locationText">Taipei / London</p>
-          <a class="email" href="mailto:info@kuonholdings.com">info@kuonholdings.com</a>
+        <p class="locationStatic intro-rest" id="locationStatic">Taipei / London</p>
+
+        <div class="panel intro-rest">
+          <div class="swapBox" id="panelSwap">
+            <div id="panelInner" class="panelInner"></div>
+          </div>
         </div>
       </div>
     </main>
   </div>
 
   <script>
+    const prefersReducedMotion =
+      window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const SWAP_TOTAL_MS = 900;
+    const SWAP_AT_MS = Math.round(SWAP_TOTAL_MS * 0.50);
+
     const CONTENT = {
       "en": {
         htmlLang: "en",
-        tagline: "Products, Distribution, Manufacturing",
-        location: "Taipei / London",
         footerBrand: "KUON",
-        contact: "CONTACT",
-        back: "BACK",
-        tz: "Europe/London",
-        label: "LDN"
+        tagline: "Industrial Development Platform",
+        location: "Taipei / London",
+        nav: {
+          products: "PRODUCTS",
+          distribution: "DISTRIBUTION",
+          manufacturing: "MANUFACTURING",
+          contact: "CONTACT"
+        },
+        panels: {
+          products: `
+            <p class="body">
+              Product platforms in operation and development across audio, integration, and future brand-led work.
+            </p>
+          `,
+          distribution: `
+            <p class="body">
+              Channel development, market access, and selected regional routes to market across strategic territories.
+            </p>
+          `,
+          manufacturing: `
+            <p class="body">
+              Current production partnerships and future manufacturing capability under development.
+            </p>
+          `,
+          contact: `
+            <a class="email" href="mailto:info@kuonholdings.com">info@kuonholdings.com</a>
+          `
+        },
+        clockZone: "Europe/London",
+        clockLabel: "LDN"
       },
       "zh-Hant": {
         htmlLang: "zh-Hant",
-        tagline: "產品、通路、製造",
-        location: "台北 / 倫敦",
         footerBrand: "久音",
-        contact: "聯絡",
-        back: "返回",
-        tz: "Asia/Taipei",
-        label: "TPE"
+        tagline: "工業發展平台",
+        location: "台北 / 倫敦",
+        nav: {
+          products: "產品",
+          distribution: "通路",
+          manufacturing: "製造",
+          contact: "聯絡"
+        },
+        panels: {
+          products: `
+            <p class="body">
+              涵蓋音響、整合與未來品牌導向工作的產品平台，包含現有與發展中的項目。
+            </p>
+          `,
+          distribution: `
+            <p class="body">
+              聚焦通路建構、市場進入，以及特定區域的策略性路徑。
+            </p>
+          `,
+          manufacturing: `
+            <p class="body">
+              現有生產合作關係，以及持續規劃中的未來製造能力。
+            </p>
+          `,
+          contact: `
+            <a class="email" href="mailto:info@kuonholdings.com">info@kuonholdings.com</a>
+          `
+        },
+        clockZone: "Asia/Taipei",
+        clockLabel: "TPE"
       }
     };
 
     let currentLang = "en";
-    let panelOpen = false;
+    let currentPanel = "products";
 
-    const taglineText = document.getElementById("taglineText");
-    const locationText = document.getElementById("locationText");
-    const footerBrand = document.getElementById("footerBrand");
-    const contactBtn = document.getElementById("contactBtn");
-    const contactLabel = document.getElementById("contactLabel");
-    const contactPanel = document.getElementById("contactPanel");
     const clockText = document.getElementById("clockText");
+    const footerBrand = document.getElementById("footerBrand");
+    const taglineText = document.getElementById("taglineText");
+    const locationStatic = document.getElementById("locationStatic");
+    const panelInner = document.getElementById("panelInner");
+    const panelSwap = document.getElementById("panelSwap");
+    const navButtons = Array.from(document.querySelectorAll(".nav button"));
     const langButtons = Array.from(document.querySelectorAll(".lang-btn"));
 
     function partsForTZ(date, timeZone){
@@ -482,10 +555,8 @@
         minute: "2-digit",
         hour12: false
       });
-
       const parts = fmt.formatToParts(date);
       const get = (type) => parts.find(p => p.type === type)?.value || "";
-
       return {
         Y: get("year"),
         M: get("month"),
@@ -495,10 +566,34 @@
       };
     }
 
+    function formatClock(date, langKey){
+      const { clockZone, clockLabel } = CONTENT[langKey];
+      const p = partsForTZ(date, clockZone);
+      return `${p.Y}.${p.M}.${p.D} ${p.h}:${p.m} ${clockLabel}`;
+    }
+
     function updateClock(){
-      const c = CONTENT[currentLang];
-      const p = partsForTZ(new Date(), c.tz);
-      clockText.textContent = `${p.Y}.${p.M}.${p.D} ${p.h}:${p.m} ${c.label}`;
+      clockText.textContent = formatClock(new Date(), currentLang);
+    }
+
+    function startCurtain(box){
+      box.classList.remove("is-swapping");
+      void box.offsetWidth;
+      box.classList.add("is-swapping");
+    }
+
+    function stopCurtain(box){
+      box.classList.remove("is-swapping");
+    }
+
+    function curtainSwap(boxes, applyNewContent){
+      if (prefersReducedMotion){
+        applyNewContent();
+        return;
+      }
+      boxes.forEach(startCurtain);
+      setTimeout(applyNewContent, SWAP_AT_MS);
+      setTimeout(() => boxes.forEach(stopCurtain), SWAP_TOTAL_MS);
     }
 
     function setActiveLang(langKey){
@@ -508,13 +603,30 @@
       });
     }
 
+    function setActivePanel(panelKey){
+      navButtons.forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.panel === panelKey);
+      });
+    }
+
+    function renderPanel(panelKey){
+      panelInner.innerHTML = CONTENT[currentLang].panels[panelKey];
+      setActivePanel(panelKey);
+    }
+
     function applyLanguage(langKey){
       const c = CONTENT[langKey];
       document.documentElement.lang = c.htmlLang;
-      taglineText.textContent = c.tagline;
-      locationText.textContent = c.location;
       footerBrand.textContent = c.footerBrand;
-      contactLabel.textContent = panelOpen ? c.back : c.contact;
+      taglineText.textContent = c.tagline;
+      locationStatic.textContent = c.location;
+
+      navButtons.forEach(btn => {
+        const key = btn.dataset.panel;
+        btn.textContent = c.nav[key];
+      });
+
+      renderPanel(currentPanel);
       setActiveLang(langKey);
       updateClock();
     }
@@ -522,38 +634,28 @@
     function setLanguage(langKey){
       if (!CONTENT[langKey] || langKey === currentLang) return;
       currentLang = langKey;
-      applyLanguage(langKey);
+      curtainSwap([panelSwap], () => applyLanguage(langKey));
     }
 
-    function setPanelOpen(open){
-      panelOpen = open;
-      contactPanel.classList.toggle("is-open", open);
-      contactBtn.setAttribute("aria-expanded", String(open));
-      contactLabel.textContent = open ? CONTENT[currentLang].back : CONTENT[currentLang].contact;
+    function setPanel(panelKey){
+      if (!CONTENT[currentLang].panels[panelKey] || panelKey === currentPanel) return;
+      currentPanel = panelKey;
+      curtainSwap([panelSwap], () => renderPanel(panelKey));
     }
 
-    contactBtn.addEventListener("click", () => {
-      setPanelOpen(!panelOpen);
-    });
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && panelOpen) {
-        setPanelOpen(false);
-        contactBtn.focus();
-      }
+    navButtons.forEach(btn => {
+      btn.addEventListener("click", () => setPanel(btn.dataset.panel));
     });
 
     langButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        setLanguage(btn.dataset.lang);
-      });
+      btn.addEventListener("click", () => setLanguage(btn.dataset.lang));
     });
 
     applyLanguage("en");
     updateClock();
     setInterval(updateClock, 10000);
 
-    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (!prefersReducedMotion) {
       requestAnimationFrame(() => document.body.classList.add("is-ready"));
     } else {
       document.body.classList.add("is-ready");
