@@ -1,598 +1,389 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>KUON HOLDINGS</title>
-  <meta name="description" content="KUON HOLDINGS" />
-  <meta name="theme-color" content="#ffffff" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-  <style>
-    :root{
-      --bg:#ffffff;
-      --fg:#111111;
-      --fg-soft:rgba(0,0,0,0.42);
-      --muted-1:rgba(0,0,0,0.74);
-      --muted-2:rgba(0,0,0,0.62);
-      --muted-3:rgba(0,0,0,0.42);
-      --muted-4:rgba(0,0,0,0.24);
-      --line:rgba(0,0,0,0.18);
+<title>KUON HOLDINGS</title>
+<meta name="description" content="KUON HOLDINGS">
 
-      --pad-x:64px;
-      --pad-y:56px;
+<style>
 
-      --mark:rgba(0,0,0,0.18);
-      --mark-h:1px;
-      --mark-l:22px;
-      --mark-gap:18px;
+:root{
 
-      --hero-top:51vh;
+--bg:#ffffff;
+--fg:#111111;
 
-      --logo-size:56px;
-      --logo-track:0.15em;
-      --logo-pad:0.15em;
-      --logo-line-h:calc(var(--logo-size) * 1.12);
+--fg-soft:rgba(0,0,0,.42);
+--muted-1:rgba(0,0,0,.74);
+--muted-2:rgba(0,0,0,.62);
+--muted-3:rgba(0,0,0,.42);
 
-      /* increased general reading size */
-      --meta-size:12px;
-      --meta-track:0.15em;
+--pad-x:64px;
+--pad-y:56px;
 
-      --contact-size:12px;
-      --contact-track:0.22em;
-      --contact-gap:42px;
-      --contact-line-h:20px;
+--mark:rgba(0,0,0,.18);
+--mark-l:22px;
+--mark-h:1px;
+--mark-gap:18px;
 
-      --desc-size:14px;
-      --desc-track:0.10em;
-      --desc-line:1.85;
-      --desc-gap:24px;
+--hero-top:51vh;
 
-      --panel-gap:14px;
-      --panel-width:620px;
+--logo-size:56px;
+--logo-track:.15em;
 
-      --swap-ms:1200ms;
-      --swap-ease:cubic-bezier(.35,0,.25,1);
-      --swap-inset-y:6px;
-      --swap-inset-x:12px;
-    }
+--tag-size:14px;
+--tag-line:1.85;
+--tag-track:.10em;
 
-    *{ box-sizing:border-box; }
-    html, body{ height:100%; }
+--meta-size:12px;
+--meta-track:.16em;
 
-    body{
-      margin:0;
-      background:var(--bg);
-      color:var(--fg);
-      overflow:hidden;
-      font-family:-apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-    }
+--contact-gap:36px;
 
-    a, button{
-      -webkit-tap-highlight-color: transparent;
-    }
+}
 
-    .wrap{
-      position:relative;
-      width:100%;
-      height:100%;
-      padding:var(--pad-y) var(--pad-x);
-    }
+*{box-sizing:border-box}
 
-    .crop{
-      position:fixed;
-      width:calc(var(--mark-l) + 2px);
-      height:calc(var(--mark-l) + 2px);
-      pointer-events:none;
-      z-index:1;
-      opacity:0.78;
-      transition:opacity 300ms ease;
-    }
+html,body{height:100%}
 
-    body:hover .crop{ opacity:1; }
+body{
+margin:0;
+background:var(--bg);
+color:var(--fg);
+font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,sans-serif;
+-webkit-font-smoothing:antialiased;
+overflow:hidden;
+}
 
-    .crop::before,
-    .crop::after{
-      content:"";
-      position:absolute;
-      background:var(--mark);
-    }
+.wrap{
+height:100%;
+width:100%;
+padding:var(--pad-y) var(--pad-x);
+position:relative;
+}
 
-    .crop::before{
-      width:var(--mark-l);
-      height:var(--mark-h);
-      top:0;
-      left:0;
-    }
+/* crop marks */
 
-    .crop::after{
-      width:var(--mark-h);
-      height:var(--mark-l);
-      top:0;
-      left:0;
-    }
+.crop{
+position:fixed;
+width:calc(var(--mark-l)+2px);
+height:calc(var(--mark-l)+2px);
+pointer-events:none;
+}
 
-    .crop.tl{ top:var(--mark-gap); left:var(--mark-gap); }
-    .crop.tr{ top:var(--mark-gap); right:var(--mark-gap); transform:scaleX(-1); }
-    .crop.bl{ bottom:var(--mark-gap); left:var(--mark-gap); transform:scaleY(-1); }
-    .crop.br{ bottom:var(--mark-gap); right:var(--mark-gap); transform:scale(-1); }
+.crop::before,.crop::after{
+content:"";
+position:absolute;
+background:var(--mark);
+}
 
-    .corner{
-      position:fixed;
-      z-index:2;
-      font-size:var(--meta-size);
-      letter-spacing:var(--meta-track);
-      text-transform:uppercase;
-      line-height:1.6;
-    }
+.crop::before{
+width:var(--mark-l);
+height:var(--mark-h);
+}
 
-    .corner a,
-    .corner button,
-    .corner span{
-      font:inherit;
-      letter-spacing:inherit;
-      text-transform:inherit;
-    }
+.crop::after{
+height:var(--mark-l);
+width:var(--mark-h);
+}
 
-    .top-left{
-      top:calc(var(--mark-gap) - 2px);
-      left:calc(var(--mark-gap) + 34px);
-    }
+.crop.tl{top:var(--mark-gap);left:var(--mark-gap)}
+.crop.tr{top:var(--mark-gap);right:var(--mark-gap);transform:scaleX(-1)}
+.crop.bl{bottom:var(--mark-gap);left:var(--mark-gap);transform:scaleY(-1)}
+.crop.br{bottom:var(--mark-gap);right:var(--mark-gap);transform:scale(-1)}
 
-    .top-right{
-      top:calc(var(--mark-gap) - 2px);
-      right:calc(var(--mark-gap) + 34px);
-      text-align:right;
-      color:var(--muted-3);
-      font-variant-numeric:tabular-nums;
-      white-space:nowrap;
-      user-select:none;
-    }
+/* corners */
 
-    .bottom-left{
-      left:calc(var(--mark-gap) + 34px);
-      bottom:calc(var(--mark-gap) - 2px);
-      color:var(--muted-3);
-      pointer-events:none;
-    }
+.corner{
+position:fixed;
+font-size:var(--meta-size);
+letter-spacing:var(--meta-track);
+text-transform:uppercase;
+line-height:1.6;
+}
 
-    .bottom-right{
-      right:calc(var(--mark-gap) + 34px);
-      bottom:calc(var(--mark-gap) - 2px);
-      text-align:right;
-    }
+.top-left{
+top:calc(var(--mark-gap)-2px);
+left:calc(var(--mark-gap)+34px);
+}
 
-    .sister-link{
-      color:var(--muted-3);
-      text-decoration:none;
-      transition:color 180ms ease;
-    }
+.top-right{
+top:calc(var(--mark-gap)-2px);
+right:calc(var(--mark-gap)+34px);
+color:var(--muted-3);
+font-variant-numeric:tabular-nums;
+}
 
-    .sister-link:hover{ color:var(--fg); }
+.bottom-left{
+bottom:calc(var(--mark-gap)-2px);
+left:calc(var(--mark-gap)+34px);
+color:var(--muted-3);
+}
 
-    .lang-switch{
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
+.bottom-right{
+bottom:calc(var(--mark-gap)-2px);
+right:calc(var(--mark-gap)+34px);
+}
 
-    .lang-btn{
-      background:transparent;
-      border:0;
-      padding:0;
-      cursor:pointer;
-      color:var(--muted-3);
-      transition:color 180ms ease;
-    }
+/* links */
 
-    .lang-btn:hover{ color:var(--fg); }
+a{
+color:var(--muted-3);
+text-decoration:none;
+}
 
-    .lang-btn[aria-current="true"]{
-      color:rgba(0,0,0,0.82);
-    }
+a:hover{
+color:var(--fg);
+}
 
-    .lang-sep{
-      color:var(--muted-4);
-      pointer-events:none;
-    }
+/* language switch */
 
-    .center{
-      position:absolute;
-      left:50%;
-      top:var(--hero-top);
-      transform:translate(-50%, -50%);
-      width:min(980px, calc(100% - 40px));
-      text-align:center;
-    }
+.lang-switch{
+display:flex;
+gap:10px;
+align-items:center;
+}
 
-    .hero{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:flex-start;
-      min-height:265px;
-    }
+.lang-btn{
+background:none;
+border:0;
+cursor:pointer;
+font:inherit;
+color:var(--muted-3);
+}
 
-    .logoBox{
-      height:var(--logo-line-h);
-      min-height:var(--logo-line-h);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
+.lang-btn[aria-current=true]{
+color:var(--fg);
+}
 
-    .logo{
-      margin:0;
-      font-size:var(--logo-size);
-      line-height:1;
-      letter-spacing:var(--logo-track);
-      padding-left:var(--logo-pad);
-      white-space:nowrap;
-      font-weight:700;
-    }
+/* center layout */
 
-    .logo .brand{ color:var(--fg); }
-    .logo .division{ color:var(--fg-soft); }
+.center{
+position:absolute;
+left:50%;
+top:var(--hero-top);
+transform:translate(-50%,-50%);
+text-align:center;
+width:min(900px,calc(100%-40px));
+}
 
-    .descriptorStatic{
-      margin:var(--desc-gap) 0 0;
-      max-width:60ch;
-      min-height:56px;
-      font-size:var(--desc-size);
-      line-height:var(--desc-line);
-      letter-spacing:var(--desc-track);
-      color:var(--muted-1);
-      text-align:center;
-    }
+/* title */
 
-    .contactRow{
-      margin-top:var(--contact-gap);
-      min-height:118px;
-    }
+.logo{
+font-size:var(--logo-size);
+letter-spacing:var(--logo-track);
+margin:0;
+font-weight:700;
+}
 
-    .contact{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      border:0;
-      background:transparent;
-      padding:6px 10px;
-      cursor:pointer;
-      color:rgba(0,0,0,0.64);
-      font-weight:400;
-      letter-spacing:var(--contact-track);
-      font-size:var(--contact-size);
-      text-transform:uppercase;
-      transition:color 180ms ease;
-    }
+.brand{color:var(--fg)}
+.division{color:var(--fg-soft)}
 
-    .contact:hover{ color:var(--fg); }
+/* tagline */
 
-    .contact:focus{ outline:none; }
-    .contact:focus-visible{
-      outline:1px solid rgba(0,0,0,0.18);
-      outline-offset:6px;
-      border-radius:10px;
-    }
+.tagline{
+margin-top:24px;
+font-size:var(--tag-size);
+line-height:var(--tag-line);
+letter-spacing:var(--tag-track);
+color:var(--muted-1);
+max-width:60ch;
+margin-left:auto;
+margin-right:auto;
+}
 
-    .contactLabelBox{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-height:var(--contact-line-h);
-      height:var(--contact-line-h);
-      min-width:8ch;
-    }
+/* contact button */
 
-    .panel{
-      width:min(var(--panel-width), 100%);
-      margin:16px auto 0;
-      display:grid;
-      gap:var(--panel-gap);
-      justify-items:center;
-      opacity:0;
-      transform:translateY(6px);
-      pointer-events:none;
-      transition:opacity 240ms ease, transform 240ms ease;
-    }
+.contact{
+margin-top:var(--contact-gap);
+background:none;
+border:0;
+cursor:pointer;
+font-size:12px;
+letter-spacing:.22em;
+text-transform:uppercase;
+color:var(--muted-3);
+}
 
-    .panel.is-open{
-      opacity:1;
-      transform:translateY(0);
-      pointer-events:auto;
-    }
+.contact:hover{color:var(--fg)}
 
-    .locationLine{
-      margin:0;
-      font-size:12px;
-      line-height:1.7;
-      letter-spacing:0.16em;
-      text-transform:uppercase;
-      color:var(--muted-3);
-      text-align:center;
-    }
+/* reveal panel */
 
-    .email{
-      font-size:13px;
-      line-height:1.7;
-      letter-spacing:0.12em;
-      color:var(--muted-2);
-      text-decoration:none;
-      padding:4px 10px;
-      transition:color 160ms ease;
-    }
+.panel{
+margin-top:22px;
+display:grid;
+gap:16px;
+justify-items:center;
+opacity:0;
+transform:translateY(6px);
+pointer-events:none;
+transition:all .25s ease;
+}
 
-    .email:hover{ color:var(--fg); }
+.panel.open{
+opacity:1;
+transform:translateY(0);
+pointer-events:auto;
+}
 
-    .swapBox{
-      position:relative;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-    }
+/* location */
 
-    .swapBox::before{
-      content:"";
-      position:absolute;
-      inset:calc(-1 * var(--swap-inset-y)) calc(-1 * var(--swap-inset-x));
-      background:var(--bg);
-      opacity:0;
-      pointer-events:none;
-    }
+.location{
+font-size:12px;
+letter-spacing:.16em;
+color:var(--muted-3);
+}
 
-    @keyframes curtain{
-      0%   { opacity:0; }
-      45%  { opacity:1; }
-      55%  { opacity:1; }
-      100% { opacity:0; }
-    }
+/* email */
 
-    .swapBox.is-swapping::before{
-      animation:curtain var(--swap-ms) var(--swap-ease) both;
-    }
+.email{
+font-size:13px;
+letter-spacing:.12em;
+color:var(--muted-2);
+}
 
-    @media (prefers-reduced-motion: reduce){
-      .swapBox.is-swapping::before{ animation:none; opacity:0; }
-      .panel{ transition:none; }
-    }
+.email:hover{color:var(--fg)}
 
-    @media (max-width: 720px){
-      :root{
-        --pad-x:22px;
-        --pad-y:40px;
-        --mark-l:18px;
-        --mark-gap:14px;
-        --hero-top:50vh;
-        --logo-size:42px;
-        --logo-track:0.12em;
-        --logo-pad:0.12em;
-        --contact-gap:36px;
-        --desc-size:13px;
-        --meta-size:11px;
-        --contact-size:11px;
-      }
-
-      .top-left{ left:calc(var(--mark-gap) + 28px); }
-      .top-right{ right:calc(var(--mark-gap) + 28px); }
-      .bottom-left{ left:calc(var(--mark-gap) + 28px); }
-      .bottom-right{ right:calc(var(--mark-gap) + 28px); }
-
-      .top-right{
-        max-width:42vw;
-        white-space:normal;
-      }
-    }
-  </style>
+</style>
 </head>
 
 <body>
-  <div class="crop tl" aria-hidden="true"></div>
-  <div class="crop tr" aria-hidden="true"></div>
-  <div class="crop bl" aria-hidden="true"></div>
-  <div class="crop br" aria-hidden="true"></div>
 
-  <div class="corner top-left">
-    <a class="sister-link" href="https://kuon.studio">STUDIO</a>
-  </div>
+<div class="crop tl"></div>
+<div class="crop tr"></div>
+<div class="crop bl"></div>
+<div class="crop br"></div>
 
-  <div class="corner top-right">
-    <span id="clockText">—</span>
-  </div>
+<div class="corner top-left">
+<a href="https://kuon.studio">STUDIO</a>
+</div>
 
-  <div class="corner bottom-left">
-    <span id="footerBrand">KUON</span>
-  </div>
+<div class="corner top-right">
+<span id="clock">—</span>
+</div>
 
-  <div class="corner bottom-right">
-    <div class="lang-switch" aria-label="Language selector">
-      <button class="lang-btn" type="button" data-lang="en" aria-current="true">EN</button>
-      <span class="lang-sep">/</span>
-      <button class="lang-btn" type="button" data-lang="zh-Hant">繁中</button>
-    </div>
-  </div>
+<div class="corner bottom-left">
+<span id="kuon">KUON</span>
+</div>
 
-  <div class="wrap">
-    <main class="center" aria-label="KUON HOLDINGS">
-      <div class="hero">
-        <div class="logoBox">
-          <h1 class="logo">
-            <span class="brand">KUON</span>
-            <span class="division">HOLDINGS</span>
-          </h1>
-        </div>
+<div class="corner bottom-right">
+<div class="lang-switch">
+<button class="lang-btn" data-lang="en" aria-current="true">EN</button>
+<span>/</span>
+<button class="lang-btn" data-lang="zh">繁中</button>
+</div>
+</div>
 
-        <p class="descriptorStatic" id="descStatic">
-          KUON builds across products, distribution, and manufacturing.
-        </p>
+<div class="wrap">
 
-        <div class="contactRow">
-          <button class="contact" id="contactBtn" type="button" aria-expanded="false" aria-controls="panel">
-            <span class="swapBox contactLabelBox" id="contactSwap">
-              <span id="contactLabel">contact</span>
-            </span>
-          </button>
+<div class="center">
 
-          <div class="panel" id="panel" aria-live="polite">
-            <p class="locationLine" id="locationText">Taipei / London</p>
-            <a class="email" id="emailText" href="mailto:info@kuonholdings.com">info@kuonholdings.com</a>
-          </div>
-        </div>
-      </div>
-    </main>
-  </div>
+<h1 class="logo">
+<span class="brand">KUON</span>
+<span class="division">HOLDINGS</span>
+</h1>
 
-  <script>
-    const prefersReducedMotion =
-      window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+<p class="tagline" id="tagline">
+KUON builds across products, distribution, and manufacturing.
+</p>
 
-    const SWAP_TOTAL_MS = 1200;
-    const SWAP_AT_MS = Math.round(SWAP_TOTAL_MS * 0.50);
+<button class="contact" id="contactBtn">CONTACT</button>
 
-    const CONTENT = {
-      "en": {
-        htmlLang: "en",
-        contact: "contact",
-        back: "back",
-        desc: "KUON builds across products, distribution, and manufacturing.",
-        location: "Taipei / London",
-        footerBrand: "KUON",
-        clockZone: "Europe/London",
-        clockLabel: "LDN"
-      },
-      "zh-Hant": {
-        htmlLang: "zh-Hant",
-        contact: "聯絡",
-        back: "返回",
-        desc: "久音構建產品、通路與製造能力。",
-        location: "台北 / 倫敦",
-        footerBrand: "久音",
-        clockZone: "Asia/Taipei",
-        clockLabel: "TPE"
-      }
-    };
+<div class="panel" id="panel">
 
-    let currentLang = "en";
-    let open = false;
+<div class="location" id="location">
+Taipei / London
+</div>
 
-    const clockText = document.getElementById("clockText");
-    const contactBtn = document.getElementById("contactBtn");
-    const contactLabel = document.getElementById("contactLabel");
-    const panel = document.getElementById("panel");
-    const descStatic = document.getElementById("descStatic");
-    const locationText = document.getElementById("locationText");
-    const footerBrand = document.getElementById("footerBrand");
-    const contactSwap = document.getElementById("contactSwap");
-    const langButtons = Array.from(document.querySelectorAll(".lang-btn"));
+<a class="email" href="mailto:info@kuonholdings.com">
+info@kuonholdings.com
+</a>
 
-    function partsForTZ(date, timeZone){
-      const fmt = new Intl.DateTimeFormat("en-GB", {
-        timeZone,
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false
-      });
-      const parts = fmt.formatToParts(date);
-      const get = (type) => parts.find(p => p.type === type)?.value || "";
-      return {
-        Y: get("year"),
-        M: get("month"),
-        D: get("day"),
-        h: get("hour"),
-        m: get("minute")
-      };
-    }
+</div>
 
-    function formatClock(date, langKey){
-      const { clockZone, clockLabel } = CONTENT[langKey];
-      const p = partsForTZ(date, clockZone);
-      return `${p.Y}.${p.M}.${p.D} ${p.h}:${p.m} ${clockLabel}`;
-    }
+</div>
+</div>
 
-    function updateClock(){
-      clockText.textContent = formatClock(new Date(), currentLang);
-    }
+<script>
 
-    function startCurtain(box){
-      box.classList.remove("is-swapping");
-      void box.offsetWidth;
-      box.classList.add("is-swapping");
-    }
+const CONTENT={
 
-    function stopCurtain(box){
-      box.classList.remove("is-swapping");
-    }
+en:{
+tagline:"KUON builds across products, distribution, and manufacturing.",
+location:"Taipei / London",
+footer:"KUON",
+tz:"Europe/London",
+label:"LDN"
+},
 
-    function curtainSwap(boxes, applyNewContent){
-      if (prefersReducedMotion){
-        applyNewContent();
-        return;
-      }
-      boxes.forEach(startCurtain);
-      setTimeout(applyNewContent, SWAP_AT_MS);
-      setTimeout(() => boxes.forEach(stopCurtain), SWAP_TOTAL_MS);
-    }
+zh:{
+tagline:"久音構建產品、通路與製造能力。",
+location:"台北 / 倫敦",
+footer:"久音",
+tz:"Asia/Taipei",
+label:"TPE"
+}
 
-    function setActiveLang(langKey){
-      langButtons.forEach(btn => {
-        if (btn.dataset.lang === langKey) {
-          btn.setAttribute("aria-current", "true");
-        } else {
-          btn.removeAttribute("aria-current");
-        }
-      });
-    }
+}
 
-    function applyLanguage(langKey){
-      const c = CONTENT[langKey];
-      document.documentElement.lang = c.htmlLang;
-      contactLabel.textContent = open ? c.back : c.contact;
-      descStatic.textContent = c.desc;
-      locationText.textContent = c.location;
-      footerBrand.textContent = c.footerBrand;
-      setActiveLang(langKey);
-      updateClock();
-    }
+let lang="en"
 
-    function setLanguage(langKey){
-      if (!CONTENT[langKey] || langKey === currentLang) return;
-      currentLang = langKey;
+const tagline=document.getElementById("tagline")
+const location=document.getElementById("location")
+const footer=document.getElementById("kuon")
+const clock=document.getElementById("clock")
 
-      curtainSwap([contactSwap], () => {
-        applyLanguage(langKey);
-      });
-    }
+function render(){
 
-    function setOpen(v){
-      open = v;
-      panel.classList.toggle("is-open", open);
-      contactBtn.setAttribute("aria-expanded", String(open));
-      contactLabel.textContent = open ? CONTENT[currentLang].back : CONTENT[currentLang].contact;
-    }
+const c=CONTENT[lang]
 
-    contactBtn.addEventListener("click", () => {
-      setOpen(!open);
-    });
+tagline.textContent=c.tagline
+location.textContent=c.location
+footer.textContent=c.footer
 
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && open) {
-        setOpen(false);
-        contactBtn.focus();
-      }
-    });
+updateClock()
 
-    langButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        setLanguage(btn.dataset.lang);
-      });
-    });
+}
 
-    applyLanguage("en");
-    updateClock();
-    setInterval(updateClock, 10000);
-  </script>
+function updateClock(){
+
+const c=CONTENT[lang]
+
+const fmt=new Intl.DateTimeFormat("en-GB",{
+timeZone:c.tz,
+year:"numeric",
+month:"2-digit",
+day:"2-digit",
+hour:"2-digit",
+minute:"2-digit",
+hour12:false
+})
+
+clock.textContent=fmt.format(new Date())+" "+c.label
+
+}
+
+document.querySelectorAll(".lang-btn").forEach(btn=>{
+btn.onclick=()=>{
+document.querySelectorAll(".lang-btn").forEach(b=>b.removeAttribute("aria-current"))
+btn.setAttribute("aria-current","true")
+lang=btn.dataset.lang
+render()
+}
+})
+
+const contactBtn=document.getElementById("contactBtn")
+const panel=document.getElementById("panel")
+
+contactBtn.onclick=()=>{
+panel.classList.toggle("open")
+}
+
+render()
+setInterval(updateClock,10000)
+
+</script>
+
 </body>
 </html>
