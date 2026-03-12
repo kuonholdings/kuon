@@ -11,7 +11,7 @@
     :root{
       --bg:#ffffff;
       --fg:#111111;
-      --fg-soft:rgba(70,78,92,0.68); /* slightly cooler for HOLDINGS */
+      --fg-soft:rgba(70,78,92,0.68);
       --muted-1:rgba(0,0,0,0.74);
       --muted-2:rgba(0,0,0,0.62);
       --muted-3:rgba(0,0,0,0.42);
@@ -38,12 +38,11 @@
       --tag-size:14px;
       --tag-line:1.85;
       --tag-track:0.10em;
-      --tag-gap:24px;
+      --tag-gap:18px;
 
       --contact-size:12px;
       --contact-track:0.22em;
-      --contact-gap:36px;
-      --contact-line-h:20px;
+      --contact-gap:30px;
 
       --loc-size:12px;
       --loc-track:0.16em;
@@ -55,17 +54,17 @@
       --panel-width:640px;
       --panel-min-h:80px;
 
-      --swap-ms:900ms;
-      --swap-ease:cubic-bezier(.35,0,.25,1);
-      --swap-inset-y:6px;
-      --swap-inset-x:12px;
+      --line-y-gap:18px;
+      --horizon-color:rgba(80,90,100,0.22);
 
-      --intro-brand-ms:700ms;
-      --intro-division-ms:700ms;
-      --intro-rest-ms:700ms;
-      --intro-delay-1:180ms;
-      --intro-delay-2:520ms;
-      --intro-delay-3:860ms;
+      --intro-brand-ms:1000ms;
+      --intro-division-ms:1000ms;
+      --intro-line-ms:1100ms;
+      --intro-rest-ms:1000ms;
+      --intro-delay-1:260ms;
+      --intro-delay-2:760ms;
+      --intro-delay-3:1380ms;
+      --intro-delay-4:2000ms;
     }
 
     *{ box-sizing:border-box; }
@@ -81,9 +80,7 @@
       -moz-osx-font-smoothing:grayscale;
     }
 
-    a, button{
-      -webkit-tap-highlight-color: transparent;
-    }
+    a, button{ -webkit-tap-highlight-color:transparent; }
 
     .wrap{
       position:relative;
@@ -101,7 +98,6 @@
       opacity:0.78;
       transition:opacity 300ms ease;
     }
-
     body:hover .crop{ opacity:1; }
 
     .crop::before,
@@ -110,16 +106,14 @@
       position:absolute;
       background:var(--mark);
     }
-
     .crop::before{
       width:var(--mark-l);
-      height:var(--mark-h);
+      height:1px;
       top:0;
       left:0;
     }
-
     .crop::after{
-      width:var(--mark-h);
+      width:1px;
       height:var(--mark-l);
       top:0;
       left:0;
@@ -140,35 +134,24 @@
       white-space:nowrap;
     }
 
-    .corner a,
-    .corner button,
-    .corner span{
-      font:inherit;
-      letter-spacing:inherit;
-      text-transform:inherit;
-    }
-
     .top-left{
       top:calc(var(--mark-gap) - 2px);
       left:calc(var(--mark-gap) + 34px);
     }
-
     .top-right{
       top:calc(var(--mark-gap) - 2px);
       right:calc(var(--mark-gap) + 34px);
-      text-align:right;
       color:var(--muted-3);
       font-variant-numeric:tabular-nums;
+      text-align:right;
       user-select:none;
     }
-
     .bottom-left{
       left:calc(var(--mark-gap) + 34px);
       bottom:calc(var(--mark-gap) - 2px);
       color:var(--muted-3);
       pointer-events:none;
     }
-
     .bottom-right{
       right:calc(var(--mark-gap) + 34px);
       bottom:calc(var(--mark-gap) - 2px);
@@ -180,7 +163,6 @@
       text-decoration:none;
       transition:color 180ms ease;
     }
-
     .sister-link:hover{ color:var(--fg); }
 
     .lang-switch{
@@ -188,7 +170,6 @@
       align-items:center;
       gap:10px;
     }
-
     .lang-btn{
       background:transparent;
       border:0;
@@ -196,14 +177,12 @@
       cursor:pointer;
       color:var(--muted-3);
       transition:color 180ms ease;
+      font:inherit;
+      letter-spacing:inherit;
+      text-transform:inherit;
     }
-
     .lang-btn:hover{ color:var(--fg); }
-
-    .lang-btn[aria-current="true"]{
-      color:rgba(0,0,0,0.82);
-    }
-
+    .lang-btn[aria-current="true"]{ color:rgba(0,0,0,0.82); }
     .lang-sep{
       color:var(--muted-4);
       pointer-events:none;
@@ -223,7 +202,7 @@
       flex-direction:column;
       align-items:center;
       justify-content:flex-start;
-      min-height:355px;
+      min-height:380px;
     }
 
     .logoBox{
@@ -243,14 +222,25 @@
       white-space:nowrap;
       font-weight:700;
     }
-
     .logo .brand{ color:var(--fg); }
     .logo .division{ color:var(--fg-soft); }
 
+    .horizonWrap{
+      width:100%;
+      margin-top:var(--line-y-gap);
+      padding:0 calc(var(--mark-gap) + 34px);
+    }
+    .horizon{
+      height:1px;
+      background:var(--horizon-color);
+      transform:scaleX(0);
+      transform-origin:center center;
+    }
+
     .tagline{
-      margin:var(--tag-gap) 0 0;
+      margin:18px 0 0;
       max-width:60ch;
-      min-height:56px;
+      min-height:34px;
       font-size:var(--tag-size);
       line-height:var(--tag-line);
       letter-spacing:var(--tag-track);
@@ -271,20 +261,12 @@
       color:var(--muted-3);
       transition:color 180ms ease;
     }
-
     .contact:hover{ color:var(--fg); }
-
-    .contact:focus{ outline:none; }
-    .contact:focus-visible{
-      outline:1px solid rgba(0,0,0,0.18);
-      outline-offset:6px;
-      border-radius:8px;
-    }
 
     .panel{
       width:min(var(--panel-width), 100%);
       min-height:var(--panel-min-h);
-      margin:20px auto 0;
+      margin:18px auto 0;
       display:grid;
       gap:var(--panel-gap);
       justify-items:center;
@@ -293,19 +275,18 @@
       transform:translateY(6px);
       pointer-events:none;
       transition:
-        opacity 220ms ease,
-        transform 220ms ease,
-        visibility 0s linear 220ms;
+        opacity 240ms ease,
+        transform 240ms ease,
+        visibility 0s linear 240ms;
     }
-
     .panel.is-open{
       opacity:1;
       visibility:visible;
       transform:translateY(0);
       pointer-events:auto;
       transition:
-        opacity 220ms ease,
-        transform 220ms ease,
+        opacity 240ms ease,
+        transform 240ms ease,
         visibility 0s linear 0s;
     }
 
@@ -327,48 +308,51 @@
       text-decoration:none;
       transition:color 160ms ease;
     }
-
     .email:hover{ color:var(--fg); }
 
-    /* intro */
     .intro-brand,
     .intro-division,
+    .intro-line,
     .intro-rest{
       opacity:0;
-      transform:translateY(8px);
+      transform:translateY(10px);
     }
 
     .is-ready .intro-brand{
       animation:introRise var(--intro-brand-ms) cubic-bezier(.22,.61,.36,1) var(--intro-delay-1) forwards;
     }
-
     .is-ready .intro-division{
       animation:introRise var(--intro-division-ms) cubic-bezier(.22,.61,.36,1) var(--intro-delay-2) forwards;
     }
-
+    .is-ready .intro-line{
+      animation:introRise var(--intro-line-ms) cubic-bezier(.22,.61,.36,1) var(--intro-delay-3) forwards;
+    }
+    .is-ready .intro-line .horizon{
+      animation:lineDraw var(--intro-line-ms) cubic-bezier(.22,.61,.36,1) var(--intro-delay-3) forwards;
+    }
     .is-ready .intro-rest{
-      animation:introRise var(--intro-rest-ms) cubic-bezier(.22,.61,.36,1) var(--intro-delay-3) forwards;
+      animation:introRise var(--intro-rest-ms) cubic-bezier(.22,.61,.36,1) var(--intro-delay-4) forwards;
     }
 
     @keyframes introRise{
-      from{
-        opacity:0;
-        transform:translateY(8px);
-      }
-      to{
-        opacity:1;
-        transform:translateY(0);
-      }
+      from{ opacity:0; transform:translateY(10px); }
+      to{ opacity:1; transform:translateY(0); }
+    }
+    @keyframes lineDraw{
+      from{ transform:scaleX(0); }
+      to{ transform:scaleX(1); }
     }
 
     @media (prefers-reduced-motion: reduce){
       .intro-brand,
       .intro-division,
+      .intro-line,
       .intro-rest{
         opacity:1;
         transform:none;
         animation:none !important;
       }
+      .horizon{ transform:scaleX(1); }
     }
 
     @media (max-width: 720px){
@@ -390,6 +374,7 @@
       .top-right{ right:calc(var(--mark-gap) + 28px); }
       .bottom-left{ left:calc(var(--mark-gap) + 28px); }
       .bottom-right{ right:calc(var(--mark-gap) + 28px); }
+      .horizonWrap{ padding:0 calc(var(--mark-gap) + 28px); }
     }
   </style>
 </head>
@@ -430,9 +415,11 @@
           </h1>
         </div>
 
-        <p class="tagline intro-rest" id="taglineText">
-          KUON builds across products, distribution, and manufacturing.
-        </p>
+        <div class="horizonWrap intro-line">
+          <div class="horizon"></div>
+        </div>
+
+        <p class="tagline intro-rest" id="taglineText">Products, Distribution, Manufacturing</p>
 
         <button class="contact intro-rest" id="contactBtn" type="button" aria-expanded="false" aria-controls="contactPanel">
           <span id="contactLabel">CONTACT</span>
@@ -453,7 +440,7 @@
     const CONTENT = {
       "en": {
         htmlLang: "en",
-        tagline: "KUON builds across products, distribution, and manufacturing.",
+        tagline: "Products, Distribution, Manufacturing",
         location: "Taipei / London",
         footerBrand: "KUON",
         contact: "CONTACT",
@@ -463,7 +450,7 @@
       },
       "zh-Hant": {
         htmlLang: "zh-Hant",
-        tagline: "久音構建產品、通路與製造能力。",
+        tagline: "產品、通路、製造",
         location: "台北 / 倫敦",
         footerBrand: "久音",
         contact: "聯絡",
@@ -516,11 +503,8 @@
 
     function setActiveLang(langKey){
       langButtons.forEach(btn => {
-        if (btn.dataset.lang === langKey) {
-          btn.setAttribute("aria-current", "true");
-        } else {
-          btn.removeAttribute("aria-current");
-        }
+        if (btn.dataset.lang === langKey) btn.setAttribute("aria-current", "true");
+        else btn.removeAttribute("aria-current");
       });
     }
 
@@ -570,9 +554,7 @@
     setInterval(updateClock, 10000);
 
     if (!prefersReducedMotion) {
-      requestAnimationFrame(() => {
-        document.body.classList.add("is-ready");
-      });
+      requestAnimationFrame(() => document.body.classList.add("is-ready"));
     } else {
       document.body.classList.add("is-ready");
     }
