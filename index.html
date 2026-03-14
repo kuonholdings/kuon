@@ -1,53 +1,347 @@
-export default function KuonHoldingsLandingV2() {
-  const menu = ["Home", "About", "Structure", "Contact"];
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  return (
-    <div className="min-h-screen bg-[#e8e7e2] text-[#22211f]">
-      <div className="grid min-h-screen grid-cols-12 px-8 py-8 md:px-14 md:py-12 lg:px-16 lg:py-14">
-        <aside className="col-span-12 md:col-span-3 lg:col-span-2 flex flex-col justify-between">
-          <nav className="pt-4 md:pt-6">
-            <ul className="space-y-1 text-[30px] leading-[1.02] tracking-[-0.05em] md:text-[40px] lg:text-[46px]">
-              {menu.map((item) => (
-                <li
-                  key={item}
-                  className="cursor-pointer text-[#2b2a27] transition-opacity duration-200 hover:opacity-50"
-                >
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </nav>
+<title>Kuon Holdings</title>
 
-          <div className="hidden md:block pb-2 text-[15px] tracking-[-0.03em] text-[#716d67]">
-            EN / 繁中
-          </div>
-        </aside>
+<style>
 
-        <main className="col-span-12 md:col-span-9 lg:col-span-10 flex flex-col justify-between pt-16 md:pt-0">
-          <section className="flex-1 md:pl-8 lg:pl-16 xl:pl-20">
-            <div className="pt-2 md:pt-6 lg:pt-8">
-              <h1 className="text-[72px] leading-[0.9] tracking-[-0.075em] sm:text-[88px] md:text-[118px] lg:text-[146px] xl:text-[160px]">
-                <span className="font-semibold text-[#1f1e1c]">Kuon.</span>
-                <br />
-                <span className="font-light text-[#8a857d]">Holdings.</span>
-              </h1>
-            </div>
-          </section>
-
-          <section className="md:pl-8 lg:pl-16 xl:pl-20">
-            <div className="grid gap-5 border-t border-[#d5d1ca] pt-5 md:grid-cols-12 md:gap-4 md:pt-6 lg:pt-8">
-              <div className="text-[15px] tracking-[-0.03em] text-[#716d67] md:hidden">
-                EN / 繁中
-              </div>
-
-              <p className="max-w-[840px] text-[15px] leading-[1.35] tracking-[-0.03em] text-[#716d67] md:col-span-9 md:text-[18px] lg:text-[19px]">
-                The British Virgin Islands holding company for Kuon&apos;s product,
-                manufacturing and distribution activities.
-              </p>
-            </div>
-          </section>
-        </main>
-      </div>
-    </div>
-  );
+:root{
+--bg:#e8e7e2;
+--text:#1f1e1c;
+--muted:#7c756d;
+--line:#d7d2cb;
 }
+
+*{
+box-sizing:border-box;
+}
+
+body{
+margin:0;
+background:var(--bg);
+color:var(--text);
+font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,sans-serif;
+-webkit-font-smoothing:antialiased;
+}
+
+.page{
+display:grid;
+grid-template-columns:220px 1fr;
+min-height:100vh;
+padding:42px 56px 34px;
+}
+
+/* LEFT NAV */
+
+.sidebar{
+display:flex;
+flex-direction:column;
+justify-content:space-between;
+}
+
+.menu{
+display:flex;
+flex-direction:column;
+gap:2px;
+}
+
+.menu a{
+text-decoration:none;
+color:var(--text);
+font-size:36px;
+letter-spacing:-0.05em;
+line-height:1.02;
+opacity:.9;
+transition:opacity .2s;
+}
+
+.menu a:hover{
+opacity:.5;
+}
+
+.language{
+font-size:14px;
+color:var(--muted);
+letter-spacing:-0.02em;
+}
+
+/* MAIN */
+
+.main{
+display:flex;
+flex-direction:column;
+padding-left:120px;
+}
+
+/* HERO */
+
+.hero{
+padding-top:20px;
+margin-bottom:120px;
+}
+
+.wordmark{
+font-size:clamp(90px,11vw,170px);
+line-height:.86;
+letter-spacing:-0.08em;
+margin:0;
+}
+
+.brand{
+display:block;
+font-weight:500;
+}
+
+.descriptor{
+display:block;
+font-weight:300;
+color:#9b958d;
+}
+
+/* SECTION */
+
+.section{
+margin-bottom:120px;
+max-width:900px;
+}
+
+.section-title{
+font-size:clamp(60px,6vw,110px);
+letter-spacing:-0.07em;
+margin:0 0 40px 0;
+font-weight:500;
+}
+
+.section p{
+font-size:22px;
+line-height:1.4;
+letter-spacing:-0.03em;
+margin:0 0 28px 0;
+}
+
+/* STRUCTURE */
+
+.structure{
+border-top:1px solid var(--line);
+margin-top:40px;
+}
+
+.structure-item{
+display:grid;
+grid-template-columns:260px 1fr;
+gap:40px;
+padding:28px 0;
+border-bottom:1px solid var(--line);
+}
+
+.structure-item h3{
+margin:0;
+font-size:26px;
+letter-spacing:-0.04em;
+}
+
+.structure-item p{
+margin:0;
+font-size:20px;
+line-height:1.4;
+}
+
+/* FOOTER */
+
+.footer{
+border-top:1px solid var(--line);
+padding-top:20px;
+margin-top:auto;
+max-width:860px;
+}
+
+.footer p{
+margin:0;
+color:var(--muted);
+font-size:19px;
+line-height:1.35;
+letter-spacing:-0.03em;
+}
+
+/* MOBILE */
+
+@media(max-width:800px){
+
+.page{
+display:block;
+padding:28px 22px;
+}
+
+.sidebar{
+margin-bottom:60px;
+}
+
+.menu a{
+font-size:26px;
+}
+
+.main{
+padding-left:0;
+}
+
+.hero{
+margin-bottom:80px;
+}
+
+.structure-item{
+grid-template-columns:1fr;
+gap:12px;
+}
+
+.section p{
+font-size:18px;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="page">
+
+<aside class="sidebar">
+
+<nav class="menu">
+
+<a href="#home">Home</a>
+<a href="#about">About</a>
+<a href="#structure">Structure</a>
+<a href="#contact">Contact</a>
+
+</nav>
+
+<div class="language">EN / 繁中</div>
+
+</aside>
+
+<main class="main">
+
+<section class="hero" id="home">
+
+<h1 class="wordmark">
+<span class="brand">Kuon.</span>
+<span class="descriptor">Holdings.</span>
+</h1>
+
+</section>
+
+
+<section class="section" id="about">
+
+<h2 class="section-title">About</h2>
+
+<p>
+Kuon Holdings serves as the parent company within the wider Kuon platform,
+providing a stable holding structure for a cross-border group of industrial
+and commercial activities.
+</p>
+
+<p>
+The company supports the long-term development and coordination of product,
+manufacturing and distribution initiatives, while maintaining a restrained
+and durable corporate foundation.
+</p>
+
+</section>
+
+
+<section class="section" id="structure">
+
+<h2 class="section-title">Structure</h2>
+
+<div class="structure">
+
+<div class="structure-item">
+
+<h3>Product</h3>
+
+<p>
+Product development activities across the Kuon platform including concept
+creation, design direction and commercial product definition.
+</p>
+
+</div>
+
+
+<div class="structure-item">
+
+<h3>Manufacturing</h3>
+
+<p>
+Manufacturing relationships, technical development and production
+coordination supporting long-term industrial execution.
+</p>
+
+</div>
+
+
+<div class="structure-item">
+
+<h3>Distribution</h3>
+
+<p>
+Distribution and route-to-market structures across selected regions with
+an emphasis on clarity, control and durable commercial partnerships.
+</p>
+
+</div>
+
+
+<div class="structure-item">
+
+<h3>Strategic Development</h3>
+
+<p>
+Ownership structures, investment decisions and long-term planning across
+the wider Kuon group.
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+
+<section class="section" id="contact">
+
+<h2 class="section-title">Contact</h2>
+
+<p>
+For general enquiries regarding Kuon Holdings and related activities:
+</p>
+
+<p>
+info@kuonholdings.com
+</p>
+
+</section>
+
+
+<footer class="footer">
+
+<p>
+The British Virgin Islands holding company for Kuon’s product,
+manufacturing and distribution activities.
+</p>
+
+</footer>
+
+
+</main>
+
+</div>
+
+</body>
+</html>
