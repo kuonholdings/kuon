@@ -20,7 +20,7 @@ body {
   overflow: hidden;
 }
 
-/* Top-right link */
+/* Top-right navigation */
 
 .nav-link {
   position: absolute;
@@ -52,7 +52,7 @@ body {
   transform: translateX(4px);
 }
 
-/* Main */
+/* Main block */
 
 .wrap {
   position: absolute;
@@ -64,7 +64,18 @@ body {
   align-items: flex-end;
 }
 
-/* Line */
+/* BVI label */
+
+.label {
+  margin-bottom: 6px;
+  font-size: 0.7rem;
+  color: #000000;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+  opacity: 0.7;
+}
+
+/* Datum line */
 
 .line {
   height: 1px;
@@ -90,6 +101,7 @@ body {
   font-size: 1.85rem;
   position: relative;
   top: 1px;
+  text-transform: none;
 }
 
 /* Info */
@@ -104,6 +116,7 @@ body {
   color: inherit;
   text-decoration: none;
   border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
 }
 
 .email a:hover {
@@ -114,6 +127,7 @@ body {
   margin-top: 4px;
   font-size: 0.9rem;
   color: #000000;
+  letter-spacing: 0.01em;
 }
 
 /* Year */
@@ -124,30 +138,57 @@ body {
   right: 40px;
   font-size: 0.75rem;
   color: #000000;
+  letter-spacing: 0.05em;
   transform: rotate(90deg);
   transform-origin: right bottom;
+  opacity: 0.7;
 }
 
 /* Responsive */
 
 @media (max-width: 640px) {
-  .wrap { right: 8vw; }
-  .center { font-size: 1.5rem; }
-  .jp { font-size: 1.45rem; }
-  .line { width: 70vw; }
+  .wrap {
+    right: 8vw;
+  }
+
+  .center {
+    font-size: 1.5rem;
+  }
+
+  .jp {
+    font-size: 1.45rem;
+  }
+
+  .email,
+  .location {
+    font-size: 0.82rem;
+  }
+
+  .line {
+    width: 70vw;
+  }
+
+  .year {
+    bottom: 28px;
+    right: 28px;
+  }
 }
 </style>
 </head>
 
 <body>
 
+<!-- Top-right link -->
 <div class="nav-link">
   <a href="https://kuon.studio">
     Studio <span class="arrow">→</span>
   </a>
 </div>
 
+<!-- Main content -->
 <div class="wrap">
+
+  <div class="label">bvi</div>
 
   <div class="line"></div>
 
@@ -165,6 +206,7 @@ body {
 
 </div>
 
+<!-- Year -->
 <div class="year">2027</div>
 
 </body>
