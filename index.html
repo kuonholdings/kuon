@@ -1,347 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KUON HOLDINGS</title>
 
-<title>Kuon Holdings</title>
+<link href="https://fonts.googleapis.com/css2?family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
 
 <style>
-
-:root{
---bg:#e8e7e2;
---text:#1f1e1c;
---muted:#7c756d;
---line:#d7d2cb;
+html, body {
+  height: 100%;
+  margin: 0;
 }
 
-*{
-box-sizing:border-box;
+body {
+  background: #ffffff;
+  color: #000000;
+  font-family: Arial, Helvetica, sans-serif;
+  overflow: hidden;
 }
 
-body{
-margin:0;
-background:var(--bg);
-color:var(--text);
-font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,sans-serif;
--webkit-font-smoothing:antialiased;
+/* Main block */
+
+.wrap {
+  position: absolute;
+  top: 50%;
+  right: 10vw;
+  transform: translateY(-55%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
-.page{
-display:grid;
-grid-template-columns:220px 1fr;
-min-height:100vh;
-padding:42px 56px 34px;
+/* Datum line */
+
+.line {
+  height: 1px;
+  width: 60vw;
+  background: #000000; /* pure black */
+  margin-bottom: 14px;
+
+  transform-origin: left;
+  transform: scaleX(0);
+  animation: drawLine 1s ease forwards;
 }
 
-/* LEFT NAV */
+/* Title */
 
-.sidebar{
-display:flex;
-flex-direction:column;
-justify-content:space-between;
+.center {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  text-align: right;
+  white-space: nowrap;
+
+  opacity: 0;
+  transform: translateY(8px);
+  animation: fadeUp 0.6s ease forwards;
+  animation-delay: 0.5s;
 }
 
-.menu{
-display:flex;
-flex-direction:column;
-gap:2px;
+.jp {
+  margin-left: 6px;
+  font-family: 'Zhi Mang Xing', cursive;
+  font-size: 1.85rem;
+  position: relative;
+  top: 1px;
+  text-transform: none;
 }
 
-.menu a{
-text-decoration:none;
-color:var(--text);
-font-size:36px;
-letter-spacing:-0.05em;
-line-height:1.02;
-opacity:.9;
-transition:opacity .2s;
+/* Email + Location */
+
+.email {
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #000000;
+
+  opacity: 0;
+  transform: translateY(8px);
+  animation: fadeUp 0.6s ease forwards;
+  animation-delay: 0.8s;
 }
 
-.menu a:hover{
-opacity:.5;
+.email a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
 }
 
-.language{
-font-size:14px;
-color:var(--muted);
-letter-spacing:-0.02em;
+.email a:hover {
+  border-bottom: 1px solid #000000;
 }
 
-/* MAIN */
+.location {
+  margin-top: 4px;
+  font-size: 0.9rem;
+  color: #000000;
+  letter-spacing: 0.01em;
 
-.main{
-display:flex;
-flex-direction:column;
-padding-left:120px;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: fadeUp 0.6s ease forwards;
+  animation-delay: 0.95s;
 }
 
-/* HERO */
+/* Year */
 
-.hero{
-padding-top:20px;
-margin-bottom:120px;
+.year {
+  position: absolute;
+  bottom: 40px;
+  right: 40px;
+
+  font-size: 0.75rem;
+  color: #000000;
+  letter-spacing: 0.05em;
+
+  transform: rotate(90deg);
+  transform-origin: right bottom;
+
+  opacity: 0;
+  animation: fadeIn 0.8s ease forwards;
+  animation-delay: 1.2s;
 }
 
-.wordmark{
-font-size:clamp(90px,11vw,170px);
-line-height:.86;
-letter-spacing:-0.08em;
-margin:0;
+/* Animations */
+
+@keyframes drawLine {
+  to {
+    transform: scaleX(1);
+  }
 }
 
-.brand{
-display:block;
-font-weight:500;
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.descriptor{
-display:block;
-font-weight:300;
-color:#9b958d;
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
 }
 
-/* SECTION */
+/* Responsive */
 
-.section{
-margin-bottom:120px;
-max-width:900px;
+@media (max-width: 640px) {
+  .wrap {
+    right: 8vw;
+  }
+
+  .center {
+    font-size: 1.5rem;
+  }
+
+  .jp {
+    font-size: 1.45rem;
+  }
+
+  .email,
+  .location {
+    font-size: 0.82rem;
+  }
+
+  .line {
+    width: 70vw;
+  }
+
+  .year {
+    bottom: 28px;
+    right: 28px;
+  }
 }
-
-.section-title{
-font-size:clamp(60px,6vw,110px);
-letter-spacing:-0.07em;
-margin:0 0 40px 0;
-font-weight:500;
-}
-
-.section p{
-font-size:22px;
-line-height:1.4;
-letter-spacing:-0.03em;
-margin:0 0 28px 0;
-}
-
-/* STRUCTURE */
-
-.structure{
-border-top:1px solid var(--line);
-margin-top:40px;
-}
-
-.structure-item{
-display:grid;
-grid-template-columns:260px 1fr;
-gap:40px;
-padding:28px 0;
-border-bottom:1px solid var(--line);
-}
-
-.structure-item h3{
-margin:0;
-font-size:26px;
-letter-spacing:-0.04em;
-}
-
-.structure-item p{
-margin:0;
-font-size:20px;
-line-height:1.4;
-}
-
-/* FOOTER */
-
-.footer{
-border-top:1px solid var(--line);
-padding-top:20px;
-margin-top:auto;
-max-width:860px;
-}
-
-.footer p{
-margin:0;
-color:var(--muted);
-font-size:19px;
-line-height:1.35;
-letter-spacing:-0.03em;
-}
-
-/* MOBILE */
-
-@media(max-width:800px){
-
-.page{
-display:block;
-padding:28px 22px;
-}
-
-.sidebar{
-margin-bottom:60px;
-}
-
-.menu a{
-font-size:26px;
-}
-
-.main{
-padding-left:0;
-}
-
-.hero{
-margin-bottom:80px;
-}
-
-.structure-item{
-grid-template-columns:1fr;
-gap:12px;
-}
-
-.section p{
-font-size:18px;
-}
-
-}
-
 </style>
-
 </head>
 
 <body>
 
-<div class="page">
+<div class="wrap">
 
-<aside class="sidebar">
+  <div class="line"></div>
 
-<nav class="menu">
+  <div class="center">
+    KUON HOLDINGS <span class="jp">久音</span>
+  </div>
 
-<a href="#home">Home</a>
-<a href="#about">About</a>
-<a href="#structure">Structure</a>
-<a href="#contact">Contact</a>
+  <div class="email">
+    <a href="mailto:hello@kuonholdings.com">hello@kuonholdings.com</a>
+  </div>
 
-</nav>
-
-<div class="language">EN / 繁中</div>
-
-</aside>
-
-<main class="main">
-
-<section class="hero" id="home">
-
-<h1 class="wordmark">
-<span class="brand">Kuon.</span>
-<span class="descriptor">Holdings.</span>
-</h1>
-
-</section>
-
-
-<section class="section" id="about">
-
-<h2 class="section-title">About</h2>
-
-<p>
-Kuon Holdings serves as the parent company within the wider Kuon platform,
-providing a stable holding structure for a cross-border group of industrial
-and commercial activities.
-</p>
-
-<p>
-The company supports the long-term development and coordination of product,
-manufacturing and distribution initiatives, while maintaining a restrained
-and durable corporate foundation.
-</p>
-
-</section>
-
-
-<section class="section" id="structure">
-
-<h2 class="section-title">Structure</h2>
-
-<div class="structure">
-
-<div class="structure-item">
-
-<h3>Product</h3>
-
-<p>
-Product development activities across the Kuon platform including concept
-creation, design direction and commercial product definition.
-</p>
+  <div class="location">
+    London | Taiwan
+  </div>
 
 </div>
 
-
-<div class="structure-item">
-
-<h3>Manufacturing</h3>
-
-<p>
-Manufacturing relationships, technical development and production
-coordination supporting long-term industrial execution.
-</p>
-
-</div>
-
-
-<div class="structure-item">
-
-<h3>Distribution</h3>
-
-<p>
-Distribution and route-to-market structures across selected regions with
-an emphasis on clarity, control and durable commercial partnerships.
-</p>
-
-</div>
-
-
-<div class="structure-item">
-
-<h3>Strategic Development</h3>
-
-<p>
-Ownership structures, investment decisions and long-term planning across
-the wider Kuon group.
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-
-<section class="section" id="contact">
-
-<h2 class="section-title">Contact</h2>
-
-<p>
-For general enquiries regarding Kuon Holdings and related activities:
-</p>
-
-<p>
-info@kuonholdings.com
-</p>
-
-</section>
-
-
-<footer class="footer">
-
-<p>
-The British Virgin Islands holding company for Kuon’s product,
-manufacturing and distribution activities.
-</p>
-
-</footer>
-
-
-</main>
-
-</div>
+<div class="year">2027</div>
 
 </body>
 </html>
