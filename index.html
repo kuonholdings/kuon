@@ -1,427 +1,451 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Kuon</title>
-  <style>
-    :root {
-      --paper: #f1f0ec;
-      --ink: #1e1e1d;
-      --muted: #7d7b76;
-      --line: #6f6d68;
-      --duration: 720ms;
-      --ease: cubic-bezier(.22, .61, .36, 1);
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KUON</title>
 
-    * { box-sizing: border-box; }
+<link href="https://fonts.googleapis.com/css2?family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
 
-    html,
-    body {
-      margin: 0;
-      min-height: 100%;
-      background: var(--paper);
-      color: var(--ink);
-      font-family: Helvetica, Arial, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      text-rendering: geometricPrecision;
-    }
+<style>
+html, body {
+  height: 100%;
+  margin: 0;
+}
 
-    button,
-    a {
-      color: inherit;
-      font: inherit;
-    }
+body {
+  background: #f2f1ed;
+  color: #111111;
+  font-family: Arial, Helvetica, sans-serif;
+  overflow: hidden;
+}
 
-    button {
-      border: 0;
-      background: transparent;
-      padding: 0;
-      cursor: pointer;
-    }
+button, a {
+  font: inherit;
+  color: inherit;
+}
 
-    .site {
-      position: relative;
-      min-height: 100vh;
-      overflow: hidden;
-      background: var(--paper);
-    }
+button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
 
-    .home-link {
-      position: fixed;
-      top: 38px;
-      left: 48px;
-      z-index: 30;
-      color: var(--muted);
-      font-size: 16px;
-      letter-spacing: -0.01em;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 260ms ease, color 160ms ease;
-    }
+/* Screens */
 
-    body:not(.view-gate) .home-link {
-      opacity: 1;
-      pointer-events: auto;
-    }
+.screen {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.55s ease;
+}
 
-    .home-link:hover { color: var(--ink); }
+body.view-gate #gate,
+body.view-studio #studio,
+body.view-holdings #holdings {
+  opacity: 1;
+  pointer-events: auto;
+  transition-delay: 0.22s;
+}
 
-    .top-link {
-      position: fixed;
-      top: 38px;
-      right: 48px;
-      z-index: 30;
-      color: var(--muted);
-      font-size: 16px;
-      letter-spacing: -0.01em;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 260ms ease, color 160ms ease;
-    }
+/* Navigation */
 
-    body.view-studio .top-link.holdings-link,
-    body.view-holdings .top-link.studio-link {
-      opacity: 1;
-      pointer-events: auto;
-    }
+.nav-link {
+  position: absolute;
+  top: 28px;
+  right: 40px;
+  z-index: 20;
+  font-size: 0.8rem;
+  color: #777777;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease, color 0.25s ease;
+}
 
-    .top-link:hover { color: var(--ink); }
+.home-link {
+  position: absolute;
+  top: 28px;
+  left: 40px;
+  z-index: 20;
+  font-size: 0.8rem;
+  color: #777777;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease, color 0.25s ease;
+}
 
-    .year {
-      position: fixed;
-      right: 34px;
-      bottom: 32px;
-      color: var(--muted);
-      font-size: 14px;
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      letter-spacing: 0.02em;
-      z-index: 20;
-    }
+body.view-studio .nav-link.to-holdings,
+body.view-holdings .nav-link.to-studio,
+body:not(.view-gate) .home-link {
+  opacity: 0.7;
+  pointer-events: auto;
+}
 
-    /* The line is the constant object. It moves between centre, right and left. */
-    .moving-line {
-      position: absolute;
-      top: 42.5vh;
-      height: 1px;
-      width: 60vw;
-      max-width: 1130px;
-      min-width: 760px;
-      background: var(--line);
-      z-index: 10;
-      transition:
-        left var(--duration) var(--ease),
-        right var(--duration) var(--ease),
-        width var(--duration) var(--ease),
-        max-width var(--duration) var(--ease),
-        min-width var(--duration) var(--ease),
-        transform var(--duration) var(--ease);
-    }
+.nav-link button,
+.home-link button {
+  text-decoration: none;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.25s ease;
+}
 
-    body.view-gate .moving-line {
-      left: 50%;
-      right: auto;
-      width: min(640px, calc(100vw - 64px));
-      min-width: 0;
-      max-width: none;
-      transform: translateX(-50%);
-    }
+.arrow {
+  transition: transform 0.25s ease;
+}
 
-    body.view-studio .moving-line {
-      left: auto;
-      right: 10.5vw;
-      width: 60vw;
-      min-width: 760px;
-      max-width: 1130px;
-      transform: translateX(0);
-    }
+.nav-link button:hover,
+.home-link button:hover {
+  color: #111111;
+  opacity: 1;
+}
 
-    body.view-holdings .moving-line {
-      left: 10.5vw;
-      right: auto;
-      width: 58vw;
-      min-width: 720px;
-      max-width: 1040px;
-      transform: translateX(0);
-    }
+.nav-link button:hover .arrow {
+  transform: translateX(4px);
+}
 
-    .screen {
-      position: absolute;
-      inset: 0;
-      min-height: 100vh;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 420ms ease;
-    }
+.home-link button:hover .arrow {
+  transform: translateX(-4px);
+}
 
-    body.view-gate #gate,
-    body.view-studio #studio,
-    body.view-holdings #holdings {
-      opacity: 1;
-      pointer-events: auto;
-      transition-delay: 260ms;
-    }
+/* The constant line */
 
-    /* Gateway */
-    #gate {
-      display: grid;
-      place-items: center;
-    }
+.moving-line {
+  position: absolute;
+  z-index: 5;
+  height: 1px;
+  width: 60vw;
+  background: #111111;
+  opacity: 0.6;
+  top: calc(50% - 55px);
+  transition:
+    left 0.72s cubic-bezier(.22,.61,.36,1),
+    right 0.72s cubic-bezier(.22,.61,.36,1),
+    width 0.72s cubic-bezier(.22,.61,.36,1),
+    transform 0.72s cubic-bezier(.22,.61,.36,1),
+    top 0.72s cubic-bezier(.22,.61,.36,1);
+}
 
-    .gate-inner {
-      width: min(640px, calc(100vw - 64px));
-      text-align: center;
-      transform: translateY(calc(-3vh - 28px));
-    }
+body.view-gate .moving-line {
+  left: 50%;
+  right: auto;
+  width: min(420px, 70vw);
+  transform: translateX(-50%);
+}
 
-    .gate-title {
-      margin: 0 0 34px;
-      font-size: clamp(52px, 8vw, 118px);
-      line-height: 0.9;
-      font-weight: 800;
-      letter-spacing: -0.07em;
-    }
+body.view-studio .moving-line {
+  left: auto;
+  right: 10vw;
+  width: 60vw;
+  transform: translateX(0);
+}
 
-    .gate-links {
-      display: grid;
-      grid-template-columns: 1fr 1px 1fr;
-      gap: 28px;
-      align-items: center;
-      margin-top: 22px;
-      color: var(--muted);
-      font-size: 16px;
-    }
+body.view-holdings .moving-line {
+  left: 10vw;
+  right: auto;
+  width: 60vw;
+  transform: translateX(0);
+}
 
-    .gate-links span {
-      display: block;
-      height: 16px;
-      background: var(--line);
-      opacity: 0.45;
-    }
+/* Gateway */
 
-    .gate-links button:hover { color: var(--ink); }
+.gate-wrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(420px, 70vw);
+}
 
-    /* Editorial pages */
-    .block {
-      position: absolute;
-      top: calc(42.5vh + 19px);
-    }
+.gate-title {
+  margin: 0 0 31px;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+}
 
-    .studio-block {
-      width: 60vw;
-      max-width: 1130px;
-      min-width: 760px;
-      right: 10.5vw;
-    }
+.gate-options {
+  margin-top: 14px;
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: #777777;
+  opacity: 0.7;
+}
 
-    .holdings-block {
-      width: 58vw;
-      max-width: 1040px;
-      min-width: 720px;
-      left: 10.5vw;
-    }
+.gate-options span {
+  display: block;
+  width: 1px;
+  height: 12px;
+  background: #111111;
+  opacity: 0.35;
+}
 
-    .eyebrow {
-      color: var(--muted);
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      margin-bottom: 28px;
-    }
+.gate-options button {
+  transition: color 0.25s ease, opacity 0.25s ease;
+}
 
-    .studio-block .eyebrow {
-      text-align: right;
-      padding-right: 2px;
-    }
+.gate-options button:hover {
+  color: #111111;
+  opacity: 1;
+}
 
-    .identity-row {
-      display: flex;
-      align-items: baseline;
-      justify-content: flex-end;
-      gap: 24px;
-    }
+/* Main blocks */
 
-    .identity-title {
-      margin: 0;
-      font-size: clamp(36px, 3.1vw, 62px);
-      line-height: 0.92;
-      font-weight: 800;
-      letter-spacing: -0.065em;
-    }
+.wrap {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-55%);
+  display: flex;
+  flex-direction: column;
+}
 
-    .kanji {
-      font-family: serif;
-      font-size: clamp(30px, 2.6vw, 52px);
-      line-height: 1;
-      font-weight: 700;
-      letter-spacing: -0.1em;
-    }
+.studio-wrap {
+  right: 10vw;
+  align-items: flex-end;
+}
 
-    .contact {
-      margin-top: 28px;
-      color: #353532;
-      font-size: 18px;
-      line-height: 1.35;
-    }
+.holdings-wrap {
+  left: 10vw;
+  align-items: flex-start;
+}
 
-    .contact a { text-decoration: none; }
-    .contact a:hover {
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
+/* Label */
 
-    .studio-block .contact,
-    .studio-block .paragraph { text-align: right; }
+.label {
+  margin-bottom: 21px;
+  font-size: 0.7rem;
+  color: #777777;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+}
 
-    .paragraph {
-      width: min(560px, 100%);
-      margin: 48px 0 0;
-      color: #3f3e3a;
-      font-size: 18px;
-      line-height: 1.48;
-      letter-spacing: -0.012em;
-    }
+/* Title */
 
-    .studio-block .paragraph { margin-left: auto; }
+.center {
+  margin-top: 14px;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
 
-    @media (max-width: 900px) {
-      .moving-line,
-      body.view-studio .moving-line,
-      body.view-holdings .moving-line {
-        left: 28px;
-        right: auto;
-        top: 38vh;
-        width: calc(100vw - 56px);
-        max-width: none;
-        min-width: 0;
-        transform: translateX(0);
-      }
+.studio-wrap .center {
+  text-align: right;
+}
 
-      body.view-gate .moving-line {
-        left: 50%;
-        width: calc(100vw - 64px);
-        transform: translateX(-50%);
-      }
+.holdings-wrap .center {
+  text-align: left;
+}
 
-      .block,
-      .studio-block,
-      .holdings-block {
-        left: 28px;
-        right: 28px;
-        top: calc(38vh + 19px);
-        width: auto;
-        min-width: 0;
-        max-width: none;
-      }
+.jp {
+  margin-left: 6px;
+  font-family: 'Zhi Mang Xing', cursive;
+  font-size: 1.85rem;
+  position: relative;
+  top: 1px;
+}
 
-      .studio-block .eyebrow,
-      .studio-block .contact,
-      .studio-block .paragraph {
-        text-align: left;
-        margin-left: 0;
-      }
+/* Info */
 
-      .identity-row {
-        justify-content: flex-start;
-        gap: 14px;
-        flex-wrap: wrap;
-      }
+.email {
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #444444;
+}
 
-      .top-link { top: 28px; right: 28px; font-size: 15px; }
-      .home-link { top: 28px; left: 28px; font-size: 15px; }
-      .year { right: 20px; bottom: 22px; }
-    }
+.email a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.25s ease;
+}
 
-    @media (max-width: 520px) {
-      .gate-inner { width: calc(100vw - 48px); }
-      .gate-links { gap: 18px; }
+.email a:hover {
+  border-bottom: 1px solid #111111;
+}
 
-      .moving-line,
-      body.view-studio .moving-line,
-      body.view-holdings .moving-line {
-        top: 32vh;
-      }
+.location {
+  margin-top: 4px;
+  font-size: 0.9rem;
+  color: #444444;
+}
 
-      .block,
-      .studio-block,
-      .holdings-block {
-        top: calc(32vh + 19px);
-      }
+.paragraph {
+  width: min(460px, 42vw);
+  margin-top: 28px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #444444;
+}
 
-      .paragraph { margin-top: 34px; font-size: 16px; }
-      .contact { font-size: 16px; }
-    }
-  </style>
+.studio-wrap .paragraph {
+  text-align: right;
+}
+
+.holdings-wrap .paragraph {
+  text-align: left;
+}
+
+/* Year */
+
+.year {
+  position: absolute;
+  bottom: 40px;
+  right: 40px;
+  font-size: 0.75rem;
+  color: #777777;
+  transform: rotate(90deg);
+  transform-origin: right bottom;
+}
+
+/* Responsive */
+
+@media (max-width: 640px) {
+  .nav-link { right: 28px; }
+  .home-link { left: 28px; }
+
+  .studio-wrap,
+  .holdings-wrap {
+    left: 8vw;
+    right: 8vw;
+    align-items: flex-start;
+  }
+
+  .studio-wrap .center,
+  .studio-wrap .paragraph {
+    text-align: left;
+  }
+
+  body.view-studio .moving-line,
+  body.view-holdings .moving-line {
+    left: 8vw;
+    right: auto;
+    width: 84vw;
+  }
+
+  .center,
+  .gate-title {
+    font-size: 1.5rem;
+  }
+
+  .jp {
+    font-size: 1.45rem;
+  }
+
+  .paragraph {
+    width: 84vw;
+    font-size: 0.85rem;
+  }
+}
+</style>
 </head>
+
 <body class="view-gate">
-  <div class="site">
-    <button class="home-link" type="button" data-view="gate">← Kuon</button>
-    <button class="top-link holdings-link" type="button" data-view="holdings">Holdings →</button>
-    <button class="top-link studio-link" type="button" data-view="studio">Studio →</button>
 
-    <div class="moving-line" aria-hidden="true"></div>
+<button class="home-link" type="button" data-view="gate">
+  <span class="arrow">←</span> Kuon
+</button>
 
-    <main id="gate" class="screen">
-      <div class="gate-inner">
-        <h1 class="gate-title">KUON</h1>
-        <div class="gate-links">
-          <button type="button" data-view="studio">Studio</button>
-          <span></span>
-          <button type="button" data-view="holdings">Holdings</button>
-        </div>
-      </div>
-    </main>
+<div class="nav-link to-holdings">
+  <button type="button" data-view="holdings">
+    Holdings <span class="arrow">→</span>
+  </button>
+</div>
 
-    <main id="studio" class="screen">
-      <section class="block studio-block">
-        <div class="eyebrow">sound architecture</div>
-        <div class="identity-row">
-          <h1 class="identity-title">KUON STUDIO</h1>
-          <div class="kanji">久音</div>
-        </div>
-        <div class="contact">
-          <a href="mailto:hello@kuon.studio">hello@kuon.studio</a><br />
-          London | Taiwan
-        </div>
-        <p class="paragraph">
-          Kuon Studio is a sound architecture practice concerned with how sound becomes real in the world. It works from capture to perception, shaping sound through recording, object, and space.
-        </p>
-      </section>
-    </main>
+<div class="nav-link to-studio">
+  <button type="button" data-view="studio">
+    Studio <span class="arrow">→</span>
+  </button>
+</div>
 
-    <main id="holdings" class="screen">
-      <section class="block holdings-block">
-        <div class="eyebrow">private structure</div>
-        <h1 class="identity-title">KUON HOLDINGS</h1>
-        <div class="contact">
-          <a href="mailto:admin@kuon.holdings">admin@kuon.holdings</a><br />
-          BVI | Singapore | United Kingdom
-        </div>
-        <p class="paragraph">
-          Kuon Holdings is a private holding structure for long-term interests in sound, design, property, and cultural infrastructure. It exists to preserve ownership, support selected ventures, and connect assets across the Kuon ecosystem.
-        </p>
-      </section>
-    </main>
+<div class="moving-line"></div>
 
-    <div class="year">2027</div>
+<section id="gate" class="screen">
+  <div class="gate-wrap">
+    <h1 class="gate-title">KUON</h1>
+    <div class="gate-options">
+      <button type="button" data-view="studio">Studio</button>
+      <span></span>
+      <button type="button" data-view="holdings">Holdings</button>
+    </div>
   </div>
+</section>
 
-  <script>
-    const buttons = document.querySelectorAll('[data-view]');
-    const views = ['gate', 'studio', 'holdings'];
+<section id="studio" class="screen">
+  <div class="wrap studio-wrap">
+    <div class="label">sound architecture</div>
 
-    function showView(view) {
-      views.forEach((item) => {
-        document.body.classList.toggle('view-' + item, item === view);
-      });
-    }
+    <div class="center">
+      KUON STUDIO <span class="jp">久音</span>
+    </div>
 
-    buttons.forEach((button) => {
-      button.addEventListener('click', () => {
-        showView(button.dataset.view);
-      });
-    });
-  </script>
+    <div class="email">
+      <a href="mailto:hello@kuon.studio">hello@kuon.studio</a>
+    </div>
+
+    <div class="location">
+      London | Taiwan
+    </div>
+
+    <p class="paragraph">
+      Kuon Studio is a sound architecture practice concerned with how sound becomes real in the world. It works from capture to perception, shaping sound through recording, object, and space.
+    </p>
+  </div>
+</section>
+
+<section id="holdings" class="screen">
+  <div class="wrap holdings-wrap">
+    <div class="label">private structure</div>
+
+    <div class="center">
+      KUON HOLDINGS
+    </div>
+
+    <div class="email">
+      <a href="mailto:admin@kuon.holdings">admin@kuon.holdings</a>
+    </div>
+
+    <div class="location">
+      BVI | Singapore | United Kingdom
+    </div>
+
+    <p class="paragraph">
+      Kuon Holdings is a private holding structure for long-term interests in sound, design, property, and cultural infrastructure. It exists to preserve ownership, support selected ventures, and connect assets across the Kuon ecosystem.
+    </p>
+  </div>
+</section>
+
+<div class="year">2027</div>
+
+<script>
+const buttons = document.querySelectorAll('[data-view]');
+const views = ['gate', 'studio', 'holdings'];
+
+function showView(view) {
+  views.forEach(function(item) {
+    document.body.classList.toggle('view-' + item, item === view);
+  });
+}
+
+buttons.forEach(function(button) {
+  button.addEventListener('click', function() {
+    showView(button.dataset.view);
+  });
+});
+</script>
+
 </body>
 </html>
