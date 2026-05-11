@@ -132,7 +132,7 @@ body:not(.view-gate) .home-link {
 body.view-gate .moving-line {
   left: 50%;
   right: auto;
-  width: min(420px, 70vw);
+  width: min(520px, 76vw);
   transform: translateX(-50%);
 }
 
@@ -160,17 +160,26 @@ body.view-holdings .moving-line {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: min(420px, 70vw);
+  width: min(520px, 76vw);
 }
 
 .gate-title {
-  margin: 0 0 31px;
+  margin: 0 0 30px;
   font-size: 2rem;
   font-weight: 700;
   letter-spacing: -0.04em;
   text-transform: uppercase;
   text-align: center;
   white-space: nowrap;
+}
+
+.gate-intro {
+  width: min(480px, 76vw);
+  margin: 0 auto 48px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #444444;
+  text-align: center;
 }
 
 .gate-options {
@@ -284,7 +293,7 @@ body.view-holdings .moving-line {
 }
 
 .paragraph {
-  width: min(460px, 42vw);
+  width: min(500px, 42vw);
   margin-top: 28px;
   font-size: 0.9rem;
   line-height: 1.45;
@@ -329,11 +338,23 @@ body.view-holdings .moving-line {
     text-align: left;
   }
 
+  body.view-gate .moving-line {
+    width: 76vw;
+  }
+
   body.view-studio .moving-line,
   body.view-holdings .moving-line {
     left: 8vw;
     right: auto;
     width: 84vw;
+  }
+
+  .gate-wrap {
+    width: 76vw;
+  }
+
+  .gate-intro {
+    width: 76vw;
   }
 
   .center,
@@ -361,13 +382,13 @@ body.view-holdings .moving-line {
 
 <div class="nav-link to-holdings">
   <button type="button" data-view="holdings">
-    Holdings <span class="arrow">→</span>
+    Kuon Holdings <span class="arrow">→</span>
   </button>
 </div>
 
 <div class="nav-link to-studio">
   <button type="button" data-view="studio">
-    Studio <span class="arrow">→</span>
+    Kuon Studio <span class="arrow">→</span>
   </button>
 </div>
 
@@ -376,10 +397,13 @@ body.view-holdings .moving-line {
 <section id="gate" class="screen">
   <div class="gate-wrap">
     <h1 class="gate-title">KUON</h1>
+    <p class="gate-intro">
+      An international practice in sound, design, and architectural technology.
+    </p>
     <div class="gate-options">
-      <button type="button" data-view="studio">Studio</button>
+      <button type="button" data-view="studio">Kuon Studio</button>
       <span></span>
-      <button type="button" data-view="holdings">Holdings</button>
+      <button type="button" data-view="holdings">Kuon Holdings</button>
     </div>
   </div>
 </section>
@@ -401,7 +425,7 @@ body.view-holdings .moving-line {
     </div>
 
     <p class="paragraph">
-      Kuon Studio is a sound architecture practice concerned with how sound becomes real in the world. It works from capture to perception, shaping sound through recording, object, and space.
+      Kuon Studio is where Kuon’s work takes form, across sound, product design, instrument design, and architectural space. It provides design direction, technical consultancy, product strategy, and creative development for companies and ventures concerned with how sound is shaped, housed, and experienced in the built environment.
     </p>
   </div>
 </section>
@@ -423,7 +447,7 @@ body.view-holdings .moving-line {
     </div>
 
     <p class="paragraph">
-      Kuon Holdings is a private holding structure for long-term interests in sound, design, property, and cultural infrastructure. It exists to preserve ownership, support selected ventures, and connect assets across the Kuon ecosystem.
+      Kuon Holdings is a private holding structure for selected interests developed through Kuon Studio and the wider Kuon ecosystem. It supports the ownership and development of companies, intellectual property, places, and commercial assets connected to sound, design, and architectural technology.
     </p>
   </div>
 </section>
