@@ -1,356 +1,388 @@
-import React, { useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUpRight, Mail, Minus } from "lucide-react";
+import React, { useState } from "react";
 
-const studioCopy = {
-  kicker: "KUON STUDIO",
-  title: "Sound architecture.",
-  statement:
-    "Kuon Studio is a sound architecture practice concerned with how sound becomes real in the world.",
-  body: [
-    "It works from capture to perception, shaping sound through recording, object, and space.",
-    "The studio brings together loudspeaker design, architectural listening, material research, and cultural production. Its work moves between the technical and the atmospheric: between the measured behaviour of sound and the conditions in which sound is felt.",
-    "Kuon Studio develops objects, systems, recordings, interiors, and ventures where listening is not treated as an accessory, but as a form of space."
-  ],
-  notes: ["Capture", "Object", "Space", "Perception"],
-  link: "kuon.studio"
-};
+const studioText = `Kuon Studio is a sound architecture practice concerned with how sound becomes real in the world. It works from capture to perception, shaping sound through recording, object, and space.`;
 
-const holdingsCopy = {
-  kicker: "KUON HOLDINGS",
-  title: "Private structure.",
-  statement:
-    "Kuon Holdings is a private holding structure for long-term interests in sound, design, property, and cultural infrastructure.",
-  body: [
-    "It exists to preserve ownership, support selected ventures, and connect assets across the Kuon ecosystem.",
-    "The structure holds and supports companies, intellectual property, property interests, and related commercial projects where sound, space, and material culture are central.",
-    "Kuon Holdings is not a public-facing studio. It is the structural layer behind selected work."
-  ],
-  notes: ["Ownership", "Assets", "Continuity", "Structure"],
-  link: "kuon.holdings"
-};
+const holdingsText = `Kuon Holdings is a private holding structure for long-term interests in sound, design, property, and cultural infrastructure. It exists to preserve ownership, support selected ventures, and connect assets across the Kuon ecosystem.`;
 
-const ventures = [
-  {
-    name: "MASO",
-    type: "Sound / Light / Object",
-    text:
-      "Listening objects that sit between loudspeaker, furniture, lamp, and architectural element."
-  },
-  {
-    name: "Neostein",
-    type: "Architectural Audio",
-    text:
-      "Architectural loudspeakers for homes, hotels, retail, and private interiors."
-  },
-  {
-    name: "St Boniface Gardens",
-    type: "Place / Hospitality / Listening",
-    text:
-      "A historic house and garden in Ventnor: a place for staying, listening, gathering, and demonstration."
-  },
-  {
-    name: "Kuon Editions",
-    type: "Recording / Culture",
-    text:
-      "Recorded and curated sound works developed as part of a larger listening system."
+function TopLink({ current, setView }) {
+  if (current === "studio") {
+    return (
+      <button className="top-link" onClick={() => setView("holdings")}>
+        Holdings →
+      </button>
+    );
   }
-];
 
-function Grain() {
+  if (current === "holdings") {
+    return (
+      <button className="top-link" onClick={() => setView("studio")}>
+        Studio →
+      </button>
+    );
+  }
+
+  return null;
+}
+
+function CentreGate({ setView }) {
   return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-50 opacity-[0.035] mix-blend-multiply"
-      style={{
-        backgroundImage:
-          "url('data:image/svg+xml,%3Csvg viewBox=%220 0 256 256%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.82%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')"
-      }}
-    />
+    <main className="gate">
+      <div className="gate-inner">
+        <h1>KUON</h1>
+        <div className="gate-rule" />
+        <div className="gate-links">
+          <button onClick={() => setView("studio")}>Studio</button>
+          <span />
+          <button onClick={() => setView("holdings")}>Holdings</button>
+        </div>
+      </div>
+      <div className="year">2027</div>
+    </main>
   );
 }
 
-function Nav({ active, setActive }) {
-  const items = [
-    ["gateway", "Kuon"],
-    ["studio", "Studio"],
-    ["holdings", "Holdings"],
-    ["ventures", "Ventures"],
-    ["contact", "Contact"]
-  ];
-
+function Studio({ setView }) {
   return (
-    <header className="fixed left-0 right-0 top-0 z-40 border-b border-stone-950/10 bg-[#f4f1ea]/80 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8">
-        <button
-          onClick={() => setActive("gateway")}
-          className="font-serif text-lg tracking-[0.22em] text-stone-950"
-        >
-          KUON
-        </button>
-        <nav className="hidden items-center gap-7 text-[11px] uppercase tracking-[0.22em] text-stone-600 md:flex">
-          {items.slice(1).map(([id, label]) => (
-            <button
-              key={id}
-              onClick={() => setActive(id)}
-              className={`transition hover:text-stone-950 ${active === id ? "text-stone-950" : ""}`}
-            >
-              {label}
-            </button>
-          ))}
-        </nav>
-        <button
-          onClick={() => setActive("contact")}
-          className="flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-stone-700 transition hover:text-stone-950"
-        >
-          <Mail size={14} />
-          <span className="hidden sm:inline">Enquire</span>
-        </button>
-      </div>
-    </header>
+    <main className="page studio-page">
+      <TopLink current="studio" setView={setView} />
+
+      <section className="studio-block">
+        <div className="rule" />
+        <div className="eyebrow">sound architecture</div>
+        <div className="identity-row">
+          <h1>KUON STUDIO</h1>
+          <div className="kanji">久音</div>
+        </div>
+        <div className="contact">
+          <a href="mailto:hello@kuon.studio">hello@kuon.studio</a>
+          <div>London | Taiwan</div>
+        </div>
+        <p className="paragraph">{studioText}</p>
+      </section>
+
+      <div className="year">2027</div>
+    </main>
   );
 }
 
-function Gateway({ setActive }) {
+function Holdings({ setView }) {
   return (
-    <section className="min-h-screen px-5 pt-28 md:px-8">
-      <div className="mx-auto grid min-h-[calc(100vh-7rem)] max-w-7xl grid-rows-[auto_1fr_auto]">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease: "easeOut" }}
-          className="max-w-3xl pt-10"
-        >
-          <p className="mb-7 text-[11px] uppercase tracking-[0.32em] text-stone-500">
-            Sound. Space. Structure.
-          </p>
-          <h1 className="font-serif text-5xl leading-[0.95] tracking-[-0.045em] text-stone-950 md:text-8xl lg:text-9xl">
-            A structure for sound, space, and long-term cultural work.
-          </h1>
-        </motion.div>
+    <main className="page holdings-page">
+      <TopLink current="holdings" setView={setView} />
 
-        <div className="my-16 grid border-y border-stone-950/15 md:grid-cols-2">
-          <button
-            onClick={() => setActive("studio")}
-            className="group flex min-h-[340px] flex-col justify-between border-b border-stone-950/15 p-6 text-left transition hover:bg-stone-950 hover:text-[#f4f1ea] md:border-b-0 md:border-r md:p-10"
-          >
-            <div>
-              <div className="mb-8 flex items-center justify-between text-[11px] uppercase tracking-[0.3em] text-stone-500 transition group-hover:text-[#f4f1ea]/60">
-                <span>Studio</span>
-                <ArrowUpRight size={16} />
-              </div>
-              <h2 className="mb-5 font-serif text-4xl tracking-[-0.035em] md:text-6xl">The public voice.</h2>
-              <p className="max-w-md text-lg leading-relaxed text-stone-700 transition group-hover:text-[#f4f1ea]/80">
-                The authorial practice: capture, object, space, perception.
-              </p>
-            </div>
-            <p className="mt-10 text-[11px] uppercase tracking-[0.26em] text-stone-500 transition group-hover:text-[#f4f1ea]/60">
-              kuon.studio
-            </p>
-          </button>
-
-          <button
-            onClick={() => setActive("holdings")}
-            className="group flex min-h-[340px] flex-col justify-between p-6 text-left transition hover:bg-stone-950 hover:text-[#f4f1ea] md:p-10"
-          >
-            <div>
-              <div className="mb-8 flex items-center justify-between text-[11px] uppercase tracking-[0.3em] text-stone-500 transition group-hover:text-[#f4f1ea]/60">
-                <span>Holdings</span>
-                <ArrowUpRight size={16} />
-              </div>
-              <h2 className="mb-5 font-serif text-4xl tracking-[-0.035em] md:text-6xl">The private spine.</h2>
-              <p className="max-w-md text-lg leading-relaxed text-stone-700 transition group-hover:text-[#f4f1ea]/80">
-                The structural layer: ownership, assets, companies, continuity.
-              </p>
-            </div>
-            <p className="mt-10 text-[11px] uppercase tracking-[0.26em] text-stone-500 transition group-hover:text-[#f4f1ea]/60">
-              kuon.holdings
-            </p>
-          </button>
+      <section className="holdings-block">
+        <div className="rule" />
+        <div className="eyebrow">private structure</div>
+        <h1>KUON HOLDINGS</h1>
+        <div className="contact">
+          <a href="mailto:admin@kuon.holdings">admin@kuon.holdings</a>
+          <div>BVI | Singapore | United Kingdom</div>
         </div>
+        <p className="paragraph">{holdingsText}</p>
+      </section>
 
-        <footer className="pb-8 text-[11px] uppercase tracking-[0.24em] text-stone-500">
-          Kuon / First edition / editorial prototype
-        </footer>
-      </div>
-    </section>
-  );
-}
-
-function EditorialPage({ data, variant }) {
-  const isHoldings = variant === "holdings";
-
-  return (
-    <section className="min-h-screen px-5 pt-32 md:px-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="grid gap-14 md:grid-cols-[0.75fr_1.25fr]">
-          <aside className="md:sticky md:top-32 md:h-[calc(100vh-9rem)]">
-            <p className="mb-5 text-[11px] uppercase tracking-[0.32em] text-stone-500">{data.kicker}</p>
-            <h1 className="font-serif text-6xl leading-none tracking-[-0.05em] text-stone-950 md:text-8xl">
-              {data.title}
-            </h1>
-            <div className="mt-10 grid grid-cols-2 gap-px overflow-hidden border border-stone-950/15 bg-stone-950/15">
-              {data.notes.map((note) => (
-                <div key={note} className="bg-[#f4f1ea] p-4 text-[11px] uppercase tracking-[0.22em] text-stone-600">
-                  {note}
-                </div>
-              ))}
-            </div>
-          </aside>
-
-          <main className="pb-24">
-            <motion.p
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.75, ease: "easeOut" }}
-              className="max-w-4xl font-serif text-4xl leading-[1.06] tracking-[-0.035em] text-stone-950 md:text-6xl"
-            >
-              {data.statement}
-            </motion.p>
-
-            <div className="mt-14 grid gap-10 border-t border-stone-950/15 pt-10 md:grid-cols-[0.35fr_0.65fr]">
-              <p className="text-[11px] uppercase tracking-[0.28em] text-stone-500">
-                {isHoldings ? "Structure" : "Practice"}
-              </p>
-              <div className="space-y-8 text-xl leading-relaxed text-stone-700 md:text-2xl">
-                {data.body.map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-20 border-t border-stone-950/15 pt-10">
-              <div className="grid gap-10 md:grid-cols-[0.35fr_0.65fr]">
-                <p className="text-[11px] uppercase tracking-[0.28em] text-stone-500">
-                  {isHoldings ? "Distinction" : "Position"}
-                </p>
-                <div className="space-y-6 text-lg leading-relaxed text-stone-700">
-                  {isHoldings ? (
-                    <>
-                      <p>
-                        Some work needs a studio. Some work needs a structure. Kuon Holdings exists for the second condition.
-                      </p>
-                      <p>
-                        The public expression of Kuon belongs primarily to Kuon Studio. The structural continuity behind selected assets belongs to Kuon Holdings.
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <p>
-                        Sound is usually described as invisible. Kuon Studio begins from a different position: sound always takes form.
-                      </p>
-                      <p>
-                        It takes form in the body of an instrument, in the pressure of a room, in the surface of a loudspeaker, and in the ritual of sitting down to hear.
-                      </p>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          </main>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Ventures() {
-  return (
-    <section className="min-h-screen px-5 pt-32 md:px-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-16 max-w-4xl">
-          <p className="mb-6 text-[11px] uppercase tracking-[0.32em] text-stone-500">Ventures / Works</p>
-          <h1 className="font-serif text-5xl leading-[1] tracking-[-0.045em] text-stone-950 md:text-8xl">
-            A small number of long-term projects.
-          </h1>
-          <p className="mt-8 max-w-2xl text-xl leading-relaxed text-stone-700">
-            Some are products. Some are places. Some are companies. Some are recordings. All are connected by the same question: how should sound exist in the world?
-          </p>
-        </div>
-
-        <div className="grid border-t border-stone-950/15">
-          {ventures.map((venture, index) => (
-            <motion.article
-              key={venture.name}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.08 }}
-              className="grid gap-4 border-b border-stone-950/15 py-8 md:grid-cols-[0.35fr_0.25fr_0.4fr] md:gap-8"
-            >
-              <h2 className="font-serif text-3xl tracking-[-0.035em] text-stone-950 md:text-5xl">{venture.name}</h2>
-              <p className="text-[11px] uppercase tracking-[0.24em] text-stone-500">{venture.type}</p>
-              <p className="max-w-xl text-lg leading-relaxed text-stone-700">{venture.text}</p>
-            </motion.article>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Contact() {
-  return (
-    <section className="flex min-h-screen items-center px-5 pt-24 md:px-8">
-      <div className="mx-auto w-full max-w-7xl">
-        <div className="grid gap-12 md:grid-cols-[0.55fr_0.45fr] md:items-end">
-          <div>
-            <p className="mb-6 text-[11px] uppercase tracking-[0.32em] text-stone-500">Contact</p>
-            <h1 className="font-serif text-6xl leading-none tracking-[-0.05em] text-stone-950 md:text-9xl">
-              For work, structure, and conversation.
-            </h1>
-          </div>
-          <div className="border-t border-stone-950/15 pt-8 text-xl leading-relaxed text-stone-700 md:text-2xl">
-            <p>Kuon Studio is the public-facing practice.</p>
-            <p>Kuon Holdings is the private structural layer.</p>
-            <a
-              href="mailto:guy@kuon.studio"
-              className="mt-10 inline-flex items-center gap-3 border-b border-stone-950 pb-1 text-base uppercase tracking-[0.22em] text-stone-950"
-            >
-              guy@kuon.studio <ArrowUpRight size={16} />
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
+      <div className="year">2027</div>
+    </main>
   );
 }
 
 export default function KuonFirstEdition() {
-  const [active, setActive] = useState("gateway");
-
-  const page = useMemo(() => {
-    switch (active) {
-      case "studio":
-        return <EditorialPage data={studioCopy} variant="studio" />;
-      case "holdings":
-        return <EditorialPage data={holdingsCopy} variant="holdings" />;
-      case "ventures":
-        return <Ventures />;
-      case "contact":
-        return <Contact />;
-      default:
-        return <Gateway setActive={setActive} />;
-    }
-  }, [active]);
+  const [view, setView] = useState("gate");
 
   return (
-    <div className="min-h-screen bg-[#f4f1ea] text-stone-950 antialiased">
-      <Grain />
-      <Nav active={active} setActive={setActive} />
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={active}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.35, ease: "easeOut" }}
-        >
-          {page}
-        </motion.div>
-      </AnimatePresence>
-      <div className="fixed bottom-5 right-5 hidden items-center gap-3 text-[10px] uppercase tracking-[0.22em] text-stone-400 md:flex">
-        <Minus size={18} /> First edition
-      </div>
+    <div className="site-shell">
+      {view === "gate" && <CentreGate setView={setView} />}
+      {view === "studio" && <Studio setView={setView} />}
+      {view === "holdings" && <Holdings setView={setView} />}
+
+      <style>{`
+        :root {
+          --paper: #f1f0ec;
+          --ink: #1e1e1d;
+          --muted: #7d7b76;
+          --line: #6f6d68;
+        }
+
+        * {
+          box-sizing: border-box;
+        }
+
+        html,
+        body,
+        #root {
+          min-height: 100%;
+          margin: 0;
+        }
+
+        body {
+          background: var(--paper);
+        }
+
+        button,
+        a {
+          color: inherit;
+          font: inherit;
+        }
+
+        button {
+          background: transparent;
+          border: 0;
+          padding: 0;
+          cursor: pointer;
+        }
+
+        .site-shell {
+          min-height: 100vh;
+          background: var(--paper);
+          color: var(--ink);
+          font-family: Helvetica, Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          text-rendering: geometricPrecision;
+        }
+
+        .page,
+        .gate {
+          position: relative;
+          min-height: 100vh;
+          overflow: hidden;
+        }
+
+        .top-link {
+          position: fixed;
+          top: 38px;
+          right: 48px;
+          z-index: 10;
+          color: var(--muted);
+          font-size: 16px;
+          letter-spacing: -0.01em;
+          transition: color 160ms ease;
+        }
+
+        .top-link:hover {
+          color: var(--ink);
+        }
+
+        .year {
+          position: fixed;
+          right: 34px;
+          bottom: 32px;
+          color: var(--muted);
+          font-size: 14px;
+          writing-mode: vertical-rl;
+          text-orientation: mixed;
+          letter-spacing: 0.02em;
+        }
+
+        .gate {
+          display: grid;
+          place-items: center;
+        }
+
+        .gate-inner {
+          width: min(640px, calc(100vw - 64px));
+          text-align: center;
+          transform: translateY(-3vh);
+        }
+
+        .gate h1 {
+          margin: 0;
+          font-size: clamp(48px, 8vw, 112px);
+          line-height: 0.9;
+          font-weight: 800;
+          letter-spacing: -0.07em;
+        }
+
+        .gate-rule {
+          height: 1px;
+          width: 100%;
+          margin: 34px 0 22px;
+          background: var(--line);
+        }
+
+        .gate-links {
+          display: grid;
+          grid-template-columns: 1fr 1px 1fr;
+          gap: 28px;
+          align-items: center;
+          color: var(--muted);
+          font-size: 16px;
+        }
+
+        .gate-links span {
+          display: block;
+          height: 16px;
+          background: var(--line);
+          opacity: 0.45;
+        }
+
+        .gate-links button {
+          transition: color 160ms ease;
+        }
+
+        .gate-links button:hover {
+          color: var(--ink);
+        }
+
+        .studio-block {
+          position: absolute;
+          width: 60vw;
+          max-width: 1130px;
+          min-width: 760px;
+          right: 10.5vw;
+          top: 42.5vh;
+        }
+
+        .holdings-block {
+          position: absolute;
+          width: 58vw;
+          max-width: 1040px;
+          min-width: 720px;
+          left: 10.5vw;
+          top: 42.5vh;
+        }
+
+        .rule {
+          height: 1px;
+          width: 100%;
+          background: var(--line);
+          margin-bottom: 18px;
+        }
+
+        .eyebrow {
+          color: var(--muted);
+          font-size: 14px;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+          margin-bottom: 28px;
+        }
+
+        .studio-page .eyebrow {
+          text-align: right;
+          padding-right: 2px;
+        }
+
+        .identity-row {
+          display: flex;
+          align-items: baseline;
+          justify-content: flex-end;
+          gap: 24px;
+        }
+
+        h1 {
+          margin: 0;
+          font-size: clamp(36px, 3.1vw, 62px);
+          line-height: 0.92;
+          font-weight: 800;
+          letter-spacing: -0.065em;
+        }
+
+        .kanji {
+          font-family: serif;
+          font-size: clamp(30px, 2.6vw, 52px);
+          line-height: 1;
+          font-weight: 700;
+          letter-spacing: -0.1em;
+        }
+
+        .contact {
+          margin-top: 28px;
+          color: #353532;
+          font-size: 18px;
+          line-height: 1.35;
+        }
+
+        .contact a {
+          text-decoration: none;
+        }
+
+        .contact a:hover {
+          text-decoration: underline;
+          text-underline-offset: 3px;
+        }
+
+        .studio-page .contact {
+          text-align: right;
+        }
+
+        .paragraph {
+          width: min(520px, 100%);
+          margin: 48px 0 0;
+          color: #3f3e3a;
+          font-size: 18px;
+          line-height: 1.48;
+          letter-spacing: -0.012em;
+        }
+
+        .studio-page .paragraph {
+          margin-left: auto;
+          text-align: right;
+        }
+
+        .holdings-page h1,
+        .holdings-page .contact,
+        .holdings-page .paragraph {
+          text-align: left;
+        }
+
+        @media (max-width: 900px) {
+          .studio-block,
+          .holdings-block {
+            left: 28px;
+            right: 28px;
+            top: 38vh;
+            width: auto;
+            min-width: 0;
+          }
+
+          .studio-page .eyebrow,
+          .studio-page .contact,
+          .studio-page .paragraph {
+            text-align: left;
+            margin-left: 0;
+          }
+
+          .identity-row {
+            justify-content: flex-start;
+            gap: 14px;
+            flex-wrap: wrap;
+          }
+
+          .top-link {
+            top: 28px;
+            right: 28px;
+            font-size: 15px;
+          }
+
+          .year {
+            right: 20px;
+            bottom: 22px;
+          }
+        }
+
+        @media (max-width: 520px) {
+          .gate-inner {
+            width: calc(100vw - 48px);
+          }
+
+          .gate-links {
+            gap: 18px;
+          }
+
+          .studio-block,
+          .holdings-block {
+            top: 32vh;
+          }
+
+          .paragraph {
+            margin-top: 34px;
+            font-size: 16px;
+          }
+
+          .contact {
+            font-size: 16px;
+          }
+        }
+      `}</style>
     </div>
   );
 }
