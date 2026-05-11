@@ -10,11 +10,11 @@
       --ink: #1e1e1d;
       --muted: #7d7b76;
       --line: #6f6d68;
+      --duration: 720ms;
+      --ease: cubic-bezier(.22, .61, .36, 1);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     html,
     body {
@@ -27,8 +27,8 @@
       text-rendering: geometricPrecision;
     }
 
-    a,
-    button {
+    button,
+    a {
       color: inherit;
       font: inherit;
     }
@@ -40,31 +40,53 @@
       cursor: pointer;
     }
 
-    .screen {
+    .site {
       position: relative;
-      display: none;
       min-height: 100vh;
       overflow: hidden;
+      background: var(--paper);
     }
 
-    .screen.active {
-      display: block;
+    .home-link {
+      position: fixed;
+      top: 38px;
+      left: 48px;
+      z-index: 30;
+      color: var(--muted);
+      font-size: 16px;
+      letter-spacing: -0.01em;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 260ms ease, color 160ms ease;
     }
+
+    body:not(.view-gate) .home-link {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .home-link:hover { color: var(--ink); }
 
     .top-link {
       position: fixed;
       top: 38px;
       right: 48px;
-      z-index: 10;
+      z-index: 30;
       color: var(--muted);
       font-size: 16px;
       letter-spacing: -0.01em;
-      text-decoration: none;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 260ms ease, color 160ms ease;
     }
 
-    .top-link:hover {
-      color: var(--ink);
+    body.view-studio .top-link.holdings-link,
+    body.view-holdings .top-link.studio-link {
+      opacity: 1;
+      pointer-events: auto;
     }
+
+    .top-link:hover { color: var(--ink); }
 
     .year {
       position: fixed;
@@ -75,11 +97,74 @@
       writing-mode: vertical-rl;
       text-orientation: mixed;
       letter-spacing: 0.02em;
+      z-index: 20;
+    }
+
+    /* The line is the constant object. It moves between centre, right and left. */
+    .moving-line {
+      position: absolute;
+      top: 42.5vh;
+      height: 1px;
+      width: 60vw;
+      max-width: 1130px;
+      min-width: 760px;
+      background: var(--line);
+      z-index: 10;
+      transition:
+        left var(--duration) var(--ease),
+        right var(--duration) var(--ease),
+        width var(--duration) var(--ease),
+        max-width var(--duration) var(--ease),
+        min-width var(--duration) var(--ease),
+        transform var(--duration) var(--ease);
+    }
+
+    body.view-gate .moving-line {
+      left: 50%;
+      right: auto;
+      width: min(640px, calc(100vw - 64px));
+      min-width: 0;
+      max-width: none;
+      transform: translateX(-50%);
+    }
+
+    body.view-studio .moving-line {
+      left: auto;
+      right: 10.5vw;
+      width: 60vw;
+      min-width: 760px;
+      max-width: 1130px;
+      transform: translateX(0);
+    }
+
+    body.view-holdings .moving-line {
+      left: 10.5vw;
+      right: auto;
+      width: 58vw;
+      min-width: 720px;
+      max-width: 1040px;
+      transform: translateX(0);
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      min-height: 100vh;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 420ms ease;
+    }
+
+    body.view-gate #gate,
+    body.view-studio #studio,
+    body.view-holdings #holdings {
+      opacity: 1;
+      pointer-events: auto;
+      transition-delay: 260ms;
     }
 
     /* Gateway */
-
-    #gate.active {
+    #gate {
       display: grid;
       place-items: center;
     }
@@ -87,22 +172,15 @@
     .gate-inner {
       width: min(640px, calc(100vw - 64px));
       text-align: center;
-      transform: translateY(-3vh);
+      transform: translateY(calc(-3vh - 28px));
     }
 
     .gate-title {
-      margin: 0;
+      margin: 0 0 34px;
       font-size: clamp(52px, 8vw, 118px);
       line-height: 0.9;
       font-weight: 800;
       letter-spacing: -0.07em;
-    }
-
-    .gate-rule {
-      height: 1px;
-      width: 100%;
-      margin: 34px 0 22px;
-      background: var(--line);
     }
 
     .gate-links {
@@ -110,6 +188,7 @@
       grid-template-columns: 1fr 1px 1fr;
       gap: 28px;
       align-items: center;
+      margin-top: 22px;
       color: var(--muted);
       font-size: 16px;
     }
@@ -121,15 +200,12 @@
       opacity: 0.45;
     }
 
-    .gate-links button:hover {
-      color: var(--ink);
-    }
+    .gate-links button:hover { color: var(--ink); }
 
-    /* Shared editorial cards */
-
+    /* Editorial pages */
     .block {
       position: absolute;
-      top: 42.5vh;
+      top: calc(42.5vh + 19px);
     }
 
     .studio-block {
@@ -144,13 +220,6 @@
       max-width: 1040px;
       min-width: 720px;
       left: 10.5vw;
-    }
-
-    .rule {
-      height: 1px;
-      width: 100%;
-      background: var(--line);
-      margin-bottom: 18px;
     }
 
     .eyebrow {
@@ -196,19 +265,14 @@
       line-height: 1.35;
     }
 
-    .contact a {
-      text-decoration: none;
-    }
-
+    .contact a { text-decoration: none; }
     .contact a:hover {
       text-decoration: underline;
       text-underline-offset: 3px;
     }
 
     .studio-block .contact,
-    .studio-block .paragraph {
-      text-align: right;
-    }
+    .studio-block .paragraph { text-align: right; }
 
     .paragraph {
       width: min(560px, 100%);
@@ -219,19 +283,36 @@
       letter-spacing: -0.012em;
     }
 
-    .studio-block .paragraph {
-      margin-left: auto;
-    }
+    .studio-block .paragraph { margin-left: auto; }
 
     @media (max-width: 900px) {
+      .moving-line,
+      body.view-studio .moving-line,
+      body.view-holdings .moving-line {
+        left: 28px;
+        right: auto;
+        top: 38vh;
+        width: calc(100vw - 56px);
+        max-width: none;
+        min-width: 0;
+        transform: translateX(0);
+      }
+
+      body.view-gate .moving-line {
+        left: 50%;
+        width: calc(100vw - 64px);
+        transform: translateX(-50%);
+      }
+
       .block,
       .studio-block,
       .holdings-block {
         left: 28px;
         right: 28px;
-        top: 38vh;
+        top: calc(38vh + 19px);
         width: auto;
         min-width: 0;
+        max-width: none;
       }
 
       .studio-block .eyebrow,
@@ -247,112 +328,98 @@
         flex-wrap: wrap;
       }
 
-      .top-link {
-        top: 28px;
-        right: 28px;
-        font-size: 15px;
-      }
-
-      .year {
-        right: 20px;
-        bottom: 22px;
-      }
+      .top-link { top: 28px; right: 28px; font-size: 15px; }
+      .home-link { top: 28px; left: 28px; font-size: 15px; }
+      .year { right: 20px; bottom: 22px; }
     }
 
     @media (max-width: 520px) {
-      .gate-inner {
-        width: calc(100vw - 48px);
-      }
+      .gate-inner { width: calc(100vw - 48px); }
+      .gate-links { gap: 18px; }
 
-      .gate-links {
-        gap: 18px;
+      .moving-line,
+      body.view-studio .moving-line,
+      body.view-holdings .moving-line {
+        top: 32vh;
       }
 
       .block,
       .studio-block,
       .holdings-block {
-        top: 32vh;
+        top: calc(32vh + 19px);
       }
 
-      .paragraph {
-        margin-top: 34px;
-        font-size: 16px;
-      }
-
-      .contact {
-        font-size: 16px;
-      }
+      .paragraph { margin-top: 34px; font-size: 16px; }
+      .contact { font-size: 16px; }
     }
   </style>
 </head>
-<body>
-  <main id="gate" class="screen active">
-    <div class="gate-inner">
-      <h1 class="gate-title">KUON</h1>
-      <div class="gate-rule"></div>
-      <div class="gate-links">
-        <button type="button" data-view="studio">Studio</button>
-        <span></span>
-        <button type="button" data-view="holdings">Holdings</button>
+<body class="view-gate">
+  <div class="site">
+    <button class="home-link" type="button" data-view="gate">← Kuon</button>
+    <button class="top-link holdings-link" type="button" data-view="holdings">Holdings →</button>
+    <button class="top-link studio-link" type="button" data-view="studio">Studio →</button>
+
+    <div class="moving-line" aria-hidden="true"></div>
+
+    <main id="gate" class="screen">
+      <div class="gate-inner">
+        <h1 class="gate-title">KUON</h1>
+        <div class="gate-links">
+          <button type="button" data-view="studio">Studio</button>
+          <span></span>
+          <button type="button" data-view="holdings">Holdings</button>
+        </div>
       </div>
-    </div>
-    <div class="year">2027</div>
-  </main>
+    </main>
 
-  <main id="studio" class="screen">
-    <button class="top-link" type="button" data-view="holdings">Holdings →</button>
+    <main id="studio" class="screen">
+      <section class="block studio-block">
+        <div class="eyebrow">sound architecture</div>
+        <div class="identity-row">
+          <h1 class="identity-title">KUON STUDIO</h1>
+          <div class="kanji">久音</div>
+        </div>
+        <div class="contact">
+          <a href="mailto:hello@kuon.studio">hello@kuon.studio</a><br />
+          London | Taiwan
+        </div>
+        <p class="paragraph">
+          Kuon Studio is a sound architecture practice concerned with how sound becomes real in the world. It works from capture to perception, shaping sound through recording, object, and space.
+        </p>
+      </section>
+    </main>
 
-    <section class="block studio-block">
-      <div class="rule"></div>
-      <div class="eyebrow">sound architecture</div>
-      <div class="identity-row">
-        <h1 class="identity-title">KUON STUDIO</h1>
-        <div class="kanji">久音</div>
-      </div>
-      <div class="contact">
-        <a href="mailto:hello@kuon.studio">hello@kuon.studio</a><br />
-        London | Taiwan
-      </div>
-      <p class="paragraph">
-        Kuon Studio is a sound architecture practice concerned with how sound becomes real in the world. It works from capture to perception, shaping sound through recording, object, and space.
-      </p>
-    </section>
-
-    <div class="year">2027</div>
-  </main>
-
-  <main id="holdings" class="screen">
-    <button class="top-link" type="button" data-view="studio">Studio →</button>
-
-    <section class="block holdings-block">
-      <div class="rule"></div>
-      <div class="eyebrow">private structure</div>
-      <h1 class="identity-title">KUON HOLDINGS</h1>
-      <div class="contact">
-        <a href="mailto:admin@kuon.holdings">admin@kuon.holdings</a><br />
-        BVI | Singapore | United Kingdom
-      </div>
-      <p class="paragraph">
-        Kuon Holdings is a private holding structure for long-term interests in sound, design, property, and cultural infrastructure. It exists to preserve ownership, support selected ventures, and connect assets across the Kuon ecosystem.
-      </p>
-    </section>
+    <main id="holdings" class="screen">
+      <section class="block holdings-block">
+        <div class="eyebrow">private structure</div>
+        <h1 class="identity-title">KUON HOLDINGS</h1>
+        <div class="contact">
+          <a href="mailto:admin@kuon.holdings">admin@kuon.holdings</a><br />
+          BVI | Singapore | United Kingdom
+        </div>
+        <p class="paragraph">
+          Kuon Holdings is a private holding structure for long-term interests in sound, design, property, and cultural infrastructure. It exists to preserve ownership, support selected ventures, and connect assets across the Kuon ecosystem.
+        </p>
+      </section>
+    </main>
 
     <div class="year">2027</div>
-  </main>
+  </div>
 
   <script>
-    const screens = document.querySelectorAll('.screen');
     const buttons = document.querySelectorAll('[data-view]');
+    const views = ['gate', 'studio', 'holdings'];
 
-    function showScreen(id) {
-      screens.forEach((screen) => {
-        screen.classList.toggle('active', screen.id === id);
+    function showView(view) {
+      views.forEach((item) => {
+        document.body.classList.toggle('view-' + item, item === view);
       });
     }
 
     buttons.forEach((button) => {
       button.addEventListener('click', () => {
-        showScreen(button.dataset.view);
+        showView(button.dataset.view);
       });
     });
   </script>
